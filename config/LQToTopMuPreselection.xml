@@ -29,7 +29,7 @@
     <Library Name="libSUHH2LQToTopMu"/>
     <Package Name="SUHH2LQToTopMu.par" />
 
-   <Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Preselection/" PostFix="" TargetLumi="19700" >
+   <Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Preselection2/" PostFix="" TargetLumi="19700" >
    <!-- <Cycle Name="uhh2::AnalysisModuleRunner"  RunMode="PROOF" ProofServer="lite://"  ProofWorkDir="/nfs/dust/cms/user/ottjoc/proof-wd/" ProofNodes="2" OutputDirectory="./" PostFix="" TargetLumi="1" >  -->
 
 
@@ -42,25 +42,25 @@
    <InputData Lumi="145241.9" NEventsMax="-1" Type="MC" Version="LQtoTMuM500" Cacheable="False">
      &LQtoTMuM500;
      <InputTree Name="AnalysisTree" />
-     <OutputTree Name="AnalysisTree" />
-   </InputData>
+     <OutputTree Name="AnalysisTree" /> 
+   </InputData> 
    
-   <InputData Lumi="1144336.4" NEventsMax="-1" Type="MC" Version="LQtoTMuM700" Cacheable="False">
+   <InputData Lumi="1127777.8" NEventsMax="-1" Type="MC" Version="LQtoTMuM700" Cacheable="False">
        &LQtoTMuM700;
        <InputTree Name="AnalysisTree" />
        <OutputTree Name="AnalysisTree" />
-   </InputData>
-   
-   <InputData Lumi="1144336.4" NEventsMax="-1" Type="MC" Version="LQtoTMuM900" Cacheable="False">
-     &LQtoTMuM900;
-     <InputTree Name="AnalysisTree" />
-     <OutputTree Name="AnalysisTree" />
    </InputData> 
+   
+  <InputData Lumi="6097561.0" NEventsMax="-1" Type="MC" Version="LQtoTMuM900" Cacheable="False">
+    &LQtoTMuM900;
+    <InputTree Name="AnalysisTree" />
+    <OutputTree Name="AnalysisTree" />
+  </InputData> 
   
-   <InputData Lumi="25773195.9" NEventsMax="-1" Type="MC" Version="LQtoTMuM1100" Cacheable="False">
+  <InputData Lumi="25773195.9" NEventsMax="-1" Type="MC" Version="LQtoTMuM1100" Cacheable="False">
     &LQtoTMuM1100;
     <InputTree Name="AnalysisTree" />
-     <OutputTree Name="AnalysisTree" />
+    <OutputTree Name="AnalysisTree" />
   </InputData>
   
   <InputData Lumi="94221105.5" NEventsMax="-1" Type="MC" Version="LQtoTMuM1300" Cacheable="False">
@@ -73,7 +73,10 @@
     &LQtoTMuM1500;
      <InputTree Name="AnalysisTree" />
      <OutputTree Name="AnalysisTree" />
-  </InputData>
+  </InputData> 
+
+
+
   
   <InputData Lumi="31572" NEventsMax="-1" Type="MC" Version="TTbar" Cacheable="False">
     &TTbar;
@@ -163,7 +166,7 @@
      &SingleTop_Tbar_tWch;
      <InputTree Name="AnalysisTree" />
      <OutputTree Name="AnalysisTree" />
-   </InputData> 
+   </InputData>
 
 
                

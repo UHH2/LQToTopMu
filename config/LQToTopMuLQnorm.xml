@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE JobConfiguration PUBLIC "" "JobConfig.dtd"[
+]>
+
+<!-- OutputLevel controls which messages are printed; set to VERBOSE or DEBUG for more verbosity, to WARNING or ERROR for less -->
+<JobConfiguration JobName="ExampleCycleJob" OutputLevel="INFO">
+  <Library Name="libSUHH2LQToTopMu"/>
+  <Package Name="SUHH2LQToTopMu.par" />
+
+  <Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Analysis/1Ele+2bJets+InvMassVeto/1Ele+2bJets+InvMassVeto_" PostFix="_norm" TargetLumi="19700" >
+    
+    <!-- normiert auf 1 pb -->   
+    <InputData Lumi="71944" NEventsMax="-1" Type="MC" Version="LQtoTMuM300" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Preselection2/uhh2.AnalysisModuleRunner.MC.LQtoTMuM300.root" Lumi="0.0"/>
+      <InputTree Name="AnalysisTree" />
+    </InputData>  
+    
+    <InputData Lumi="72040" NEventsMax="-1" Type="MC" Version="LQtoTMuM500" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Preselection2/uhh2.AnalysisModuleRunner.MC.LQtoTMuM500.root" Lumi="0.0"/>
+      <InputTree Name="AnalysisTree" />
+    </InputData>
+ 
+    <InputData Lumi="73080" NEventsMax="-1" Type="MC" Version="LQtoTMuM700" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Preselection2/uhh2.AnalysisModuleRunner.MC.LQtoTMuM700.root" Lumi="0.0"/>
+      <InputTree Name="AnalysisTree" />
+    </InputData>
+    
+    <InputData Lumi="75000" NEventsMax="-1" Type="MC" Version="LQtoTMuM900" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Preselection2/uhh2.AnalysisModuleRunner.MC.LQtoTMuM900.root" Lumi="0.0"/>
+      <InputTree Name="AnalysisTree" />
+    </InputData> 
+    
+    <InputData Lumi="75000" NEventsMax="-1" Type="MC" Version="LQtoTMuM1100" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Preselection2/uhh2.AnalysisModuleRunner.MC.LQtoTMuM1100.root" Lumi="0.0"/>
+      <InputTree Name="AnalysisTree" />
+    </InputData>
+    
+    <InputData Lumi="75000" NEventsMax="-1" Type="MC" Version="LQtoTMuM1300" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Preselection2/uhh2.AnalysisModuleRunner.MC.LQtoTMuM1300.root" Lumi="0.0"/>
+      <InputTree Name="AnalysisTree" />
+    </InputData>
+    
+    <InputData Lumi="70445" NEventsMax="-1" Type="MC" Version="LQtoTMuM1500" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Preselection2/uhh2.AnalysisModuleRunner.MC.LQtoTMuM1500.root" Lumi="0.0"/>
+      <InputTree Name="AnalysisTree" />
+    </InputData>
+
+
+ 
+        <UserConfig>
+            <!-- define which collections to read from the input. Only specify what you need to save I/O time -->
+            <Item Name="PrimaryVertexCollection" Value="offlineSlimmedPrimaryVertices" /> 
+            <Item Name="ElectronCollection" Value="slimmedElectrons" />
+            <Item Name="MuonCollection" Value="slimmedMuons" /> 
+            <Item Name="TauCollection" Value="slimmedTaus" />
+            <Item Name="JetCollection" Value="patJetsAk4PFCHS" />
+            <Item Name="METName" Value="slimmedMETs" />
+            <Item Name="GenJetCollection" Value="slimmedGenJets" /> 
+	    <Item Name="TopJetCollection" Value="patJetsCmsTopTagCHSPacked" />
+	    <Item Name="GenParticleCollection" Value="GenParticles" />
+
+            
+            <!-- The list of available collections to read in corresponds to the pointer members in event. The 'Name's to use here in the configuration are:
+            
+                 PrimaryVertexCollection
+                 ElectronCollection
+                 MuonCollection
+                 TauCollection
+                 PhotonCollection
+                 JetCollection
+                 TopJetCollection
+                 METName
+                 
+                 GenInfoName
+                 GenJetCollection
+                 GenTopJetCollection
+                 GenParticleCollection
+                 
+                 Note that the last four are only read in for MC (InputData Type="MC"), so it is save to specify
+                 them for real data, although those branches do not exist.
+                 
+                 As 'Value', always use the branch name (if in doubt, open the input file in ROOT).
+                 
+                 By default, triggers are read. To explicitly disable reading triggers, use:
+                 <Item Name="readTrigger" Value="false" />
+            -->
+            
+            <!-- the class name of the AnalysisModule subclasses to run: -->
+            <Item Name="AnalysisModule" Value="LQToTopMuAnalysisModule" /> 
+            
+            <!-- tell AnalysisModuleRunner NOT to use the MC event weight from SFrame; rather let
+                 MCLumiWeight (called via CommonModules) calculate the MC event weight. The MC
+                 event weight assigned by MCLumiWeight is InputData.Lumi / Cycle.TargetLumi. -->
+            <Item Name="use_sframe_weight" Value="false" />
+            
+            <!-- configuration for MCPileupReweight (run as part of CommonModules): -->
+            <Item Name="pileup_directory" Value="" />
+            
+            <!-- Some test configuration; see LQToTopMuModule.cxx for how to access it: -->
+            <Item Name="TestKey" Value="TestKeyValue" />
+        </UserConfig>
+    </Cycle>
+</JobConfiguration>

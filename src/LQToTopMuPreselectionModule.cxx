@@ -14,6 +14,7 @@
 #include "UHH2/common/include/NSelections.h"
 #include "UHH2/LQToTopMu/include/LQToTopMuSelections.h"
 #include "UHH2/LQToTopMu/include/LQToTopMuHists.h"
+#include "UHH2/common/include/PrintingModules.h"
 
 using namespace std;
 using namespace uhh2;
@@ -34,6 +35,7 @@ public:
 private:
   
   std::unique_ptr<CommonModules> common;
+  //std::unique_ptr<AnalysisModule> Muon_printer, Electron_printer, Jet_printer;
   
   std::unique_ptr<JetCleaner> jetcleaner;
   std::unique_ptr<JetLeptonCleaner> jetleptoncleaner;
@@ -55,21 +57,17 @@ private:
 LQToTopMuPreselectionModule::LQToTopMuPreselectionModule(Context & ctx){
     
     cout << "Hello World from LQToTopMuPreselectionModule!" << endl;
-    
-    // If needed, access the configuration of the module here, e.g.:
-    string testvalue = ctx.get("TestKey", "<not set>");
-    cout << "TestKey in the configuration was: " << testvalue << endl;
-
-    
-
 
 
     // 1. setup other modules. CommonModules and the JetCleaner:
+    //Jet_printer.reset(new JetPrinter("Jet-Printer", 0));
+    //Electron_printer.reset(new ElectronPrinter("Electron-Printer"));
+    //Muon_printer.reset(new MuonPrinter("Muon-Printer"));
     common.reset(new CommonModules());
     common->init(ctx);
     MuIso = MuonIso(0.12);
     jetleptoncleaner.reset(new JetLeptonCleaner(JERFiles::PHYS14_L123_MC));
-    jetcleaner.reset(new JetCleaner(30.0, 2.5)); 
+    jetcleaner.reset(new JetCleaner(30.0, 2.5));
     muoncleaner.reset(new MuonCleaner(AndId<Muon>(MuonIDTight(), PtEtaCut(30.0, 2.1))));
     muoncleaner_iso.reset(new MuonCleaner(AndId<Muon>(MuIso, PtEtaCut(30.0, 2.1))));
     electroncleaner.reset(new ElectronCleaner(AndId<Electron>(ElectronID_PHYS14_25ns_medium, PtEtaCut(30.0, 2.5))));
@@ -128,7 +126,7 @@ bool LQToTopMuPreselectionModule::process(Event & event) {
   electroncleaner->process(event);
   jetleptoncleaner->process(event);
   jetcleaner->process(event);
-  
+ 
   h_cleaner->fill(event);
   h_jets_cleaner->fill(event);
   h_ele_cleaner->fill(event);
@@ -137,7 +135,6 @@ bool LQToTopMuPreselectionModule::process(Event & event) {
   // 2. test selections and fill histograms
   
   //--  Preselection  
-  //auto jets = event.jets;
   if (!njet_sel->passes(event)) return false;
   h_2jets->fill(event);
   h_jets_2jets->fill(event);

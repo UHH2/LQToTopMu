@@ -55,4 +55,32 @@ bool HtSelection::passes(const Event & event){
   return pass;
 }
 
+InvMass2MuVeto::InvMass2MuVeto(double m_min_, double m_max_):m_min(m_min_), m_max(m_max_){}
+bool InvMass2MuVeto::passes(const Event & event){
 
+  bool pass = true;
+  int Nmuons = event.muons->size();
+  double M_mumu;
+  LorentzVector muons[Nmuons];
+  for(int i=0; i<Nmuons; i++){
+    muons[i] = event.muons->at(i).v4();
+  }
+  for(int i=0; i<Nmuons; i++){
+    for(int j=0; j<Nmuons; j++){
+      if(j > i){
+	M_mumu = (muons[i] + muons[j]).M();
+	if(M_mumu > m_min && M_mumu < m_max){pass = false;}
+      }
+    }
+  }
+  return pass;
+}
+
+PtLeadingMuonSelection::PtLeadingMuonSelection(double pt_min_, double pt_max_):pt_min(pt_min_), pt_max(pt_max_){}
+bool PtLeadingMuonSelection::passes(const Event & event){
+
+  bool pass = true;
+  double pt_leadingmu = event.muons->at(0).pt();
+  pass = pt_leadingmu >= pt_min && (pt_leadingmu <= pt_max || pt_max < 0);
+  return pass;
+}

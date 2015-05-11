@@ -11,20 +11,36 @@ namespace uhh2examples {
  * The jets are assumed to be sorted in pt.
  */
 
-class DijetSelection: public uhh2::Selection {
-public:
+  class DijetSelection: public uhh2::Selection {
+  public:
     DijetSelection(float dphi_min = 2.7f, float third_frac_max = 0.2f);
     virtual bool passes(const uhh2::Event & event) override;
-private:
+  private:
     float dphi_min, third_frac_max;
-    };
-
+  };
+  
   class HtSelection: public uhh2::Selection {
   public:
     explicit HtSelection(double ht_min=0., double ht_max=-1);
     virtual bool passes(const uhh2::Event & event);
   private:
     double ht_min, ht_max;
+  };
+
+  class InvMass2MuVeto: public uhh2::Selection {
+  public:
+    explicit InvMass2MuVeto(double m_min = 81., double m_max = 101.);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double m_min, m_max;
+  };
+
+  class PtLeadingMuonSelection: public uhh2::Selection {
+  public:
+    explicit PtLeadingMuonSelection(double pt_min = 30., double m_max = -1);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double pt_min, pt_max;
   };
 
 }
