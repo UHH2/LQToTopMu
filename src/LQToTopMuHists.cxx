@@ -1,5 +1,7 @@
 #include "UHH2/LQToTopMu/include/LQToTopMuHists.h"
+#include "UHH2/LQToTopMu/include/HypothesisHistsOwn.h"
 #include "UHH2/core/include/Event.h"
+#include "UHH2/common/include/Utils.h"
 #include <math.h>
 
 #include "TH1F.h"
@@ -35,13 +37,31 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
 
   // general
   book<TH1F>("N_pv", "N_{PV}", 50, 0, 50);
-  book<TH1F>("H_T", "H_{T}", 100, 0, 3000);
-  double bins_low[9] = {0,350,500,700,900,1100,1300,1500,3000};
+  book<TH1F>("H_T", "H_{T}", 100, 0, 5000);
+  double bins_low[9] = {0,350,500,700,900,1100,1300,1500,5000};
   book<TH1F>("H_T_rebin", "H_{T}", 8, bins_low);
+
+  book<TH1F>("H_T_comb", "H_{T}", 100, 0, 5000);
+  book<TH1F>("H_T_comb_rebin", "H_{T}", 8, bins_low);
+  book<TH1F>("M_LQ_comb", "M_{LQ,mean}", 40, 0, 2000);
+  double bins_mlq_low[17] = {100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,1000,2000};
+  book<TH1F>("M_LQ_comb_rebin", "M_{LQ,mean}", 16, bins_mlq_low);
+  book<TH1F>("M_LQ_comb_1bin", "M_{LQ,mean}", 1, 0, 2000);
+
+  book<TH1F>("M_jet", "M_{Jet}", 100, 0, 2000);
+  book<TH1F>("N_subjets", "N_{Subjets} in a Topjet", 11, -0.5, 10.5);
+  book<TH1F>("min_mDisubjet", "Min(m_{ij})", 50, 0, 1000);
+  book<TH1F>("N_TopTags", "Number of CMSTopTags",16 ,-0.5, 15.5 );
 
   //book <TH1F>("M_t_had", "M_{t,had}", 50, 0, 500);
   //book <TH1F>("M_t_lep", "M_{t,lep}", 70, 0, 700);
   //book <TH1F>("M_ttbar", "M_{t#bar{t}}", 100, 0, 5000);
+
+  //For MLQ reconstruction
+  h_hyps = ctx.get_handle<std::vector<ReconstructionHypothesis>>("HighMassReconstruction");
+  m_discriminator_name ="Chi2";
+ 
+
 }
 
 
@@ -113,6 +133,7 @@ void LQToTopMuHists::fill(const Event & event){
   int Npvs = event.pvs->size();
   hist("N_pv")->Fill(Npvs, weight);
 
+  //HT
   auto met = event.met->pt();
   double ht = 0.0;
   double ht_jets = 0.0;
@@ -139,6 +160,7 @@ void LQToTopMuHists::fill(const Event & event){
   hist("H_T")->Fill(ht, weight);
   hist("H_T_rebin")->Fill(ht, weight);
 
+  // M_mumu Invariant Mass
   double M_mumu;
   LorentzVector muons[Nmuons];
   for(int i=0; i<Nmuons; i++){
@@ -152,25 +174,163 @@ void LQToTopMuHists::fill(const Event & event){
       }
     }
   }
-  
 
-  //M_LQLQbar
-  /*  
+  //HT / MLQ Mix
+
+  //Fill HT, if Nele = 0, else
+  //reconstruct MLQ and fill MLQmean
   int Nele = event.electrons->size();
-  if(Nele >= 1){
-
-
- //M_top,lep reconstruction
- 
-  //step 1: calculate pz_neutrino following B2G-12-006 AN
-    std::vector<Electron>* electrons = event.electrons;
-    LorentzVector Electron = electrons->at(0).v4();
-    LorentzVectorXYZE ElectronXYZE = toXYZ(Electron);
+  if(Nele == 0){
+    hist("H_T_comb")->Fill(ht, weight);
+    hist("H_T_comb_rebin")->Fill(ht, weight);
+  }
+  
+if(Nele >= 1){   
+    std::vector<ReconstructionHypothesis> hyps = event.get(h_hyps);
+    const ReconstructionHypothesis* hyp = get_best_hypothesis( hyps, m_discriminator_name );
     
-    double mu = ((80.385*80.385/2) + Electron.pt() * met * cos(Electron.phi() - event.met->phi()));
-    double A = - (Electron.pt() * Electron.pt() );
-    double B = mu * ElectronXYZE.pz();
-    double C = mu * mu - Electron.energy() * Electron.energy() * met * met;
+    /*double mttbar_rec = 0;
+    if( (hyp->top_v4()+hyp->antitop_v4()).isTimelike() )
+      mttbar_rec = (hyp->top_v4()+hyp->antitop_v4()).M();
+    else{
+      mttbar_rec = sqrt( -(hyp->top_v4()+hyp->antitop_v4()).mass2());
+      }*/
+    
+    /*double mtoplep=0;
+    double mtophad=0;
+    double mtopmean=0;
+    if(hyp->toplep_v4().isTimelike()) mtoplep = hyp->toplep_v4().M();
+    if(hyp->tophad_v4().isTimelike()) mtophad = hyp->tophad_v4().M();
+    mtopmean = (mtoplep + mtophad) / 2;*/
+    
+    //Get Muons and Electrons
+    std::vector<Muon>*my_muons = event.muons;
+    std::vector<Electron>*my_electrons = event.electrons;
+    
+    LorentzVector Muon1 = (my_muons->at(0).v4());
+    LorentzVector Muon2 = (my_muons->at(1).v4());
+    
+    double charge_M1 = (my_muons->at(0).charge());
+    //double charge_M2 = (my_muons->at(1).charge());
+    double charge_E1 = (my_electrons->at(0).charge());
+    
+    //Combine Top and Muon (Electron and Muon Charge have to be opposite)
+    double mLQlep_rec = 0;
+    double mLQhad_rec = 0;
+    //double mLQmax_rec = 0;
+    double mLQmed_rec = 0;
+
+    if(charge_M1 != charge_E1){
+      if( (hyp->toplep_v4()+Muon1).isTimelike() )
+	mLQlep_rec = (hyp->toplep_v4()+Muon1).M();
+      else{
+	mLQlep_rec = sqrt( -(hyp->toplep_v4()+Muon1).mass2());
+      }
+      if( (hyp->tophad_v4()+Muon2).isTimelike() )
+	mLQhad_rec = (hyp->tophad_v4()+Muon2).M();
+      else{
+	mLQhad_rec = sqrt( -(hyp->tophad_v4()+Muon2).mass2());
+      }
+    }
+    else{
+      if( (hyp->toplep_v4()+Muon2).isTimelike() )
+	mLQlep_rec = (hyp->toplep_v4()+Muon2).M();
+      else{
+	mLQlep_rec = sqrt( -(hyp->toplep_v4()+Muon2).mass2());
+      } 
+      if( (hyp->tophad_v4()+Muon1).isTimelike() )
+	mLQhad_rec = (hyp->tophad_v4()+Muon1).M();
+      else{
+	mLQhad_rec = sqrt( -(hyp->tophad_v4()+Muon1).mass2());
+      }
+    }
+    
+    /*if(mLQhad_rec>mLQlep_rec){
+      mLQmax_rec = mLQhad_rec;
+      }
+      else{
+      mLQmax_rec = mLQlep_rec;
+      }*/
+    
+    mLQmed_rec = (mLQhad_rec + mLQlep_rec)/2;
+    hist("M_LQ_comb")->Fill(mLQmed_rec, weight);
+    hist("M_LQ_comb_rebin")->Fill(mLQmed_rec, weight);
+    hist("M_LQ_comb_1bin")->Fill(mLQmed_rec, weight);
+ }
+ 
+//CMSTopTags
+
+ double mDiminLower = 50., mjetLower = 140., mjetUpper = 250.;
+ //std::vector<TopJet>* topjets = event.topjets;
+ //std::vector<TopJet> taggedtopjets;
+ int N_toptaggedjets = 0;
+ bool CMSTopTag = true;
+
+ double m_disubjet_min = 0.;
+
+ for(const auto & topjet : *event.topjets){
+
+   auto subjets = topjet.subjets();
+   
+   if(subjets.size() < 2) m_disubjet_min = 0.0;
+   
+   // only need to sort if subjets there are more than 3 subjets, as
+   // otherwise, we use all 3 anyway.
+   if(subjets.size() > 3) sort_by_pt(subjets);
+   
+   double m01 = 0;
+   auto sum01 = subjets[0].v4()+subjets[1].v4();
+   if(sum01.isTimelike())  m01 = sum01.M();
+   
+   if(subjets.size() < 3) m_disubjet_min = m01;
+   
+   double m02 = 0;
+   auto sum02 = subjets[0].v4()+subjets[2].v4();
+   if( sum02.isTimelike() ) m02 = sum02.M();
+   
+   double m12 = 0;
+   auto sum12 = subjets[1].v4()+subjets[2].v4();
+   if( sum12.isTimelike() )  m12 = sum12.M();
+
+
+   m_disubjet_min = std::min(m01,std::min(m02, m12));
+   hist("min_mDisubjet")->Fill(m_disubjet_min, weight);
+   if(m_disubjet_min < mDiminLower) CMSTopTag = false;
+
+   auto mjet = topjet.v4().M();
+   hist("M_jet")->Fill(mjet, weight);
+   if(mjet < mjetLower) CMSTopTag = false;
+   if(mjet > mjetUpper) CMSTopTag = false;
+
+   hist("N_subjets")->Fill(subjets.size(), weight);
+   if(subjets.size() < 3) CMSTopTag = false;
+
+   //if (CMSTopTag) taggedtopjets.push_back(topjet); 
+   if (CMSTopTag) N_toptaggedjets++; 
+ }
+
+
+ //int N_toptaggedjets = taggedtopjets.size();
+ hist("N_TopTags")->Fill(N_toptaggedjets, weight);
+
+ 
+//M_LQLQbar
+  /*  
+      int Nele = event.electrons->size();
+      if(Nele >= 1){
+
+
+      //M_top,lep reconstruction
+ 
+      //step 1: calculate pz_neutrino following B2G-12-006 AN
+      std::vector<Electron>* electrons = event.electrons;
+      LorentzVector Electron = electrons->at(0).v4();
+      LorentzVectorXYZE ElectronXYZE = toXYZ(Electron);
+    
+      double mu = ((80.385*80.385/2) + Electron.pt() * met * cos(Electron.phi() - event.met->phi()));
+      double A = - (Electron.pt() * Electron.pt() );
+      double B = mu * ElectronXYZE.pz();
+      double C = mu * mu - Electron.energy() * Electron.energy() * met * met;
     double discriminant = B * B - A * C;
 
     double p_z1_neutrino, p_z2_neutrino;
@@ -421,5 +581,6 @@ void LQToTopMuHists::fill(const Event & event){
   } //Nele = 1
     */
 } //Methode
+
 
 LQToTopMuHists::~LQToTopMuHists(){}

@@ -7,7 +7,9 @@
   <Library Name="libSUHH2LQToTopMu"/>
   <Package Name="SUHH2LQToTopMu.par" />
 
-  <!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Analysis/2bJets+InvMassVeto+4Jets+PtMu240/2bJets+InvMassVeto+4Jets+PtMu240_" PostFix="_norm" TargetLumi="19700" >-->
+<!-- 2bJets+InvMassVeto+4Jets+PtLeadMu90+1TopTag -->
+
+  <!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Analysis/test/test_" PostFix="_norm" TargetLumi="19700" >-->
     
     <!-- normiert auf 1 pb -->   
     <!--<InputData Lumi="71944" NEventsMax="-1" Type="MC" Version="LQtoTMuM300" Cacheable="False">
@@ -47,7 +49,8 @@
 
 
   
-  <Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Analysis/1Ele+2bJets+InvMassVeto/1Ele+2bJets+InvMassVeto_" PostFix="" TargetLumi="19700" > 
+    <!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Analysis/test/test_" PostFix="" TargetLumi="19700" > -->
+    <Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Analysis/test/test_" PostFix="" TargetLumi="19700" RunMode="PROOF" ProofServer="pod://" ProofWorkDir="/nfs/dust/cms/user/reimersa/.proof/" ProofNodes="10">
 
     <!-- Neu produziertes NTuple mit Aenderung in GenFilter -->    
     <InputData Lumi="8937.1" NEventsMax="-1" Type="MC" Version="LQtoTMuM300" Cacheable="False">

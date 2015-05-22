@@ -16,14 +16,15 @@ HypothesisHistsOwn::HypothesisHistsOwn(uhh2::Context & ctx, const std::string & 
 
 
  
-    M_LQlep_rec  = book<TH1F>("M_LQlep_rec", "M_{LQ,lep}^{rec} [GeV/c^{2}]", 60, 0, 2000 );
-    M_LQhad_rec  = book<TH1F>("M_LQhad_rec", "M_{LQ,had}^{rec} [GeV/c^{2}]", 60, 0, 2000 );
-    M_LQmax_rec  = book<TH1F>("M_LQmax_rec", "M_{LQmax}^{rec} [GeV/c^{2}]", 60, 0, 2000 );
-    M_LQmean_rec = book<TH1F>("M_LQmean_rec", "M_{LQmean}^{rec} [GeV/c^{2}]", 60, 0, 2000 );
+    M_LQlep_rec  = book<TH1F>("M_LQlep_rec", "M_{LQ,lep}^{rec} [GeV/c^{2}]", 40, 0, 2000 );
+    M_LQhad_rec  = book<TH1F>("M_LQhad_rec", "M_{LQ,had}^{rec} [GeV/c^{2}]", 40, 0, 2000 );
+    M_LQmax_rec  = book<TH1F>("M_LQmax_rec", "M_{LQmax}^{rec} [GeV/c^{2}]", 40, 0, 2000 );
+    M_LQmean_rec = book<TH1F>("M_LQmean_rec", "M_{LQmean}^{rec} [GeV/c^{2}]", 40, 0, 2000 );
     //rebinned for theta-analysis
     //double binsxLQmean[3] = {0,350,2000};
-    double binsxLQmean[8] = {0,200,250,300,350,400,600,1200};
-    M_LQmean_rec_rebin = book<TH1F>("M_LQmean_rec_rebin", "M_{LQmean}^{rec} [GeV/c^{2}]", 7, binsxLQmean );
+    //double binsxLQmean[8] = {0,200,250,300,350,400,600,1200};
+    double binsxLQmean[19] = {0,50,100, 150,200,250,300,350,400,450,500,550,600,650,700,750,800,1000,2000};
+    M_LQmean_rec_rebin = book<TH1F>("M_LQmean_rec_rebin", "M_{LQmean}^{rec} [GeV/c^{2}]", 18, binsxLQmean );
 
     M_ttbar_rec = book<TH1F>( "M_ttbar_rec", "M_{t#bar{t}}^{rec} [GeV/c^{2}]", 100, 0, 5000 ) ;
  

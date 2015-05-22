@@ -1,6 +1,10 @@
 #pragma once
 
 #include "UHH2/core/include/Hists.h"
+#include "UHH2/core/include/Event.h"
+#include "UHH2/common/include/ReconstructionHypothesisDiscriminators.h"
+#include "UHH2/common/include/ReconstructionHypothesis.h"
+#include "UHH2/common/include/TTbarGen.h"
 
 namespace uhh2examples {
 
@@ -17,6 +21,12 @@ public:
     LQToTopMuHists(uhh2::Context & ctx, const std::string & dirname);
 
     virtual void fill(const uhh2::Event & ev) override;
+
+  protected:
+    uhh2::Event::Handle<std::vector<ReconstructionHypothesis>> h_hyps;
+    std::string m_discriminator_name;
+
+
     virtual ~LQToTopMuHists();
 };
 

@@ -5,9 +5,10 @@
 <!-- OutputLevel controls which messages are printed; set to VERBOSE or DEBUG for more verbosity, to WARNING or ERROR for less -->
 <JobConfiguration JobName="ExampleCycleJob" OutputLevel="INFO">
   <Library Name="libSUHH2LQToTopMu"/>
-  <Package Name="SUHH2LQToTopMu.par" />
+  <Package Name="SUHH2LQToTopMu.par" /> 
 
-  <Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Analysis/1Ele+2bJets+InvMassVeto/1Ele+2bJets+InvMassVeto_" PostFix="_norm" TargetLumi="19700" >
+  <!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Analysis/test/test_" PostFix="_norm" TargetLumi="19700" > -->
+  <Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Analysis/test/test_" PostFix="_norm" TargetLumi="19700" RunMode="PROOF" ProofServer="pod://" ProofWorkDir="/nfs/dust/cms/user/reimersa/.proof/" ProofNodes="10">
     
     <!-- normiert auf 1 pb -->   
     <InputData Lumi="71944" NEventsMax="-1" Type="MC" Version="LQtoTMuM300" Cacheable="False">

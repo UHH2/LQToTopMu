@@ -6,8 +6,10 @@
 #include "UHH2/common/include/CommonModules.h"
 #include "UHH2/common/include/CleaningModules.h"
 #include "UHH2/common/include/JetCorrections.h"
+#include "UHH2/common/include/EventHists.h"
 #include "UHH2/common/include/JetHists.h"
 #include "UHH2/common/include/JetIds.h"
+#include "UHH2/common/include/TopJetIds.h"
 #include "UHH2/common/include/ElectronHists.h"
 #include "UHH2/common/include/ElectronIds.h"
 #include "UHH2/common/include/MuonHists.h"
@@ -15,6 +17,7 @@
 #include "UHH2/common/include/NSelections.h"
 #include "UHH2/LQToTopMu/include/LQToTopMuSelections.h"
 #include "UHH2/LQToTopMu/include/LQToTopMuHists.h"
+#include "UHH2/LQToTopMu/include/LQToTopMuRecoHists.h"
 #include "UHH2/common/include/ReconstructionHypothesisDiscriminators.h"
 #include "UHH2/LQToTopMu/include/HypothesisHistsOwn.h"
 #include "UHH2/common/include/TTbarReconstruction.h"
@@ -42,13 +45,21 @@ namespace uhh2examples {
     std::unique_ptr<ElectronCleaner> electroncleaner;
     
     // declare the Selections to use.
-    std::unique_ptr<Selection>  nele_sel, njet_sel, nbtag_loose_sel, nbtag_med_sel, nbtag_tight_sel, m_mumu_veto, ht_sel, pt_mu_sel;
+    std::unique_ptr<Selection>  nele_sel, njet_sel, nbtag_loose_sel, nbtag_med_sel, nbtag_tight_sel, m_mumu_veto, ht_sel, pt_lead_mu_sel, TopTag_sel;
     
     // store the Hists collection as member variables. 
-    std::unique_ptr<Hists> h_nocuts, h_jets_nocuts, h_ele_nocuts, h_mu_nocuts, h_hyphists, h_1ele, h_jets_1ele, h_ele_1ele, h_mu_1ele, h_4jets, h_jets_4jets, h_ele_4jets, h_mu_4jets, h_1bJetLoose, h_jets_1bJetLoose, h_mu_1bJetLoose, h_ele_1bJetLoose, h_2bJetsLoose, h_jets_2bJetsLoose, h_mu_2bJetsLoose, h_ele_2bJetsLoose, h_InvMassVeto, h_jets_InvMassVeto, h_mu_InvMassVeto, h_ele_InvMassVeto, h_ht900, h_jets_ht900, h_ele_ht900, h_mu_ht900, h_ptmu240, h_jets_ptmu240, h_ele_ptmu240, h_mu_ptmu240;
-    std::unique_ptr<Hists> h_1bJetMedium, h_jets_1bJetMedium, h_mu_1bJetMedium, h_ele_1bJetMedium, h_1bJetTight, h_jets_1bJetTight, h_mu_1bJetTight, h_ele_1bJetTight;
+    std::unique_ptr<Hists> h_nocuts, h_jets_nocuts, h_ele_nocuts, h_mu_nocuts, h_event_nocuts, h_topjets_nocuts;
+    std::unique_ptr<Hists> h_hyphists, h_1ele, h_jets_1ele, h_ele_1ele, h_mu_1ele, h_event_1ele, h_topjets_1ele;
+    std::unique_ptr<Hists> h_4jets, h_jets_4jets, h_ele_4jets, h_mu_4jets, h_event_4jets, h_topjets_4jets;
+    std::unique_ptr<Hists> h_1bJetLoose, h_jets_1bJetLoose, h_mu_1bJetLoose, h_ele_1bJetLoose, h_event_1bJetLoose, h_topjets_1bJetLoose;
+    std::unique_ptr<Hists> h_2bJetsLoose, h_jets_2bJetsLoose, h_mu_2bJetsLoose, h_ele_2bJetsLoose, h_event_2bJetsLoose, h_topjets_2bJetsLoose;
+    std::unique_ptr<Hists> h_InvMassVeto, h_jets_InvMassVeto, h_mu_InvMassVeto, h_ele_InvMassVeto, h_event_InvMassVeto, h_topjets_InvMassVeto;
+    std::unique_ptr<Hists> h_ptmu90, h_jets_ptmu90, h_ele_ptmu90, h_mu_ptmu90, h_event_ptmu90, h_topjets_ptmu90;
+    std::unique_ptr<Hists> h_1cmstoptag, h_jets_1cmstoptag, h_ele_1cmstoptag, h_mu_1cmstoptag, h_event_1cmstoptag, h_topjets_1cmstoptag;
+    std::unique_ptr<Hists> h_finalSelection, h_jets_finalSelection, h_ele_finalSelection, h_mu_finalSelection, h_event_finalSelection, h_topjets_finalSelection;
     
     MuonId MuIso;
+    TopJetId cmsTopTag;
     JetId Btag_loose, Btag_medium, Btag_tight;
     
     std::vector<std::unique_ptr<AnalysisModule>> recomodules;
@@ -71,9 +82,11 @@ namespace uhh2examples {
     common->init(ctx);
     
     MuIso = MuonIso(0.12);
+    cmsTopTag = CMSTopTag(50,140,250);
     Btag_loose = CSVBTag(CSVBTag::WP_LOOSE);
     Btag_medium = CSVBTag(CSVBTag::WP_MEDIUM);
     Btag_tight = CSVBTag(CSVBTag::WP_TIGHT); 
+
     jetcleaner.reset(new JetCleaner(30.0, 2.5)); 
     muoncleaner.reset(new MuonCleaner(AndId<Muon>(MuonIDTight(), PtEtaCut(30.0, 2.1))));
     muoncleaner_iso.reset(new MuonCleaner(AndId<Muon>(MuIso, PtEtaCut(30.0, 2.1))));
@@ -84,14 +97,14 @@ namespace uhh2examples {
     // 2. set up selections
     //Selection
     njet_sel.reset(new NJetSelection(4, -1));
+    nbtag_loose_sel.reset(new NJetSelection(2, -1, Btag_loose));  //default: (1, -1)
     nbtag_med_sel.reset(new NJetSelection(1, -1, Btag_medium));
     nbtag_tight_sel.reset(new NJetSelection(1, -1, Btag_tight));
-    nbtag_loose_sel.reset(new NJetSelection(2, -1, Btag_loose));  //default: (1, -1)
     m_mumu_veto.reset(new InvMass2MuVeto(81, 101));
     nele_sel.reset(new NElectronSelection(1, -1));
     ht_sel.reset(new HtSelection(900, -1));
-    pt_mu_sel.reset(new PtLeadingMuonSelection(240,-1));
-
+    pt_lead_mu_sel.reset(new PtLeadingMuonSelection(90,-1));
+    TopTag_sel.reset(new NTopJetSelection(1, -1, cmsTopTag));
     
     //make reconstruction hypotheses
     recomodules.emplace_back(new PrimaryLepton(ctx));
@@ -103,53 +116,65 @@ namespace uhh2examples {
     h_jets_nocuts.reset(new JetHists(ctx, "Jets_NoCuts"));
     h_ele_nocuts.reset(new ElectronHists(ctx, "Ele_NoCuts"));
     h_mu_nocuts.reset(new MuonHists(ctx, "Mu_NoCuts"));
+    h_event_nocuts.reset(new EventHists(ctx, "Event_NoCuts"));
+    h_topjets_nocuts.reset(new TopJetHists(ctx, "TopJets_NoCuts"));
 
-    /*h_4jets.reset(new LQToTopMuHists(ctx, "4Jets"));
+    h_4jets.reset(new LQToTopMuHists(ctx, "4Jets"));
     h_jets_4jets.reset(new JetHists(ctx, "Jets_4Jets"));
     h_ele_4jets.reset(new ElectronHists(ctx, "Ele_4Jets"));
-    h_mu_4jets.reset(new MuonHists(ctx, "Mu_4Jets"));*/
+    h_mu_4jets.reset(new MuonHists(ctx, "Mu_4Jets"));
+    h_event_4jets.reset(new EventHists(ctx, "Event_4Jets"));
+    h_topjets_4jets.reset(new TopJetHists(ctx, "TopJets_4Jets"));
 
     /*h_1bJetLoose.reset(new LQToTopMuHists(ctx, "1bJetLoose"));
     h_jets_1bJetLoose.reset(new JetHists(ctx, "Jets_1bJetLoose"));
     h_ele_1bJetLoose.reset(new ElectronHists(ctx, "Ele_1bJetLoose"));
-    h_mu_1bJetLoose.reset(new MuonHists(ctx, "Mu_1bJetLoose"));*/
+    h_mu_1bJetLoose.reset(new MuonHists(ctx, "Mu_1bJetLoose"));
+    h_event_1bJetLoose.reset(new EventHists(ctx, "Event_1bJetLoose"));
+    h_topjets_1bJetLoose.reset(new TopJetHists(ctx, "TopJets_1bJetLoose"));*/
 
     h_2bJetsLoose.reset(new LQToTopMuHists(ctx, "2bJetsLoose"));
     h_jets_2bJetsLoose.reset(new JetHists(ctx, "Jets_2bJetsLoose"));
     h_ele_2bJetsLoose.reset(new ElectronHists(ctx, "Ele_2bJetsLoose"));
     h_mu_2bJetsLoose.reset(new MuonHists(ctx, "Mu_2bJetsLoose"));
-    
-    /*h_1bJetMedium.reset(new LQToTopMuHists(ctx, "1bJetMedium"));
-    h_jets_1bJetMedium.reset(new JetHists(ctx, "Jets_1bJetMedium"));
-    h_ele_1bJetMedium.reset(new ElectronHists(ctx, "Ele_1bJetMedium"));
-    h_mu_1bJetMedium.reset(new MuonHists(ctx, "Mu_1bJetMedium"));*/
-    
-    /*h_1bJetTight.reset(new LQToTopMuHists(ctx, "1bJetTight"));
-    h_jets_1bJetTight.reset(new JetHists(ctx, "Jets_1bJetTight"));
-    h_ele_1bJetTight.reset(new ElectronHists(ctx, "Ele_1bJetTight"));
-    h_mu_1bJetTight.reset(new MuonHists(ctx, "Mu_1bJetTight"));*/
+    h_event_2bJetsLoose.reset(new EventHists(ctx, "Event_2bJetsLoose"));
+    h_topjets_2bJetsLoose.reset(new TopJetHists(ctx, "TopJets_2bJetsLoose"));
 
     h_InvMassVeto.reset(new LQToTopMuHists(ctx, "InvMassVeto"));
     h_jets_InvMassVeto.reset(new JetHists(ctx, "Jets_InvMassVeto"));
     h_ele_InvMassVeto.reset(new ElectronHists(ctx, "Ele_InvMassVeto"));
     h_mu_InvMassVeto.reset(new MuonHists(ctx, "Mu_InvMassVeto"));
+    h_event_InvMassVeto.reset(new EventHists(ctx, "Event_InvMassVeto"));
+    h_topjets_InvMassVeto.reset(new TopJetHists(ctx, "TopJets_InvMassVeto"));
     
-    h_1ele.reset(new LQToTopMuHists(ctx, "1Ele"));
+    /*h_1ele.reset(new LQToTopMuHists(ctx, "1Ele"));
     h_jets_1ele.reset(new JetHists(ctx, "Jets_1Ele"));
     h_ele_1ele.reset(new ElectronHists(ctx, "Ele_1Ele"));
-    h_mu_1ele.reset(new MuonHists(ctx, "Mu_1Ele"));
-    
-    h_hyphists.reset(new HypothesisHistsOwn(ctx, "Chi2_Hists", "HighMassReconstruction", "Chi2"));
+    h_mu_1ele.reset(new MuonHists(ctx, "Mu_1Ele"));  
+    h_event_1ele.reset(new EventHists(ctx, "Event_1Ele"));
+    h_topjets_1ele.reset(new TopJetHists(ctx, "TopJets_1Ele"));
+    h_hyphists.reset(new HypothesisHistsOwn(ctx, "Chi2_Hists", "HighMassReconstruction", "Chi2"));*/
 
-    /* h_ht900.reset(new LQToTopMuHists(ctx, "HT900"));
-    h_jets_ht900.reset(new JetHists(ctx, "Jets_HT900"));
-    h_ele_ht900.reset(new ElectronHists(ctx, "Ele_HT900"));
-    h_mu_ht900.reset(new MuonHists(ctx, "Mu_HT900"));*/
+    h_ptmu90.reset(new LQToTopMuHists(ctx, "PtMu90"));
+    h_jets_ptmu90.reset(new JetHists(ctx, "Jets_PtMu90"));
+    h_ele_ptmu90.reset(new ElectronHists(ctx, "Ele_PtMu90"));
+    h_mu_ptmu90.reset(new MuonHists(ctx, "Mu_PtMu90"));
+    h_topjets_ptmu90.reset(new TopJetHists(ctx, "TopJets_PtMu90"));
+    h_event_ptmu90.reset(new EventHists(ctx, "Event_PtMu90"));
 
-    /*h_ptmu240.reset(new LQToTopMuHists(ctx, "PtMu240"));
-    h_jets_ptmu240.reset(new JetHists(ctx, "Jets_PtMu240"));
-    h_ele_ptmu240.reset(new ElectronHists(ctx, "Ele_PtMu240"));
-    h_mu_ptmu240.reset(new MuonHists(ctx, "Mu_PtMu240"));*/
+    h_1cmstoptag.reset(new LQToTopMuHists(ctx, "1CMSTopTag"));
+    h_jets_1cmstoptag.reset(new JetHists(ctx, "Jets_1CMSTopTag"));
+    h_ele_1cmstoptag.reset(new ElectronHists(ctx, "Ele_1CMSTopTag"));
+    h_mu_1cmstoptag.reset(new MuonHists(ctx, "Mu_1CMSTopTag"));
+    h_topjets_1cmstoptag.reset(new TopJetHists(ctx, "TopJets_1CMSTopTag"));
+    h_event_1cmstoptag.reset(new EventHists(ctx, "Event_1CMSTopTag"));
+
+    h_finalSelection.reset(new LQToTopMuHists(ctx, "FinalSelection"));
+    h_jets_finalSelection.reset(new JetHists(ctx, "Jets_FinalSelection"));
+    h_ele_finalSelection.reset(new ElectronHists(ctx, "Ele_FinalSelection"));
+    h_mu_finalSelection.reset(new MuonHists(ctx, "Mu_FinalSelection"));
+    h_topjets_finalSelection.reset(new TopJetHists(ctx, "TopJets_FinalSelection"));
+    h_event_finalSelection.reset(new EventHists(ctx, "Event_FinalSelection"));
 
     
   }
@@ -165,41 +190,43 @@ namespace uhh2examples {
     electroncleaner->process(event);
     jetcleaner->process(event);
 
+    //um MLQ_HT_Mix zu berechnen
+    for(auto & m : recomodules){
+      m->process(event);
+      }
+    
     h_nocuts->fill(event);
     h_jets_nocuts->fill(event);
     h_ele_nocuts->fill(event);
     h_mu_nocuts->fill(event);
+    h_event_nocuts->fill(event);
+    h_topjets_nocuts->fill(event);
     
     // Selection   
     //Njets
-    /*if(!njet_sel->passes(event)) return false;
+    if(!njet_sel->passes(event)) return false;
     h_4jets->fill(event);
     h_jets_4jets->fill(event);
     h_ele_4jets->fill(event);
-    h_mu_4jets->fill(event);*/
+    h_mu_4jets->fill(event);
+    h_event_4jets->fill(event);
+    h_topjets_4jets->fill(event);
 
     //3x bTag: loose, medium, tight
     if(!nbtag_loose_sel->passes(event)) return false;
     h_jets_2bJetsLoose->fill(event);
     h_2bJetsLoose->fill(event);
     h_ele_2bJetsLoose->fill(event);
-    h_mu_2bJetsLoose->fill(event); 
+    h_mu_2bJetsLoose->fill(event);
+    h_event_2bJetsLoose->fill(event);
+    h_topjets_2bJetsLoose->fill(event);
     /*h_jets_1bJetLoose->fill(event);
     h_1bJetLoose->fill(event);
     h_ele_1bJetLoose->fill(event);
-    h_mu_1bJetLoose->fill(event);*/
+    h_mu_1bJetLoose->fill(event);
+    h_event_1bJetLoose->fill(event);
+    h_topjets_1bJetLoose->fill(event);*/
 
-    /*if(!nbtag_med_sel->passes(event)) return false;
-    h_jets_1bJetMedium->fill(event);
-    h_1bJetMedium->fill(event);
-    h_ele_1bJetMedium->fill(event);
-    h_mu_1bJetMedium->fill(event);*/
-    
-    /*if(!nbtag_tight_sel->passes(event)) return false;
-    h_jets_1bJetTight->fill(event);
-    h_1bJetTight->fill(event);
-    h_ele_1bJetTight->fill(event);
-    h_mu_1bJetTight->fill(event);*/
 
     //InvMassVeto
     if(!m_mumu_veto->passes(event)) return false;
@@ -207,33 +234,45 @@ namespace uhh2examples {
     h_InvMassVeto->fill(event);
     h_ele_InvMassVeto->fill(event);
     h_mu_InvMassVeto->fill(event);
+    h_event_InvMassVeto->fill(event);
+    h_topjets_InvMassVeto->fill(event);
     
     //Nele
-    if (!nele_sel->passes(event)) return false;
+    /*if (!nele_sel->passes(event)) return false;
     h_1ele->fill(event);
     h_jets_1ele->fill(event);
     h_ele_1ele->fill(event);
     h_mu_1ele->fill(event);
-    
-    for(auto & m : recomodules){
-      m->process(event);
-    }
     h_hyphists->fill(event);
+    h_event_1ele->fill(event);
+    h_topjets_1ele->fill(event);*/
 
-    //HT > 500 GeV
-    /*  if(!ht_sel->passes(event)) return false;
-    h_ht900->fill(event);
-    h_jets_ht900->fill(event);
-    h_ele_ht900->fill(event);
-    h_mu_ht900->fill(event);*/
+    //pt leading mu
+    if(!pt_lead_mu_sel->passes(event)) return false;
+    h_jets_ptmu90->fill(event);
+    h_ptmu90->fill(event);
+    h_ele_ptmu90->fill(event);
+    h_mu_ptmu90->fill(event);
+    h_event_ptmu90->fill(event);
+    h_topjets_ptmu90->fill(event);
 
-    //PT leading muon > 150 GeV/c
-    /*if(!pt_mu_sel->passes(event)) return false;
-    h_ptmu240->fill(event);
-    h_jets_ptmu240->fill(event);
-    h_ele_ptmu240->fill(event);
-    h_mu_ptmu240->fill(event);*/
-    
+    //CMSTopTag
+    if(!TopTag_sel->passes(event)) return false;
+    h_jets_1cmstoptag->fill(event);
+    h_1cmstoptag->fill(event);
+    h_ele_1cmstoptag->fill(event);
+    h_mu_1cmstoptag->fill(event);
+    h_event_1cmstoptag->fill(event);
+    h_topjets_1cmstoptag->fill(event);
+
+    //Final Selection
+    h_finalSelection->fill(event);
+    h_jets_finalSelection->fill(event);
+    h_ele_finalSelection->fill(event);
+    h_mu_finalSelection->fill(event);
+    h_event_finalSelection->fill(event);
+    h_topjets_finalSelection->fill(event);
+
     return true;
   }
   
