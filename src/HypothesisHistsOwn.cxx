@@ -7,14 +7,25 @@ using namespace uhh2;
 HypothesisHistsOwn::HypothesisHistsOwn(uhh2::Context & ctx, const std::string & dirname, const std::string & hyps_name, const std::string & discriminator_name ): Hists(ctx, dirname){
 
   TString name = discriminator_name;
-    if(discriminator_name=="Chi2"){
-      name = "#Chi^{2}";
-    }
-    else{
-      name += " discriminator";
-    }
+  //double min=0;
+  //double max=500;
+  
+  if(discriminator_name=="Chi2"){
+    name = "#Chi^{2}";
+  }
+  else{
+    name += " discriminator";
+  }
+
+  //if( discriminator_name=="CorrectMatch"){
+      //min=0;
+      //max=2;
+  //}
 
 
+    /*Discriminator = book<TH1F>("Discriminator",name,100,min,max);
+    Discriminator_2 = book<TH1F>("Discriminator_2",name,50,0,10);
+    Discriminator_3 = book<TH1F>("Discriminator_3",name,300,0,30); */
  
     M_LQlep_rec  = book<TH1F>("M_LQlep_rec", "M_{LQ,lep}^{rec} [GeV/c^{2}]", 40, 0, 2000 );
     M_LQhad_rec  = book<TH1F>("M_LQhad_rec", "M_{LQ,had}^{rec} [GeV/c^{2}]", 40, 0, 2000 );

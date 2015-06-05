@@ -33,8 +33,6 @@ private:
 
 LQGenModule::LQGenModule(Context & ctx){
 
-    string testvalue = ctx.get("TestKey", "<not set>");
-    cout << "TestKey in the configuration was: " << testvalue << endl;
 
     //printer.reset(new GenParticlesPrinter(ctx));
   LQgenprod.reset(new LQGenProducer(ctx, "LQLQbargen", false));

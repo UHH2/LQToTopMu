@@ -84,3 +84,30 @@ bool PtLeadingMuonSelection::passes(const Event & event){
   pass = pt_leadingmu >= pt_min && (pt_leadingmu <= pt_max || pt_max < 0);
   return pass;
 }
+
+Pt2ndMuonSelection::Pt2ndMuonSelection(double pt_min_, double pt_max_):pt_min(pt_min_), pt_max(pt_max_){}
+bool Pt2ndMuonSelection::passes(const Event & event){
+
+  bool pass = true;
+  double pt_2ndmu = event.muons->at(1).pt();
+  pass = pt_2ndmu >= pt_min && (pt_2ndmu <= pt_max || pt_max < 0);
+  return pass;
+}
+
+PtLeadingJetSelection::PtLeadingJetSelection(double pt_min_, double pt_max_):pt_min(pt_min_), pt_max(pt_max_){}
+bool PtLeadingJetSelection::passes(const Event & event){
+
+  bool pass = true;
+  double pt_leadingjet = event.jets->at(0).pt();
+  pass = pt_leadingjet >= pt_min && (pt_leadingjet <= pt_max || pt_max < 0);
+  return pass;
+}
+
+Pt2ndJetSelection::Pt2ndJetSelection(double pt_min_, double pt_max_):pt_min(pt_min_), pt_max(pt_max_){}
+bool Pt2ndJetSelection::passes(const Event & event){
+
+  bool pass = true;
+  double pt_2ndjet = event.jets->at(1).pt();
+  pass = pt_2ndjet >= pt_min && (pt_2ndjet <= pt_max || pt_max < 0);
+  return pass;
+}

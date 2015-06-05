@@ -62,50 +62,6 @@ LQGen::LQGen(const vector<GenParticle> & genparticles, bool throw_on_failure)/*:
         if(throw_on_failure)  throw runtime_error("LQGen: did not find exactly one LQ and one antiLQ in the event");
         return;
     }
-    
-    // calculate decay channel by counting the number of charged leptons
-    // in the W daughters:
-    /*       int n_e = 0, n_m = 0, n_t = 0;
-    for(const auto & wd : {m_Wdecay1, m_Wdecay2, m_WMinusdecay1, m_WMinusdecay2}){
-        int id = abs(wd.pdgId());
-        if(id == 11) ++n_e;
-        else if(id == 13) ++n_m;
-        else if(id == 15) ++n_t;
-    }
-
-    // dilepton channels:
-    if(n_e == 2){
-        m_type = e_ee;
-    }
-    else if(n_e == 1 && n_m == 1){
-        m_type = e_emu;
-    }
-    else if(n_e == 1 && n_t == 1){
-        m_type = e_etau;
-    }
-    else if(n_m == 2){
-        m_type = e_mumu;
-    }
-    else if(n_m == 1 && n_t == 1){
-        m_type = e_mutau;
-    }
-    else if(n_t == 2){
-        m_type = e_tautau;
-    }
-    // lepton+jet channels:
-    else if(n_e == 1){
-        m_type = e_ehad;
-    }
-    else if(n_m == 1){
-        m_type = e_muhad;
-    }
-    else if(n_t == 1){
-        m_type = e_tauhad;
-    }
-    // hadronic:
-    else{
-        m_type = e_had;
-    }*/
 }   
 
 
@@ -148,18 +104,6 @@ GenParticle LQGen::Antitopdecay1() const{
 GenParticle LQGen::Antitopdecay2() const{
     return m_Antitopdecay2;
 } 
-
-/*LQGen::E_DecayChannel LQGen::DecayChannel()  const{  
-    return m_type;
-    }*/
-
-/*bool LQGen::IsTopHadronicDecay()  const{
-    return abs(m_Wdecay1.pdgId()) <= 5;
-    }*/
-
-/*bool LQGen::IsAntiTopHadronicDecay()  const{
-    return abs(m_WMinusdecay1.pdgId()) <= 5;
-    }*/
 
 namespace {
     

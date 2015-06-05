@@ -43,4 +43,28 @@ namespace uhh2examples {
     double pt_min, pt_max;
   };
 
+  class Pt2ndMuonSelection: public uhh2::Selection {
+  public:
+    explicit Pt2ndMuonSelection(double pt_min = 30., double m_max = -1);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double pt_min, pt_max;
+  };
+
+  class PtLeadingJetSelection: public uhh2::Selection {
+  public:
+    explicit PtLeadingJetSelection(double pt_min = 30., double m_max = -1);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double pt_min, pt_max;
+  };
+
+  class Pt2ndJetSelection: public uhh2::Selection {
+  public:
+    explicit Pt2ndJetSelection(double pt_min = 30., double m_max = -1);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double pt_min, pt_max;
+  };
+
 }

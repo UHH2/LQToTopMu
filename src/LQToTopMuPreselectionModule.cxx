@@ -13,7 +13,7 @@
 #include "UHH2/common/include/MuonIds.h"
 #include "UHH2/common/include/NSelections.h"
 #include "UHH2/LQToTopMu/include/LQToTopMuSelections.h"
-#include "UHH2/LQToTopMu/include/LQToTopMuHists.h"
+#include "UHH2/LQToTopMu/include/LQToTopMuPreselectionHists.h"
 #include "UHH2/common/include/PrintingModules.h"
 
 using namespace std;
@@ -82,27 +82,27 @@ LQToTopMuPreselectionModule::LQToTopMuPreselectionModule(Context & ctx){
 
 
     // 3. Set up Hists classes:
-    h_nocuts.reset(new LQToTopMuHists(ctx, "NoCuts"));
+    h_nocuts.reset(new LQToTopMuPreselectionHists(ctx, "NoCuts"));
     h_jets_nocuts.reset(new JetHists(ctx, "Jets_NoCuts"));
     h_ele_nocuts.reset(new ElectronHists(ctx, "Ele_NoCuts"));
     h_mu_nocuts.reset(new MuonHists(ctx, "Mu_NoCuts"));
 
-    h_cleaner.reset(new LQToTopMuHists(ctx, "Cleaner"));
+    h_cleaner.reset(new LQToTopMuPreselectionHists(ctx, "Cleaner"));
     h_jets_cleaner.reset(new JetHists(ctx, "Jets_Cleaner"));
     h_ele_cleaner.reset(new ElectronHists(ctx, "Ele_Cleaner"));
     h_mu_cleaner.reset(new MuonHists(ctx, "Mu_Cleaner"));
 
-    h_2jets.reset(new LQToTopMuHists(ctx, "2Jets"));
+    h_2jets.reset(new LQToTopMuPreselectionHists(ctx, "2Jets"));
     h_jets_2jets.reset(new JetHists(ctx, "Jets_2Jets"));
     h_ele_2jets.reset(new ElectronHists(ctx, "Ele_2Jets"));
     h_mu_2jets.reset(new MuonHists(ctx, "Mu_2Jets"));
 
-    h_ht350.reset(new LQToTopMuHists(ctx, "HT350"));
+    h_ht350.reset(new LQToTopMuPreselectionHists(ctx, "HT350"));
     h_jets_ht350.reset(new JetHists(ctx, "Jets_HT350"));
     h_ele_ht350.reset(new ElectronHists(ctx, "Ele_HT350"));
     h_mu_ht350.reset(new MuonHists(ctx, "Mu_HT350"));
 
-    h_2mu.reset(new LQToTopMuHists(ctx, "2Mu"));
+    h_2mu.reset(new LQToTopMuPreselectionHists(ctx, "2Mu"));
     h_jets_2mu.reset(new JetHists(ctx, "Jets_2Mu"));
     h_ele_2mu.reset(new ElectronHists(ctx, "Ele_2Mu"));
     h_mu_2mu.reset(new MuonHists(ctx, "Mu_2Mu"));

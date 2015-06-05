@@ -41,12 +41,15 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   double bins_low[9] = {0,350,500,700,900,1100,1300,1500,5000};
   book<TH1F>("H_T_rebin", "H_{T}", 8, bins_low);
 
-  book<TH1F>("H_T_comb", "H_{T}", 100, 0, 5000);
-  book<TH1F>("H_T_comb_rebin", "H_{T}", 8, bins_low);
+  book<TH1F>("H_T_comb_NoEle", "H_{T}", 100, 0, 5000);
+  book<TH1F>("H_T_comb_NoEle_rebin", "H_{T}", 8, bins_low);
+  book<TH1F>("H_T_comb_1Ele", "H_{T}", 100, 0, 5000);
+  book<TH1F>("H_T_comb_1Ele_rebin", "H_{T}", 8, bins_low);
   book<TH1F>("M_LQ_comb", "M_{LQ,mean}", 40, 0, 2000);
   double bins_mlq_low[17] = {100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,1000,2000};
   book<TH1F>("M_LQ_comb_rebin", "M_{LQ,mean}", 16, bins_mlq_low);
-  book<TH1F>("M_LQ_comb_1bin", "M_{LQ,mean}", 1, 0, 2000);
+  double bins_mlq_low2[6] = {100,200,300,500,800,2000};
+  book<TH1F>("M_LQ_comb_rebin2", "M_{LQ,mean}", 5, bins_mlq_low2);
 
   book<TH1F>("M_jet", "M_{Jet}", 100, 0, 2000);
   book<TH1F>("N_subjets", "N_{Subjets} in a Topjet", 11, -0.5, 10.5);
@@ -181,8 +184,8 @@ void LQToTopMuHists::fill(const Event & event){
   //reconstruct MLQ and fill MLQmean
   int Nele = event.electrons->size();
   if(Nele == 0){
-    hist("H_T_comb")->Fill(ht, weight);
-    hist("H_T_comb_rebin")->Fill(ht, weight);
+    hist("H_T_comb_NoEle")->Fill(ht, weight);
+    hist("H_T_comb_NoEle_rebin")->Fill(ht, weight);
   }
   
 if(Nele >= 1){   
@@ -204,7 +207,7 @@ if(Nele >= 1){
     mtopmean = (mtoplep + mtophad) / 2;*/
     
     //Get Muons and Electrons
-    std::vector<Muon>*my_muons = event.muons;
+   std::vector<Muon>*my_muons = event.muons;
     std::vector<Electron>*my_electrons = event.electrons;
     
     LorentzVector Muon1 = (my_muons->at(0).v4());
@@ -243,7 +246,7 @@ if(Nele >= 1){
       else{
 	mLQhad_rec = sqrt( -(hyp->tophad_v4()+Muon1).mass2());
       }
-    }
+      }
     
     /*if(mLQhad_rec>mLQlep_rec){
       mLQmax_rec = mLQhad_rec;
@@ -252,10 +255,13 @@ if(Nele >= 1){
       mLQmax_rec = mLQlep_rec;
       }*/
     
-    mLQmed_rec = (mLQhad_rec + mLQlep_rec)/2;
+   mLQmed_rec = (mLQhad_rec + mLQlep_rec)/2;
     hist("M_LQ_comb")->Fill(mLQmed_rec, weight);
     hist("M_LQ_comb_rebin")->Fill(mLQmed_rec, weight);
-    hist("M_LQ_comb_1bin")->Fill(mLQmed_rec, weight);
+    hist("M_LQ_comb_rebin2")->Fill(mLQmed_rec, weight);
+    hist("H_T_comb_1Ele")->Fill(ht, weight);
+    hist("H_T_comb_1Ele_rebin")->Fill(ht, weight);
+
  }
  
 //CMSTopTags

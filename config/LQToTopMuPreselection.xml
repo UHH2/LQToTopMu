@@ -29,7 +29,7 @@
     <Library Name="libSUHH2LQToTopMu"/>
     <Package Name="SUHH2LQToTopMu.par" />
 
-   <Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Preselection2/" PostFix="" TargetLumi="19700" >
+   <Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Preselection/test/" PostFix="" TargetLumi="19700" >
    <!-- <Cycle Name="uhh2::AnalysisModuleRunner"  RunMode="PROOF" ProofServer="lite://"  ProofWorkDir="/nfs/dust/cms/user/ottjoc/proof-wd/" ProofNodes="2" OutputDirectory="./" PostFix="" TargetLumi="1" >  -->
 
 
@@ -183,7 +183,8 @@
             <Item Name="JetCollection" Value="patJetsAk4PFCHS" />
             <Item Name="METName" Value="slimmedMETs" />
             <Item Name="GenJetCollection" Value="slimmedGenJets" /> 
-	    <Item Name="TopJetCollection" Value="patJetsCmsTopTagCHSPacked" />
+	    <Item Name="TopJetCollection" Value="patJetsCmsTopTagCHSPacked" /> --> <!-- for CMSTopTagger -->
+	    <!-- <Item Name="TopJetCollection" Value="patJetsHepTopTagCHSPacked" /> --> <!-- for HEPTopTagger -->
 	    <Item Name="GenParticleCollection" Value="GenParticles" />
 
             
