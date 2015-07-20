@@ -88,7 +88,7 @@ void LQToTopMuPreselectionHists::fill(const Event & event){
   double ht_jets = 0.0;
   double ht_lep = 0.0;
   for(const auto & jet : *event.jets){
-    ht += jet.pt();
+    ht_jets += jet.pt();
   }
   //Bedeutung der for-Schleife
   /*const auto jets = event.jets;
@@ -102,9 +102,9 @@ void LQToTopMuPreselectionHists::fill(const Event & event){
   for(const auto & muon : *event.muons){
     ht_lep += muon.pt();
   }
-  for(const auto & tau : *event.taus){
+  /*for(const auto & tau : *event.taus){
     ht_lep += tau.pt();
-  }
+    }*/
   ht = ht_lep + ht_jets + met;
   hist("H_T")->Fill(ht, weight);
    

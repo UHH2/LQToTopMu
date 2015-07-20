@@ -25,6 +25,8 @@ public:
   LorentzVector mu_had_v4() const{return m_mu_had_v4;}
   Particle mu_lep() const{return m_mu_lep;}
   Particle mu_had() const{return m_mu_had;}
+  LorentzVector LQlep_v4() const{return m_mu_lep_v4+m_toplep_v4;}
+  LorentzVector LQhad_v4() const{return m_mu_had_v4+m_tophad_v4;}
 
   std::vector<Particle> tophad_jets() const{return m_tophad_jets;}
   std::vector<Particle> toplep_jets() const{return m_toplep_jets;}
@@ -74,6 +76,8 @@ private:
   LorentzVector m_electron_v4;
   LorentzVector m_mu_lep_v4;
   LorentzVector m_mu_had_v4;
+  LorentzVector m_LQ_lep_v4;
+  LorentzVector m_LQ_had_v4;
 
   std::vector<Particle> m_tophad_jets;
   std::vector<Particle> m_toplep_jets;

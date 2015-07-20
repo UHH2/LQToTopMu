@@ -22,10 +22,6 @@ LQGen::LQGen(const vector<GenParticle> & genparticles, bool throw_on_failure)/*:
                 return;
             }
             
-            // NOTE: here, we could skip over intermediate W bosons. However,
-            // this Pythia8-related problem is now fixed when creating ntuples already,
-            // so this should not be necessary.
-            
             if(abs(mu->pdgId()) != 13){
                 if(throw_on_failure) throw runtime_error("LQGen: LQ has no muon daughter");
                 return;
@@ -104,80 +100,6 @@ GenParticle LQGen::Antitopdecay1() const{
 GenParticle LQGen::Antitopdecay2() const{
     return m_Antitopdecay2;
 } 
-
-namespace {
-    
-  /*bool is_charged_lepton(const GenParticle & gp){
-    int id = abs(gp.pdgId());
-    return id == 11 || id == 13 || id == 15;
-}
-
-bool is_neutrino(const GenParticle & gp){
-    int id = abs(gp.pdgId());
-    return id == 12 || id == 14 || id == 16;
-    }*/
-
-}
-
-/*GenParticle LQGen::ChargedLepton() const{
-    if (m_type != e_ehad &&  m_type != e_muhad  && m_type!= e_tauhad){
-        throw runtime_error("LQGen::ChargedLepton called, but this is no l+jets ttbar event!");
-    }
-    for(const auto & wd : {m_Wdecay1, m_Wdecay2, m_WMinusdecay1, m_WMinusdecay2}){
-        if(is_charged_lepton(wd)) return wd;
-    }
-    throw logic_error("logic error in LQGen::ChargedLepton");
-    }*/
-
-/*GenParticle LQGen::Neutrino() const{
-    if (m_type != e_ehad &&  m_type != e_muhad  && m_type!= e_tauhad){
-        throw runtime_error("LQGen::ChargedLepton called, but this is no l+jets ttbar event!");
-    }
-    for(const auto & wd : {m_Wdecay1, m_Wdecay2, m_WMinusdecay1, m_WMinusdecay2}){
-        if(is_neutrino(wd)) return wd;
-    }
-    throw logic_error("logic error in LQGen::Neutrino");
-    }*/
-
-/*GenParticle LQGen::TopLep() const{
-    if(ChargedLepton().charge()>0) return Top();
-    else return Antitop();
-}
-
-GenParticle LQGen::TopHad() const{
-    if(ChargedLepton().charge()<0) return Top();
-    else return Antitop();
-}
-
-GenParticle LQGen::BLep() const{
-    if(ChargedLepton().charge()>0) return bTop();
-    else return bAntitop();
-}
-
-GenParticle LQGen::BHad() const{
-    if(ChargedLepton().charge()<0) return bTop();
-    else return bAntitop();
-}
-
-GenParticle LQGen::WLep() const{
-    if(ChargedLepton().charge()>0) return WTop();
-    else return WAntitop();
-}
-
-GenParticle LQGen::WHad() const{
-    if(ChargedLepton().charge()<0) return WTop();
-    else return WAntitop();
-}
-
-GenParticle LQGen::Q1() const{
-    if(ChargedLepton().charge()>0) return WMinusdecay1();
-    else return Wdecay1();
-}
-
-GenParticle LQGen::Q2() const{
-    if(ChargedLepton().charge()>0) return WMinusdecay2();
-    else return Wdecay2();
-    }*/
 
 
 LQGenProducer::LQGenProducer(uhh2::Context & ctx, const std::string & name, bool throw_on_failure_): throw_on_failure(throw_on_failure_){

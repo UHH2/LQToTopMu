@@ -17,13 +17,13 @@ typedef std::function< std::vector<LorentzVector>  (const LorentzVector & lepton
  * modules for electron and muon ID.
  *
  */
-class PrimaryLepton: public uhh2::AnalysisModule {
+class LQPrimaryLepton: public uhh2::AnalysisModule {
 public:
-    explicit PrimaryLepton(uhh2::Context & ctx);
+    explicit LQPrimaryLepton(uhh2::Context & ctx);
 
     virtual bool process(uhh2::Event & event) override;
 
-    virtual ~PrimaryLepton();
+    virtual ~LQPrimaryLepton();
 
 private:
     uhh2::Event::Handle<FlavorParticle> h_primlep;
@@ -78,9 +78,9 @@ private:
  *
  * TODO: implement, document better.
  */
-class TopTagReconstruction: public uhh2::AnalysisModule {
+class LQTopTagReconstruction: public uhh2::AnalysisModule {
  public:
-  explicit TopTagReconstruction(uhh2::Context&, const NeutrinoReconstructionMethod&, const std::string& label="TopTagReconstruction", TopJetId id=CMSTopTag(), float dr=1.2);
+  explicit LQTopTagReconstruction(uhh2::Context&, const NeutrinoReconstructionMethod&, const std::string& label="LQTopTagReconstruction", TopJetId id=CMSTopTag(), float dr=1.2);
   virtual bool process(uhh2::Event&) override;
 
  private:
@@ -117,5 +117,5 @@ class TopTagReconstruction: public uhh2::AnalysisModule {
  *    2 solutions are returned even if there is only 1, as the distiction between 1 or 2 real solutions is not
  *    possible in a numerically stable way).
  */
-std::vector<LorentzVector> NeutrinoReconstruction(const LorentzVector & lepton, const LorentzVector & met);
+std::vector<LorentzVector> LQNeutrinoReconstruction(const LorentzVector & lepton, const LorentzVector & met);
 

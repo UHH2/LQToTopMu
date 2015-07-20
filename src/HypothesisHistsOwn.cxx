@@ -7,8 +7,8 @@ using namespace uhh2;
 HypothesisHistsOwn::HypothesisHistsOwn(uhh2::Context & ctx, const std::string & dirname, const std::string & hyps_name, const std::string & discriminator_name ): Hists(ctx, dirname){
 
   TString name = discriminator_name;
-  //double min=0;
-  //double max=500;
+  double min=0;
+  double max=500;
   
   if(discriminator_name=="Chi2"){
     name = "#Chi^{2}";
@@ -17,23 +17,24 @@ HypothesisHistsOwn::HypothesisHistsOwn(uhh2::Context & ctx, const std::string & 
     name += " discriminator";
   }
 
-  //if( discriminator_name=="CorrectMatch"){
-      //min=0;
-      //max=2;
-  //}
+  if( discriminator_name=="CorrectMatch"){
+    min=0;
+    max=2;
+  }
 
 
-    /*Discriminator = book<TH1F>("Discriminator",name,100,min,max);
+    Discriminator = book<TH1F>("Discriminator",name,100,min,max);
     Discriminator_2 = book<TH1F>("Discriminator_2",name,50,0,10);
-    Discriminator_3 = book<TH1F>("Discriminator_3",name,300,0,30); */
+    Discriminator_3 = book<TH1F>("Discriminator_3",name,300,0,30); 
  
     M_LQlep_rec  = book<TH1F>("M_LQlep_rec", "M_{LQ,lep}^{rec} [GeV/c^{2}]", 40, 0, 2000 );
     M_LQhad_rec  = book<TH1F>("M_LQhad_rec", "M_{LQ,had}^{rec} [GeV/c^{2}]", 40, 0, 2000 );
     M_LQmax_rec  = book<TH1F>("M_LQmax_rec", "M_{LQmax}^{rec} [GeV/c^{2}]", 40, 0, 2000 );
     M_LQmean_rec = book<TH1F>("M_LQmean_rec", "M_{LQmean}^{rec} [GeV/c^{2}]", 40, 0, 2000 );
+
+    M_LQ_rec_diff = book<TH1F>("M_LQ_rec_diff", "M_{LQ}^{had} - M_{LQ}^{lep} [GeV/c^2]", 50, -500, 500);
+
     //rebinned for theta-analysis
-    //double binsxLQmean[3] = {0,350,2000};
-    //double binsxLQmean[8] = {0,200,250,300,350,400,600,1200};
     double binsxLQmean[19] = {0,50,100, 150,200,250,300,350,400,450,500,550,600,650,700,750,800,1000,2000};
     M_LQmean_rec_rebin = book<TH1F>("M_LQmean_rec_rebin", "M_{LQmean}^{rec} [GeV/c^{2}]", 18, binsxLQmean );
 
@@ -41,18 +42,12 @@ HypothesisHistsOwn::HypothesisHistsOwn(uhh2::Context & ctx, const std::string & 
  
     M_toplep_rec = book<TH1F>( "M_toplep_rec", "M^{top,lep} [GeV/c^{2}]", 70, 0, 700 ) ;
     M_tophad_rec = book<TH1F>( "M_tophad_rec", "M^{top,had} [GeV/c^{2}]", 50, 0, 500 ) ;
-  
-    /*  M_tophad_rec_1jet = book<TH1F>( "M_tophad_rec_1jet", "M^{top,had} [GeV/c^{2}]", 50, 0, 500 ) ;
-    M_tophad_rec_2jet = book<TH1F>( "M_tophad_rec_2jet", "M^{top,had} [GeV/c^{2}]", 50, 0, 500 ) ;
-    M_tophad_rec_3jet = book<TH1F>( "M_tophad_rec_3jet", "M^{top,had} [GeV/c^{2}]", 50, 0, 500 ) ;
-    
-    Pt_toplep_rec = book<TH1F>( "Pt_toplep_rec", "P_{T}^{top,lep} [GeV/c]", 60, 0, 1200 ) ;
-    Pt_tophad_rec = book<TH1F>( "Pt_tophad_rec", "P_{T}^{top,had} [GeV/c]", 60, 0, 1200 ) ;*/
+
     
     Pt_ttbar_rec = book<TH1F>( "Pt_ttbar_rec", "P_{T,t#bar{t}}^{rec} [GeV/c]", 60, 0, 600 ) ;
     
     
-    h_hyps = ctx.get_handle<std::vector<ReconstructionHypothesis>>(hyps_name);
+    h_hyps = ctx.get_handle<std::vector<LQReconstructionHypothesis>>(hyps_name);
     h_ttbargen = ctx.get_handle<TTbarGen>("ttbargen");
     m_discriminator_name = discriminator_name;
 }
@@ -62,11 +57,11 @@ void HypothesisHistsOwn::fill(const uhh2::Event & e){
 
 
 
-  std::vector<ReconstructionHypothesis> hyps = e.get(h_hyps);
-  const ReconstructionHypothesis* hyp = get_best_hypothesis( hyps, m_discriminator_name );
+  std::vector<LQReconstructionHypothesis> hyps = e.get(h_hyps);
+  const LQReconstructionHypothesis* hyp = get_best_hypothesis( hyps, m_discriminator_name );
   double weight = e.weight;
 
-   double mttbar_rec = 0;
+  double mttbar_rec = 0;
 
 
     if( (hyp->top_v4()+hyp->antitop_v4()).isTimelike() )
@@ -87,9 +82,12 @@ void HypothesisHistsOwn::fill(const uhh2::Event & e){
   M_toplep_rec->Fill(mtoplep,weight);
   M_tophad_rec->Fill(mtophad,weight);
 
+  Discriminator->Fill(hyp->discriminator(m_discriminator_name) ,weight);
+  Discriminator_2->Fill(hyp->discriminator(m_discriminator_name) ,weight); 
+  Discriminator_3->Fill(hyp->discriminator(m_discriminator_name) ,weight);
 
   //Get Muons and Electrons
-  std::vector<Muon>*my_muons = e.muons;
+  /*std::vector<Muon>*my_muons = e.muons; ////////////////////////
   std::vector<Electron>*my_electrons = e.electrons;
 
   LorentzVector Muon1 = (my_muons->at(0).v4());
@@ -97,15 +95,16 @@ void HypothesisHistsOwn::fill(const uhh2::Event & e){
 
   double charge_M1 = (my_muons->at(0).charge());
   //double charge_M2 = (my_muons->at(1).charge());
-  double charge_E1 = (my_electrons->at(0).charge());
+  double charge_E1 = (my_electrons->at(0).charge());*/
   
   //Combine Top and Muon (Electron and Muon Charge have to be opposite)
   double mLQlep_rec = 0;
   double mLQhad_rec = 0;
   double mLQmax_rec = 0;
   double mLQmed_rec = 0;
+  double mLQ_rec_diff = 0;
 
-  if(charge_M1 != charge_E1){
+  /*  if(charge_M1 != charge_E1){ 
     if( (hyp->toplep_v4()+Muon1).isTimelike() )
       mLQlep_rec = (hyp->toplep_v4()+Muon1).M();
     else{
@@ -128,7 +127,11 @@ void HypothesisHistsOwn::fill(const uhh2::Event & e){
     else{
       mLQhad_rec = sqrt( -(hyp->tophad_v4()+Muon1).mass2());
     }
-  }
+  }*/
+  if( (hyp->LQlep_v4()).isTimelike() ) {mLQlep_rec = (hyp->LQlep_v4()).M();}
+  else {mLQlep_rec = sqrt( -(hyp->LQlep_v4()).mass2());}
+  if( (hyp->LQhad_v4()).isTimelike() ) {mLQhad_rec = (hyp->LQhad_v4()).M();}
+  else {mLQhad_rec = sqrt( -(hyp->LQhad_v4()).mass2());}
   
   if(mLQhad_rec>mLQlep_rec){
     mLQmax_rec = mLQhad_rec;
@@ -138,12 +141,15 @@ void HypothesisHistsOwn::fill(const uhh2::Event & e){
     }
   
   mLQmed_rec = (mLQhad_rec + mLQlep_rec)/2;
+  mLQ_rec_diff = mLQhad_rec - mLQlep_rec;
   
   M_LQlep_rec->Fill(mLQlep_rec, weight);
   M_LQhad_rec->Fill(mLQhad_rec, weight);
   M_LQmax_rec->Fill(mLQmax_rec, weight);
   M_LQmean_rec->Fill(mLQmed_rec, weight);
   M_LQmean_rec_rebin->Fill(mLQmed_rec, weight);
-
+  if(hyp->discriminator(m_discriminator_name) < 20){ // 999999 is set as discr. value on CorrectMatchDiscr, if one of the required conditions is not matched
+    M_LQ_rec_diff->Fill(mLQ_rec_diff, weight);
+  }
   
 }

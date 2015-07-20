@@ -8,11 +8,11 @@
 using namespace uhh2;
 using namespace std;
 
-PrimaryLepton::PrimaryLepton(Context & ctx) {
-    h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
+LQPrimaryLepton::LQPrimaryLepton(Context & ctx) {
+    h_primlep = ctx.get_handle<FlavorParticle>("LQPrimaryLepton");
 }
 
-bool PrimaryLepton::process(uhh2::Event & event) {
+bool LQPrimaryLepton::process(uhh2::Event & event) {
   assert(/*event.muons || */event.electrons);
     double ptmax = -infinity;
     FlavorParticle primlep;
@@ -36,11 +36,11 @@ bool PrimaryLepton::process(uhh2::Event & event) {
     return true;
 }
 
-PrimaryLepton::~PrimaryLepton() {}
+LQPrimaryLepton::~LQPrimaryLepton() {}
 
 HighMassLQReconstruction::HighMassLQReconstruction(Context & ctx, const NeutrinoReconstructionMethod & neutrinofunction, const string & label): m_neutrinofunction(neutrinofunction) {
     h_recohyps = ctx.declare_event_output<vector<LQReconstructionHypothesis>>(label);
-    h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
+    h_primlep = ctx.get_handle<FlavorParticle>("LQPrimaryLepton");
 }
 
 HighMassLQReconstruction::~HighMassLQReconstruction() {}
@@ -106,37 +106,47 @@ bool HighMassLQReconstruction::process(uhh2::Event & event) {
 	
 	//fill only hypotheses with at least one jet assigned to each top quark
 	if(hadjets>0 && lepjets>0) {
-	  int max_i = pow(3,n_muons); //analogous to jet combinations
+	  int max_i = pow(3,n_muons); // analogous to jet combinations
 	  for(int i=0; i<max_i; i++){ // for each jet comb loop over all possible muon combs
-	    LorentzVector muhad_v4;
-	    LorentzVector mulep_v4;
+	    LorentzVector mu1_v4;
+	    LorentzVector mu2_v4;
 	    int hadmu=0;
 	    int lepmu=0;
 	    int num = i;
 	    for(unsigned int k=0; k<n_muons; k++){
 	      if(num%3==0){
-		muhad_v4 = event.muons->at(k).v4();
-		hyp.set_mu_had(event.muons->at(k));
+		mu1_v4 = event.muons->at(k).v4();
+		hyp.set_mu_had(event.muons->at(k)); // had is only a hypothesis not having considered the charge!!!
 		hadmu++;
 	      }
 	      if(num%3==1){
-		mulep_v4 = event.muons->at(k).v4();
-		hyp.set_mu_lep(event.muons->at(k));
+		mu2_v4 = event.muons->at(k).v4();
+		hyp.set_mu_lep(event.muons->at(k)); // lep is only a hypothesis not having considered the charge!!!
 		lepmu++;
 	      }
 	      //for num%3==2 do nothing
 	      num /= 3;
 	    }
 	    
+	    Particle mu_2 = hyp.mu_lep();
 	    if(hadmu==1 && lepmu==1){ //require exactly 1 muon assigned to each top
-	      hyp.set_mu_had_v4(muhad_v4);
-	      hyp.set_mu_lep_v4(mulep_v4);
-	      hyp.set_tophad_v4(tophad_v4);
-	      hyp.set_toplep_v4(toplep_v4);
-	      recoHyps.emplace_back(move(hyp));
-	    }
-	  }	
-	}
+	      if(mu_2.charge() != electron.charge()){ //electron and leptonic mu must have opposite charges
+		hyp.set_mu_had_v4(mu1_v4);
+		hyp.set_mu_lep_v4(mu2_v4); // mu2 really is the leptonic one.
+		hyp.set_tophad_v4(tophad_v4);
+		hyp.set_toplep_v4(toplep_v4);
+		recoHyps.emplace_back(move(hyp));
+	      } // charge comparison
+	      else{
+		hyp.set_mu_had_v4(mu2_v4);
+		hyp.set_mu_lep_v4(mu1_v4); // mu1 really is the leptonic one, the original hypothesis was wrong.
+		hyp.set_tophad_v4(tophad_v4);
+		hyp.set_toplep_v4(toplep_v4);
+		recoHyps.emplace_back(move(hyp));	
+	      }
+	    } // 1 muon per top
+	  } // muon combs for-loop
+	} // if at least 1 jet is assigned to each top quark
       } // 3^n_jets jet combinations * n_muon muon combinations
     } // neutrinos
     event.set(h_recohyps, move(recoHyps));
@@ -144,14 +154,14 @@ bool HighMassLQReconstruction::process(uhh2::Event & event) {
 }
 
 
-TopTagReconstruction::TopTagReconstruction(Context & ctx, const NeutrinoReconstructionMethod & neutrinofunction, const string & label, TopJetId tjetid, float minDR_tj_j):
+LQTopTagReconstruction::LQTopTagReconstruction(Context & ctx, const NeutrinoReconstructionMethod & neutrinofunction, const string & label, TopJetId tjetid, float minDR_tj_j):
   m_neutrinofunction(neutrinofunction), topjetID_(tjetid), minDR_topjet_jet_(minDR_tj_j) {
 
   h_recohyps = ctx.declare_event_output<vector<LQReconstructionHypothesis>>(label);
-  h_primlep = ctx.get_handle<FlavorParticle>("PrimaryLepton");
+  h_primlep = ctx.get_handle<FlavorParticle>("LQPrimaryLepton");
 }
 
-bool TopTagReconstruction::process(uhh2::Event & event) {
+bool LQTopTagReconstruction::process(uhh2::Event & event) {
 
   assert(event.jets && event.topjets);
   assert(event.met);
@@ -220,7 +230,7 @@ bool TopTagReconstruction::process(uhh2::Event & event) {
   return true;
 }
 
-std::vector<LorentzVector> NeutrinoReconstruction(const LorentzVector & lepton, const LorentzVector & met) {
+std::vector<LorentzVector> LQNeutrinoReconstruction(const LorentzVector & lepton, const LorentzVector & met) {
     TVector3 lepton_pT = toVector(lepton);
     lepton_pT.SetZ(0);
     TVector3 neutrino_pT = toVector(met);

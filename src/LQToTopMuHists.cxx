@@ -28,29 +28,41 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
 
   // leptons
   book<TH1F>("N_mu", "N^{#mu}", 10, 0, 10);
-  book<TH1F>("pt_mu", "p_{T}^{#mu} [GeV/c]", 40, 0, 200);
+  book<TH1F>("pt_mu", "p_{T}^{#mu} [GeV/c]", 300, 0, 1500);
   book<TH1F>("eta_mu", "#eta^{#mu}", 40, -2.1, 2.1);
   book<TH1F>("reliso_mu", "#mu rel. Iso", 40, 0, 0.5);
   book<TH1F>("M_mumu", "M_(#mu#mu)",50 , 0, 1000);
-  double bins_pt_low[13] = {0,30,60,90,120,150,180,210,240,270,300,350,800};
-  book<TH1F>("Pt_mu1", "P_{T}^{leading #mu}",12 ,bins_pt_low);
+  book<TH1F>("Pt_mu1", "p_{T}^{leading #mu}", 75, 0, 1500);
+  double bins_pt_low[26] = {0,30,60,90,120,150,180,210,240,270,300,350,400,450,500,550,600,650,700,750,800,900,1000,1100,1300,1500};
+  book<TH1F>("Pt_mu1_rebin", "P_{T}^{leading #mu}", 25, bins_pt_low);
+  book<TH1F>("Pt_mu1_NoEle", "p_{T}^{leading #mu}, no Ele", 75, 0, 1500);
+  book<TH1F>("Pt_mu1_NoEle_rebin", "P_{T}^{leading #mu}, no Ele", 25, bins_pt_low);
+
 
   // general
   book<TH1F>("N_pv", "N_{PV}", 50, 0, 50);
-  book<TH1F>("H_T", "H_{T}", 100, 0, 5000);
-  double bins_low[9] = {0,350,500,700,900,1100,1300,1500,5000};
-  book<TH1F>("H_T_rebin", "H_{T}", 8, bins_low);
+  book<TH1F>("E_Tmiss", "missing E_{T}", 75, 0, 1500);
+  book<TH1F>("H_T", "H_{T}", 50, 0, 7000);
+  double bins_low[12] = {0,350,500,700,900,1100,1300,1500,1750,2000,2500,7000};
+  book<TH1F>("H_T_rebin", "H_{T}", 11, bins_low);
+  book<TH1F>("H_T_jets", "H_{T}^{jets}", 50, 0, 7000);
+  book<TH1F>("H_T_lept", "H_{T}^{leptons}", 50, 0, 7000);
+  double bins_HTlept_low[6] = {0, 300, 600, 900, 1200, 7000};
+  book<TH1F>("H_T_jets_rebin", "H_{T}^{jets} rebinned", 5, bins_HTlept_low);
+  book<TH1F>("H_T_lept_rebin", "H_{T}^{leptons} rebinned", 5, bins_HTlept_low);
 
-  book<TH1F>("H_T_comb_NoEle", "H_{T}", 100, 0, 5000);
-  book<TH1F>("H_T_comb_NoEle_rebin", "H_{T}", 8, bins_low);
-  book<TH1F>("H_T_comb_1Ele", "H_{T}", 100, 0, 5000);
-  book<TH1F>("H_T_comb_1Ele_rebin", "H_{T}", 8, bins_low);
+  book<TH1F>("H_T_comb_NoEle", "H_{T}, no Ele", 50, 0, 7000);
+  book<TH1F>("H_T_comb_NoEle_rebin", "H_{T}, no Ele", 11, bins_low);
+  book<TH1F>("H_T_comb_1Ele", "H_{T}, N_{Ele} #geq 1", 50, 0, 7000);
+  book<TH1F>("H_T_comb_1Ele_rebin", "H_{T}, N_{Ele} #geq 1", 11, bins_low);
   book<TH1F>("M_LQ_comb", "M_{LQ,mean}", 40, 0, 2000);
   double bins_mlq_low[17] = {100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,1000,2000};
   book<TH1F>("M_LQ_comb_rebin", "M_{LQ,mean}", 16, bins_mlq_low);
   double bins_mlq_low2[6] = {100,200,300,500,800,2000};
   book<TH1F>("M_LQ_comb_rebin2", "M_{LQ,mean}", 5, bins_mlq_low2);
+  book<TH1F>("M_LQ_diff", "M_{LQ}^{had} - M_{LQ}^{lep}", 50, -500, 500);
 
+  //substructure related
   book<TH1F>("M_jet", "M_{Jet}", 100, 0, 2000);
   book<TH1F>("N_subjets", "N_{Subjets} in a Topjet", 11, -0.5, 10.5);
   book<TH1F>("min_mDisubjet", "Min(m_{ij})", 50, 0, 1000);
@@ -61,9 +73,9 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   //book <TH1F>("M_ttbar", "M_{t#bar{t}}", 100, 0, 5000);
 
   //For MLQ reconstruction
-  h_hyps = ctx.get_handle<std::vector<ReconstructionHypothesis>>("HighMassReconstruction");
+  h_hyps = ctx.get_handle<std::vector<LQReconstructionHypothesis>>("HighMassLQReconstruction");
   m_discriminator_name ="Chi2";
- 
+  //m_discriminator_name ="CorrectMatch";
 
 }
 
@@ -75,7 +87,12 @@ void LQToTopMuHists::fill(const Event & event){
   // use histogram pointers as members as in 'UHH2/common/include/ElectronHists.h'
   
   // Don't forget to always use the weight when filling.
+  //auto ptmu2 = event.muons->at(1).pt();
+  //double corrfactor_metreweight = (7.76-0.169*met+0.00128*met*met-0.00000352*met*met*met+0.00000000323*met*met*met*met) * 4.6087; // MET reweight
+  //double corrfactor_ptmu2reweight = 0.08502+0.001746*ptmu2-0.000002253*ptmu2*ptmu2;
   double weight = event.weight;
+  //if(met >= 100 && met <= 580){weight = event.weight * corrfactor_metreweight;}
+  //weight = event.weight * corrfactor_ptmu2reweight;
   
   std::vector<Jet>* jets = event.jets;
   int Njets = jets->size();
@@ -127,39 +144,41 @@ void LQToTopMuHists::fill(const Event & event){
   int Nmuons = event.muons->size();
   hist("N_mu")->Fill(Nmuons, weight);
   for (const Muon & thismu : *event.muons){
-      hist("pt_mu")->Fill(thismu.pt(), weight);
-      hist("eta_mu")->Fill(thismu.eta(), weight);
+    hist("pt_mu")->Fill(thismu.pt(), weight);
+    hist("eta_mu")->Fill(thismu.eta(), weight);
       hist("reliso_mu")->Fill(thismu.relIso(), weight);
   }
   hist("Pt_mu1")->Fill(event.muons->at(0).pt(), weight);
+  hist("Pt_mu1_rebin")->Fill(event.muons->at(0).pt(), weight);
   
   int Npvs = event.pvs->size();
   hist("N_pv")->Fill(Npvs, weight);
 
   //HT
   auto met = event.met->pt();
+  hist("E_Tmiss")->Fill(met, weight);
   double ht = 0.0;
   double ht_jets = 0.0;
   double ht_lep = 0.0;
   for(const auto & jet : *event.jets){
-    ht += jet.pt();
+    //ht += jet.pt();
+    ht_jets += jet.pt();
   }
-  //Bedeutung der for-Schleife
-  /*const auto jets = event.jets;
-    for(unsigned int i=0; i<jets.size();i++){
-    Jet jet=jets[i];
-    ht +=jet.pt();
-    }*/
+
   for(const auto & electron : *event.electrons){
     ht_lep += electron.pt();
   }
   for(const auto & muon : *event.muons){
     ht_lep += muon.pt();
   }
-  for(const auto & tau : *event.taus){
+  /*for(const auto & tau : *event.taus){
     ht_lep += tau.pt();
-  }
+    }*/
   ht = ht_lep + ht_jets + met;
+  hist("H_T_jets")->Fill(ht_jets,weight);
+  hist("H_T_lept")->Fill(ht_lep,weight);
+  hist("H_T_jets_rebin")->Fill(ht_jets,weight);
+  hist("H_T_lept_rebin")->Fill(ht_lep,weight);
   hist("H_T")->Fill(ht, weight);
   hist("H_T_rebin")->Fill(ht, weight);
 
@@ -186,74 +205,29 @@ void LQToTopMuHists::fill(const Event & event){
   if(Nele == 0){
     hist("H_T_comb_NoEle")->Fill(ht, weight);
     hist("H_T_comb_NoEle_rebin")->Fill(ht, weight);
+    hist("Pt_mu1_NoEle")->Fill(event.muons->at(0).pt(), weight);
+    hist("Pt_mu1_NoEle_rebin")->Fill(event.muons->at(0).pt(), weight);
   }
   
 if(Nele >= 1){   
-    std::vector<ReconstructionHypothesis> hyps = event.get(h_hyps);
-    const ReconstructionHypothesis* hyp = get_best_hypothesis( hyps, m_discriminator_name );
-    
-    /*double mttbar_rec = 0;
-    if( (hyp->top_v4()+hyp->antitop_v4()).isTimelike() )
-      mttbar_rec = (hyp->top_v4()+hyp->antitop_v4()).M();
-    else{
-      mttbar_rec = sqrt( -(hyp->top_v4()+hyp->antitop_v4()).mass2());
-      }*/
-    
-    /*double mtoplep=0;
-    double mtophad=0;
-    double mtopmean=0;
-    if(hyp->toplep_v4().isTimelike()) mtoplep = hyp->toplep_v4().M();
-    if(hyp->tophad_v4().isTimelike()) mtophad = hyp->tophad_v4().M();
-    mtopmean = (mtoplep + mtophad) / 2;*/
-    
-    //Get Muons and Electrons
-   std::vector<Muon>*my_muons = event.muons;
-    std::vector<Electron>*my_electrons = event.electrons;
-    
-    LorentzVector Muon1 = (my_muons->at(0).v4());
-    LorentzVector Muon2 = (my_muons->at(1).v4());
-    
-    double charge_M1 = (my_muons->at(0).charge());
-    //double charge_M2 = (my_muons->at(1).charge());
-    double charge_E1 = (my_electrons->at(0).charge());
+  std::vector<LQReconstructionHypothesis> hyps = event.get(h_hyps); 
+  const LQReconstructionHypothesis* hyp = get_best_hypothesis( hyps, m_discriminator_name );
+ 
     
     //Combine Top and Muon (Electron and Muon Charge have to be opposite)
     double mLQlep_rec = 0;
     double mLQhad_rec = 0;
-    //double mLQmax_rec = 0;
     double mLQmed_rec = 0;
+    double mLQdiff = 0;
 
-    if(charge_M1 != charge_E1){
-      if( (hyp->toplep_v4()+Muon1).isTimelike() )
-	mLQlep_rec = (hyp->toplep_v4()+Muon1).M();
-      else{
-	mLQlep_rec = sqrt( -(hyp->toplep_v4()+Muon1).mass2());
-      }
-      if( (hyp->tophad_v4()+Muon2).isTimelike() )
-	mLQhad_rec = (hyp->tophad_v4()+Muon2).M();
-      else{
-	mLQhad_rec = sqrt( -(hyp->tophad_v4()+Muon2).mass2());
-      }
-    }
-    else{
-      if( (hyp->toplep_v4()+Muon2).isTimelike() )
-	mLQlep_rec = (hyp->toplep_v4()+Muon2).M();
-      else{
-	mLQlep_rec = sqrt( -(hyp->toplep_v4()+Muon2).mass2());
-      } 
-      if( (hyp->tophad_v4()+Muon1).isTimelike() )
-	mLQhad_rec = (hyp->tophad_v4()+Muon1).M();
-      else{
-	mLQhad_rec = sqrt( -(hyp->tophad_v4()+Muon1).mass2());
-      }
-      }
+
+
+  if( (hyp->LQlep_v4()).isTimelike() ) {mLQlep_rec = (hyp->LQlep_v4()).M();}
+  else {mLQlep_rec = sqrt( -(hyp->LQlep_v4()).mass2());}
+  if( (hyp->LQhad_v4()).isTimelike() ) {mLQhad_rec = (hyp->LQhad_v4()).M();}
+  else {mLQhad_rec = sqrt( -(hyp->LQhad_v4()).mass2());}
     
-    /*if(mLQhad_rec>mLQlep_rec){
-      mLQmax_rec = mLQhad_rec;
-      }
-      else{
-      mLQmax_rec = mLQlep_rec;
-      }*/
+
     
    mLQmed_rec = (mLQhad_rec + mLQlep_rec)/2;
     hist("M_LQ_comb")->Fill(mLQmed_rec, weight);
@@ -261,6 +235,7 @@ if(Nele >= 1){
     hist("M_LQ_comb_rebin2")->Fill(mLQmed_rec, weight);
     hist("H_T_comb_1Ele")->Fill(ht, weight);
     hist("H_T_comb_1Ele_rebin")->Fill(ht, weight);
+    hist("M_LQ_diff")->Fill(mLQdiff, weight);
 
  }
  
@@ -319,273 +294,6 @@ if(Nele >= 1){
  //int N_toptaggedjets = taggedtopjets.size();
  hist("N_TopTags")->Fill(N_toptaggedjets, weight);
 
- 
-//M_LQLQbar
-  /*  
-      int Nele = event.electrons->size();
-      if(Nele >= 1){
-
-
-      //M_top,lep reconstruction
- 
-      //step 1: calculate pz_neutrino following B2G-12-006 AN
-      std::vector<Electron>* electrons = event.electrons;
-      LorentzVector Electron = electrons->at(0).v4();
-      LorentzVectorXYZE ElectronXYZE = toXYZ(Electron);
-    
-      double mu = ((80.385*80.385/2) + Electron.pt() * met * cos(Electron.phi() - event.met->phi()));
-      double A = - (Electron.pt() * Electron.pt() );
-      double B = mu * ElectronXYZE.pz();
-      double C = mu * mu - Electron.energy() * Electron.energy() * met * met;
-    double discriminant = B * B - A * C;
-
-    double p_z1_neutrino, p_z2_neutrino;
-    if( discriminant < 0){
-      p_z1_neutrino = -B / A;}
-    else{
-      p_z1_neutrino = (-B - sqrt(discriminant)) / A;
-      p_z2_neutrino = (-B + sqrt(discriminant)) / A;
-    }
-    
-    //step 2: calculate eta = y (m_neutrino = 0)
-    double energy1_neutrino = sqrt(pow(met,2)+pow(p_z1_neutrino,2));
-    double energy2_neutrino = sqrt(pow(met,2)+pow(p_z2_neutrino,2));
-    double eta1_neutrino = 0;
-    double eta2_neutrino = 0;
-    eta1_neutrino = 0.5 * log((energy1_neutrino + p_z1_neutrino)/(energy1_neutrino - p_z1_neutrino));   
-    if( discriminant >=0){ 
-      eta2_neutrino = 0.5 * log((energy2_neutrino + p_z2_neutrino)/(energy2_neutrino - p_z2_neutrino));
-    }
-    
-    //step 3: build LorentzVectors
-    LorentzVector Neutrino1 = {met, eta1_neutrino, event.met->phi(), energy1_neutrino};
-    LorentzVector Neutrino2 = {0,0,0,0};
-    if(discriminant >= 0 ){
-      Neutrino2 = {met, eta2_neutrino, event.met->phi(), energy2_neutrino};
-    }
-    
-    //--now bring the hadronic part into the game
-    //Anzahl moeglicher hadr.  Kombinationen herausfinden - fuer Arraygroesse
-    int Nkomb = 0;
-
-    //Top aus 1 Jet rekonstruiert (N ueber 1 = N)
-    if(Njets >= 2){
-    for(int i=0; i<Njets; i++){Nkomb++;}}
-    //Top aus 2 Jets rekonstruiert - +(N ueber 2)
-    if(Njets >= 3){
-      for(int i=0; i<Njets-1; i++){
-	for(int j=0; j<Njets; j++){
-	    if(j > i){
-	      Nkomb++;}}}}
-    //Top aus 3 Jets rekonstruiert - +(N ueber 3)
-    if(Njets >=4){
-      for(int i=0; i<Njets-2; i++){
-	for(int j=0; j<Njets-1; j++){
-	  for(int k=0; k<Njets; k++){
-	    if(k>j && j>i){
-	      Nkomb++;}}}}}
-    //Top aus 4 Jets rekonstruiert - +(N ueber 4)
-    if(Njets >=5){
-      for(int i=0; i<Njets-3; i++){
-	for(int j=0; j<Njets-2; j++){
-	  for(int k=0; k<Njets-1; k++){
-	    for(int l=0;l<Njets; l++){
-	      if(l>k && k>j && j>i){
-		Nkomb++;}}}}}}
-
-    Nkomb = 2*Nkomb; // Neutrino kann 2 Loesungen haben-->doppelt so viele  Kombinationen
-
-    //step 4: declare variables and set up arrays
-    double chi2Hadronic[Nkomb*Njets]; //Nkomb * Njets: # of had Hyps per lept Hyp * # of lept Hyps
-    for(int i=0; i<Nkomb*Njets; i++){chi2Hadronic[i] = 1000000;}
-    double residualHadronic[Nkomb*Njets];
-    for(int i=0; i<Nkomb*Njets; i++){residualHadronic[i] = 1000000;}
-    LorentzVector jet[Njets];
-    for(int i=0; i<Njets; i++){jet[i] = jets->at(i).v4();}
-
-    double residualLeptonic[2*Njets];
-    for(int i=0; i<2*Njets; i++){residualLeptonic[i] = 1000000;}
-    double chi2Leptonic[2*Njets];
-    for(int i=0; i<2*Njets; i++){chi2Leptonic[i] = 1000000;}
- 
-
-    double chi2ges[Nkomb*Njets][2*Njets];
-    for(int i=0; i<Nkomb*Njets; i++){
-      for(int j=0; j<2*Njets; j++){chi2ges[i][j] = 1000000;}}
-
-
-    LorentzVector HypTopLep[2*Njets];
-    for(int i=0; i<2*Njets; i++){
-      HypTopLep[i] = {0,0,0,0};
-    }
-    LorentzVector HypTopHad[Nkomb*Njets];
-    for(int i=0; i<Nkomb*Njets; i++){
-      HypTopHad[i] = {0,0,0,0};
-      }
-    
-        Nkomb = 0;
-
-    //1'st real solution - calculate all possible combinations of jets assigned to top_lep and top_had and the corresponding chi2ges
-	for (int jetlep=0; jetlep<Njets; jetlep++){ //loop over Jets for leptonic Hyp.
-      residualLeptonic[jetlep] = (Neutrino1 + Electron + jet[jetlep]).M() - 174;
-      chi2Leptonic[jetlep] = (residualLeptonic[jetlep]/18)*(residualLeptonic[jetlep]/18);
-
-      //loop over combinations of Jets for hadronic Hyps
-      //Top aus 1 Jet
-      if(Njets >= 2){
-	for(int i=0; i<Njets; i++){
-	  if(i != jetlep){
-	    residualHadronic[Nkomb] = jet[i].M() - 181;
-	    chi2Hadronic[Nkomb] = (residualHadronic[Nkomb]/15)*(residualHadronic[Nkomb]/15);
-	    chi2ges[Nkomb][jetlep] = chi2Hadronic[Nkomb] + chi2Leptonic[jetlep];
-	     HypTopLep[jetlep] = Neutrino1 + Electron + jet[jetlep];
-	     HypTopHad[Nkomb] = jet[i];}
-	  Nkomb++;}}
-
-      //Top aus 2 Jets
-      if(Njets >= 3){
-	for(int i=0; i<Njets-1; i++){
-	  for(int j=0; j<Njets; j++){
-	    if(j > i){
-	      if(i != jetlep && j != jetlep){
-		residualHadronic[Nkomb] = (jet[i] + jet[j]).M() - 181;
-		chi2Hadronic[Nkomb] = (residualHadronic[Nkomb]/15)*(residualHadronic[Nkomb]/15);
-		chi2ges[Nkomb][jetlep] = chi2Hadronic[Nkomb] + chi2Leptonic[jetlep];
-		HypTopLep[jetlep] = Neutrino1 + Electron + jet[jetlep];
-		HypTopHad[Nkomb] = jet[i] + jet[j];}
-	      Nkomb++;}}}}
-
-      //Top aus 3 Jets
-      if(Njets >=4){
-	for(int i=0; i<Njets-2; i++){
-	  for(int j=0; j<Njets-1; j++){
-	    for(int k=0; k<Njets; k++){
-	      if(k>j && j>i){
-		if(i!=jetlep && j!=jetlep && k!=jetlep){
-		  residualHadronic[Nkomb] = (jet[i] + jet[j] + jet[k]).M() - 181;
-		  chi2Hadronic[Nkomb] = (residualHadronic[Nkomb]/15)*(residualHadronic[Nkomb]/15);
-		  chi2ges[Nkomb][jetlep] = chi2Hadronic[Nkomb] + chi2Leptonic[jetlep];
-		  HypTopLep[jetlep] = Neutrino1 + Electron + jet[jetlep];
-		  HypTopHad[Nkomb] = jet[i] + jet[j] + jet[k];}
-		Nkomb++;}}}}}
-
-      //Top aus 4 Jets
-      if(Njets >=5){
-	for(int i=0; i<Njets-3; i++){
-	  for(int j=0; j<Njets-2; j++){
-	    for(int k=0; k<Njets-1; k++){
-	      for(int l=0;l<Njets; l++){
-		if(l>k && k>j && j>i){
-		  if(i!=jetlep && j!=jetlep && k!=jetlep && l!=jetlep){
-		    residualHadronic[Nkomb] = (jet[i] + jet[j] + jet[k] + jet[l]).M() - 181;
-		    chi2Hadronic[Nkomb] = (residualHadronic[Nkomb]/15)*(residualHadronic[Nkomb]/15);
-		    chi2ges[Nkomb][jetlep] = chi2Hadronic[Nkomb] + chi2Leptonic[jetlep];
-		    HypTopLep[jetlep] = Neutrino1 + Electron + jet[jetlep];
-		    HypTopHad[Nkomb] = jet[i] + jet[j] + jet[k] + jet[l];}
-		  Nkomb++;}}}}}}
-
-    }
-    
-    //2'nd real solution - calculate all possible combinations of jets assigned to top_lep and top_had
-    if(0 != p_z2_neutrino){	
-      for (int jetlep=Njets; jetlep<(2*Njets); jetlep++){ //same as above, but only if there are 2 solutions
-	residualLeptonic[jetlep] = (Neutrino2 + Electron + jet[jetlep-Njets]).M() - 174;
-	chi2Leptonic[jetlep] = (residualLeptonic[jetlep]/18)*(residualLeptonic[jetlep]/18);
-
-	//Top aus 1 Jet
-	if(Njets >= 2){
-	  for(int i=0; i<Njets; i++){
-	    if(i != (jetlep-Njets)){
-	      residualHadronic[Nkomb] = jet[i].M() - 181;
-	      chi2Hadronic[Nkomb] = (residualHadronic[Nkomb]/15)*(residualHadronic[Nkomb]/15);
-	      chi2ges[Nkomb][jetlep] = chi2Hadronic[Nkomb] + chi2Leptonic[jetlep];
-	      HypTopLep[jetlep] = Neutrino2 + Electron + jet[jetlep-Njets];
-	      HypTopHad[Nkomb] = jet[i];}
-	    Nkomb++;}}
-	
-	//Top aus 2 Jets
-	if(Njets >= 3){
-	  for(int i=0; i<Njets-1; i++){
-	    for(int j=0; j<Njets; j++){
-	      if(j > i){
-		if(i != (jetlep-Njets) && j != (jetlep-Njets)){
-		  residualHadronic[Nkomb] = (jet[i] + jet[j]).M() - 181;
-		  chi2Hadronic[Nkomb] = (residualHadronic[Nkomb]/15)*(residualHadronic[Nkomb]/15);
-		  chi2ges[Nkomb][jetlep] = chi2Hadronic[Nkomb] + chi2Leptonic[jetlep];
-		  HypTopLep[jetlep] = Neutrino2 + Electron + jet[jetlep-Njets];
-		  HypTopHad[Nkomb] = jet[i] + jet[j];}
-		Nkomb++;}}}}
-	
-	//Top aus 3 Jets
-	if(Njets >=4){
-	  for(int i=0; i<Njets-2; i++){
-	    for(int j=0; j<Njets-1; j++){
-	      for(int k=0; k<Njets; k++){
-		if(k>j && j>i){
-		  if(i!=(jetlep-Njets) && j!=(jetlep-Njets) && k!=(jetlep-Njets)){
-		    residualHadronic[Nkomb] = (jet[i] + jet[j] + jet[k]).M() - 181;
-		    chi2Hadronic[Nkomb] = (residualHadronic[Nkomb]/15)*(residualHadronic[Nkomb]/15);
-		    chi2ges[Nkomb][jetlep] = chi2Hadronic[Nkomb] + chi2Leptonic[jetlep];
-		    HypTopLep[jetlep] = Neutrino2 + Electron + jet[jetlep-Njets];
-		    HypTopHad[Nkomb] = jet[i] + jet[j] + jet[k];}
-		  Nkomb++;}}}}}
-	
-	//Top aus 4 Jets
-	if(Njets >=5){
-	  for(int i=0; i<Njets-3; i++){
-	    for(int j=0; j<Njets-2; j++){
-	      for(int k=0; k<Njets-1; k++){
-		for(int l=0;l<Njets; l++){
-		  if(l>k && k>j && j>i){
-		    if(i!=(jetlep-Njets) && j!=(jetlep-Njets) && k!=(jetlep-Njets) && l!=(jetlep-Njets)){
-		      residualHadronic[Nkomb] = (jet[i] + jet[j] + jet[k] + jet[l]).M() - 181;
-		      chi2Hadronic[Nkomb] = (residualHadronic[Nkomb]/15)*(residualHadronic[Nkomb]/15);
-		      chi2ges[Nkomb][jetlep] = chi2Hadronic[Nkomb] + chi2Leptonic[jetlep];
-		      HypTopLep[jetlep] = Neutrino2 + Electron + jet[jetlep-Njets];
-		      HypTopHad[Nkomb] = jet[i] + jet[j] + jet[k] + jet[l];}
-		    Nkomb++;}}}}}}
-      }
-    }
- 
-    //find minimal chi2_ges
-
-    double chi2gesmin = 1000000;
-    int FinalKombHad = 0;
-    int FinalKombLep = 0;
-  
-   
-    for(int i=0;i<Nkomb ;i++){// # Jetkombinationen fuer hadr. Top (= "frueheres Nkomb * Njets")
-      for(int j=0; j<2*Njets; j++){//Jet und Neutrinokombinationen fuer lept. Top
-	if (chi2ges[i][j] < chi2gesmin){
-	  chi2gesmin = chi2ges[i][j];
-	  FinalKombHad = i;
-	  FinalKombLep = j;
-	}
-      }
-    }
-
-    double TopmassRecoLeptonic = residualLeptonic[FinalKombLep] + 174;  
-    //cout << "chi2Leptonic minimal value: " <<  chi2Leptonic[FinalKombLep] << endl;
-    //cout << "# of combination: " << FinalKombLep << endl;
-    //cout << "reconstructed Topmass leptonic: " << TopmassRecoLeptonic << endl;   
-    //cout << "gleiches Ergebnis?: " << HypTopLep[FinalKombLep].M() << endl;
-    hist("M_t_lep")->Fill(TopmassRecoLeptonic, weight); //only for testing
-
-    double TopmassRecoHadronic = residualHadronic[FinalKombHad] + 181;
-    //cout << "chi2Hadronic minimal value: " <<  chi2Hadronic[FinalKombHad] << endl;
-    //cout << "# of combination: " << FinalKombHad << endl;
-    //cout << "reconstructed Topmass hadronic: " << TopmassRecoHadronic << endl;
-    //cout << "gleiches Ergebnis?: " << HypTopHad[FinalKombHad].M() << endl;
-    hist("M_t_had")->Fill(TopmassRecoHadronic, weight);
-
-    //cout << "chi2_ges minimal value: " << chi2gesmin << endl << endl;
-
-    double Mttbar_reco = (HypTopLep[FinalKombLep] + HypTopHad[FinalKombHad]).M();
-    //cout << "reconstructed Mttbar: " << Mttbar_reco << endl;
-    hist("M_ttbar")->Fill(Mttbar_reco, weight);
-
-  } //Nele = 1
-    */
 } //Methode
 
 

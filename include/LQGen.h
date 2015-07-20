@@ -23,7 +23,7 @@ public:
    * 
    * The event should be an actual ttbar event, i.e.:
    *   - there are exactly two tops: one top and one anti-top
-   *   - each top must have exactl two daughters
+   *   - each top must have exactly two daughters
    *   - one of the top daughters must be a W
    *   - the Ws must have exactly two daughters
    * 

@@ -21,11 +21,6 @@ using namespace uhh2;
 
 namespace uhh2examples {
 
-/** \brief Basic analysis example of an AnalysisModule (formerly 'cycle') in UHH2
- * 
- * This is the central class which calls other AnalysisModules, Hists or Selection classes.
- * This AnalysisModule, in turn, is called (via AnalysisModuleRunner) by SFrame.
- */
 class LQToTopMuPreselectionModule: public AnalysisModule {
 public:
     
@@ -58,11 +53,6 @@ LQToTopMuPreselectionModule::LQToTopMuPreselectionModule(Context & ctx){
     
     cout << "Hello World from LQToTopMuPreselectionModule!" << endl;
 
-
-    // 1. setup other modules. CommonModules and the JetCleaner:
-    //Jet_printer.reset(new JetPrinter("Jet-Printer", 0));
-    //Electron_printer.reset(new ElectronPrinter("Electron-Printer"));
-    //Muon_printer.reset(new MuonPrinter("Muon-Printer"));
     common.reset(new CommonModules());
     common->init(ctx);
     MuIso = MuonIso(0.12);
@@ -76,7 +66,7 @@ LQToTopMuPreselectionModule::LQToTopMuPreselectionModule(Context & ctx){
     // 2. set up selections
 
     //Preselection
-    njet_sel.reset(new NJetSelection(2, -1)); // see common/include/NSelections.h
+    njet_sel.reset(new NJetSelection(2, -1));
     nmuon_sel.reset(new NMuonSelection(2, -1));
     ht_sel.reset(new HtSelection(350));
 

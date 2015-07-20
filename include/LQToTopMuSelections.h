@@ -2,6 +2,9 @@
 
 #include "UHH2/core/include/fwd.h"
 #include "UHH2/core/include/Selection.h"
+#include "UHH2/core/include/GenParticle.h"
+
+#include <vector>
 
 namespace uhh2examples {
     
@@ -30,6 +33,14 @@ namespace uhh2examples {
   class InvMass2MuVeto: public uhh2::Selection {
   public:
     explicit InvMass2MuVeto(double m_min = 81., double m_max = 101.);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double m_min, m_max;
+  };
+
+  class InvMass2MuVetoInverted: public uhh2::Selection {
+  public:
+    explicit InvMass2MuVetoInverted(double m_min = 81., double m_max = 101.);
     virtual bool passes(const uhh2::Event & event);
   private:
     double m_min, m_max;
@@ -65,6 +76,60 @@ namespace uhh2examples {
     virtual bool passes(const uhh2::Event & event);
   private:
     double pt_min, pt_max;
+  };
+
+  class PtRelMuJetSelection : public uhh2::Selection{
+  public:
+    explicit PtRelMuJetSelection(double ptrel_min = 0, double ptrel_max = -1);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double ptrel_min, ptrel_max;
+  };
+
+  class METSelection : public uhh2::Selection{
+  public:
+    explicit METSelection(double met_min = 0, double met_max = -1);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double met_min, met_max;
+  };
+
+  class GenLvlZMuMuSelection : public uhh2::Selection{
+  public: 
+    explicit GenLvlZMuMuSelection();
+    virtual bool passes(const uhh2::Event & event);
+  };
+
+  class PtRelMu1JetSelection : public uhh2::Selection{
+  public:
+    explicit PtRelMu1JetSelection(double ptrel_min = 0., double ptrel_max = -1);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double ptrel_min, ptrel_max;
+  };
+
+  class HTJetsSelection : public uhh2::Selection{
+  public:
+    explicit HTJetsSelection(double ht_min = 0., double ht_max = -1);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double ht_min, ht_max;
+  };
+
+  class HTLeptSelection : public uhh2::Selection{
+  public:
+    explicit HTLeptSelection(double ht_min = 0., double ht_max = -1);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double ht_min, ht_max;
+  };
+
+  class EtaLeadingJetSelection : public uhh2::Selection{
+  public:
+    explicit EtaLeadingJetSelection(double eta_max = -1);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double eta_max;
   };
 
 }
