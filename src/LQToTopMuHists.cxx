@@ -43,8 +43,9 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("N_pv", "N_{PV}", 50, 0, 50);
   book<TH1F>("E_Tmiss", "missing E_{T}", 75, 0, 1500);
   book<TH1F>("H_T", "H_{T}", 50, 0, 7000);
-  double bins_low[12] = {0,350,500,700,900,1100,1300,1500,1750,2000,2500,7000};
-  book<TH1F>("H_T_rebin", "H_{T}", 11, bins_low);
+  double bins_low_1Ele[12] = {0,350,500,700,900,1100,1300,1500,1750,2000,2500,7000};
+  double bins_low_NoEle[22] = {0,350,500,650,800,950,1100,1250,1400,1550,1700,1850,2000,2150,2300,2450,2600,2750,2900,3050,3200,7000};
+  book<TH1F>("H_T_rebin", "H_{T}", 21, bins_low_NoEle);
   book<TH1F>("H_T_jets", "H_{T}^{jets}", 50, 0, 7000);
   book<TH1F>("H_T_lept", "H_{T}^{leptons}", 50, 0, 7000);
   double bins_HTlept_low[6] = {0, 300, 600, 900, 1200, 7000};
@@ -52,9 +53,9 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("H_T_lept_rebin", "H_{T}^{leptons} rebinned", 5, bins_HTlept_low);
 
   book<TH1F>("H_T_comb_NoEle", "H_{T}, no Ele", 50, 0, 7000);
-  book<TH1F>("H_T_comb_NoEle_rebin", "H_{T}, no Ele", 11, bins_low);
+  book<TH1F>("H_T_comb_NoEle_rebin", "H_{T}, no Ele", 21, bins_low_NoEle);
   book<TH1F>("H_T_comb_1Ele", "H_{T}, N_{Ele} #geq 1", 50, 0, 7000);
-  book<TH1F>("H_T_comb_1Ele_rebin", "H_{T}, N_{Ele} #geq 1", 11, bins_low);
+  book<TH1F>("H_T_comb_1Ele_rebin", "H_{T}, N_{Ele} #geq 1", 11, bins_low_1Ele);
   book<TH1F>("M_LQ_comb", "M_{LQ,mean}", 40, 0, 2000);
   double bins_mlq_low[17] = {100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,1000,2000};
   book<TH1F>("M_LQ_comb_rebin", "M_{LQ,mean}", 16, bins_mlq_low);
@@ -67,6 +68,9 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("N_subjets", "N_{Subjets} in a Topjet", 11, -0.5, 10.5);
   book<TH1F>("min_mDisubjet", "Min(m_{ij})", 50, 0, 1000);
   book<TH1F>("N_TopTags", "Number of CMSTopTags",16 ,-0.5, 15.5 );
+
+  //electron fakes
+  book<TH1F>("ele_type", "0 real ele, 1 fake ele", 2,-0.5,1.5);
 
   //book <TH1F>("M_t_had", "M_{t,had}", 50, 0, 500);
   //book <TH1F>("M_t_lep", "M_{t,lep}", 70, 0, 700);
@@ -294,7 +298,37 @@ if(Nele >= 1){
  //int N_toptaggedjets = taggedtopjets.size();
  hist("N_TopTags")->Fill(N_toptaggedjets, weight);
 
+ //fake electrons
+ std::vector<double> VecdR;
+ double dR = 1000;
+  for(const auto & ele : *event.electrons){
+    dR = 1000;
+    for(auto genp : *event.genparticles){
+      if(abs(genp.pdgId())==11){
+	double tmp = deltaR(ele,genp);
+	if(tmp<dR){
+	  dR = tmp;
+	}
+      }
+    }
+    VecdR.push_back(dR);
+  }
+
+  for (unsigned int i=0; i<VecdR.size(); i++){
+    if(VecdR.at(i) <= 0.3){
+      hist("ele_type")->Fill(0);
+    }
+    else{
+      hist("ele_type")->Fill(1);
+    }
+  }
+
+
+
+
+
 } //Methode
+
 
 
 LQToTopMuHists::~LQToTopMuHists(){}

@@ -82,6 +82,7 @@ namespace uhh2examples {
     std::unique_ptr<Hists> h_sideband_zmumu, h_jets_sideband_zmumu, h_ele_sideband_zmumu, h_mu_sideband_zmumu, h_event_sideband_zmumu, h_topjets_sideband_zmumu;
     std::unique_ptr<Hists> h_sideband_ptleadmu, h_jets_sideband_ptleadmu, h_ele_sideband_ptleadmu, h_mu_sideband_ptleadmu, h_event_sideband_ptleadmu, h_topjets_sideband_ptleadmu;
     std::unique_ptr<Hists> h_sideband_pt2ndmu, h_jets_sideband_pt2ndmu, h_ele_sideband_pt2ndmu, h_mu_sideband_pt2ndmu, h_event_sideband_pt2ndmu, h_topjets_sideband_pt2ndmu;
+    std::unique_ptr<Hists> h_sideband_ptleadjet, h_jets_sideband_ptleadjet, h_ele_sideband_ptleadjet, h_mu_sideband_ptleadjet, h_event_sideband_ptleadjet, h_topjets_sideband_ptleadjet;
     std::unique_ptr<Hists> h_ht_InvMassVeto, h_ht_finalSelection;
 
     Event::Handle<TTbarGen> h_ttbargen;
@@ -159,11 +160,11 @@ namespace uhh2examples {
 
 
     //DY Sideband Selection
-    sideband_pt_lead_mu_sel.reset(new PtLeadingMuonSelection(200, -1));
-    sideband_pt_2nd_mu_sel.reset(new Pt2ndMuonSelection(200, -1)); 
+    sideband_pt_lead_mu_sel.reset(new PtLeadingMuonSelection(100, -1));
+    sideband_pt_2nd_mu_sel.reset(new Pt2ndMuonSelection(100, -1)); 
     sideband_njet_sel.reset(new NJetSelection(0, -1));
     sideband_ptrel_mujet_sel.reset(new PtRelMuJetSelection(60, -1));
-    sideband_pt_lead_jet_sel.reset(new PtLeadingJetSelection(100, -1));
+    sideband_pt_lead_jet_sel.reset(new PtLeadingJetSelection(100, 140));
     sideband_pt_lead_jet_sel2.reset(new PtLeadingJetSelection(250, 300));
     sideband_pt_lead_jet_sel3.reset(new PtLeadingJetSelection(350, 400));
     sideband_pt_lead_jet_sel4.reset(new PtLeadingJetSelection(450, 500));
@@ -349,6 +350,13 @@ namespace uhh2examples {
     h_topjets_sideband_pt2ndmu.reset(new TopJetHists(ctx, "TopJets_Sideband_Pt2ndMu"));
     h_event_sideband_pt2ndmu.reset(new EventHists(ctx, "Event_Sideband_Pt2ndMu"));*/
 
+    /*h_sideband_ptleadjet.reset(new LQToTopMuHists(ctx, "Sideband_PtLeadJet"));
+    h_jets_sideband_ptleadjet.reset(new JetHists(ctx, "Jets_Sideband_PtLeadJet"));
+    h_ele_sideband_ptleadjet.reset(new ElectronHists(ctx, "Ele_Sideband_PtLeadJet"));
+    h_mu_sideband_ptleadjet.reset(new MuonHists(ctx, "Mu_Sideband_PtLeadJet"));
+    h_topjets_sideband_ptleadjet.reset(new TopJetHists(ctx, "TopJets_Sideband_PtLeadJet"));
+    h_event_sideband_ptleadjet.reset(new EventHists(ctx, "Event_Sideband_PtLeadJet"));*/
+
 
 
     h_finalSelection.reset(new LQToTopMuHists(ctx, "FinalSelection"));
@@ -367,16 +375,48 @@ namespace uhh2examples {
   bool LQToTopMuAnalysisModule::process(Event & event) {
 
     //for sideband selection, reweight certain events
-    auto ptmu1 = event.muons->at(0).pt();
+    //auto ptmu1 = event.muons->at(0).pt();
     // good after InvMassVeto
-    double corrfactor_ptmu1reweight = (0.030397+0.00059467*ptmu1-0.0000007976*ptmu1*ptmu1+0.0000000003271*ptmu1*ptmu1*ptmu1)*(1.77298+0.00061177*ptmu1-0.000001238*ptmu1*ptmu1);
+    //double corrfactor_ptmu1reweight = (0.030397+0.00059467*ptmu1-0.0000007976*ptmu1*ptmu1+0.0000000003271*ptmu1*ptmu1*ptmu1)*(1.77298+0.00061177*ptmu1-0.000001238*ptmu1*ptmu1);
+    //event.weight *= corrfactor_ptmu1reweight;
+
+    // good after 2 inverted cuts
+    //double corrfactor_ptmu1reweight = (0.01554+0.0002551*ptmu1-0.00000009559*ptmu1*ptmu1)*(0.9264+0.0004183*ptmu1-0.0000003478*ptmu1*ptmu1-0.0000000002636*ptmu1*ptmu1*ptmu1);
+    //event.weight *= corrfactor_ptmu1reweight;
 
     //good after HTLEP
     //double corrfactor_ptmu1reweight = 1.1337*(0.10969+0.00006686*ptmu1+0.000000175*ptmu1*ptmu1-0.0000000001767*ptmu1*ptmu1*ptmu1);
     //event.weight *= corrfactor_ptmu1reweight;
 
-    //cout << "eventweight: " << event.weight << endl;
+    //double x = event.jets->at(0).pt();
+    //pt jet1 good after HTLEP
+    //double corrfactor_ptjet1reweight =(0.1119-0.00004389*x+0.00000006373*x*x)*0.9456;
+    //event.weight *= corrfactor_ptjet1reweight;
 
+    //******// HT berechnen //******//
+    /*auto met = event.met->pt();
+    double ht = 0.0;
+    double ht_jets = 0.0;
+    double ht_lep = 0.0;
+    for(const auto & jet : *event.jets){
+      ht_jets += jet.pt();
+    }
+    
+    for(const auto & electron : *event.electrons){
+      ht_lep += electron.pt();
+    }
+    for(const auto & muon : *event.muons){
+    ht_lep += muon.pt();
+    }
+    ht = ht_lep + ht_jets + met;
+    
+    //HT reweight
+    double corrfactor_htreweight = 0.9893*(0.006318+0.00006524*ht+0.00000002097*ht*ht-0.000000000005891*ht*ht*ht);
+    event.weight *= corrfactor_htreweight;*/
+    
+    
+    //cout << "eventweight: " << event.weight << endl;
+    
     common->process(event);
     
     muoncleaner->process(event);
@@ -397,6 +437,9 @@ namespace uhh2examples {
     for(auto & m : recomodules){
       m->process(event);
       }
+
+    //FUER SIDEBAND SELECTION:
+    //if(nele_sel->passes(event)) return false; // ohne !: 0 Ele
     
     h_nocuts->fill(event);
     h_jets_nocuts->fill(event);
@@ -418,7 +461,7 @@ namespace uhh2examples {
     //h_tau_1ele->fill(event);
 
     //1 bTag1 loose
-    if(!nbtag_loose_sel->passes(event)) return false;
+    if(!nbtag_loose_sel->passes(event)) return false; // !: Signal, ohne : Sideband
     h_jets_1bJetLoose->fill(event);
     h_1bJetLoose->fill(event);
     h_ele_1bJetLoose->fill(event);
@@ -428,7 +471,7 @@ namespace uhh2examples {
     //h_tau_1bJetLoose->fill(event);
 
     //InvMassVeto
-    if(m_mumu_veto->passes(event)) return false; // mit !: Signal, ohne !: Sideband
+    if(!m_mumu_veto->passes(event)) return false; // mit !: Signal, ohne : Sideband
     h_jets_InvMassVeto->fill(event);
     h_InvMassVeto->fill(event);
     h_ele_InvMassVeto->fill(event);
@@ -572,7 +615,7 @@ namespace uhh2examples {
     h_event_sideband_ptleadmu->fill(event);
     h_topjets_sideband_ptleadmu->fill(event);*/
 
-    //SIDEBAND: Pt 2nd Mu 200
+    //SIDEBAND: Pt 2nd Mu 100
     /*if(!sideband_pt_2nd_mu_sel->passes(event)) return false;
     h_jets_sideband_pt2ndmu->fill(event);
     h_sideband_pt2ndmu->fill(event);
@@ -580,6 +623,14 @@ namespace uhh2examples {
     h_mu_sideband_pt2ndmu->fill(event);
     h_event_sideband_pt2ndmu->fill(event);
     h_topjets_sideband_pt2ndmu->fill(event);*/
+
+    /*if(!sideband_pt_lead_jet_sel->passes(event)) return false;
+    h_jets_sideband_ptleadjet->fill(event);
+    h_sideband_ptleadjet->fill(event);
+    h_ele_sideband_ptleadjet->fill(event);
+    h_mu_sideband_ptleadjet->fill(event);
+    h_event_sideband_ptleadjet->fill(event);
+    h_topjets_sideband_ptleadjet->fill(event);*/
 
 
     // SIDEBAND: Z -> MuMu on Gen Lvl

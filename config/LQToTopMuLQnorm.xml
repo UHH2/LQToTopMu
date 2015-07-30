@@ -16,8 +16,8 @@
 -->
 
   
-<!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/OptimizationNoTaus/SidebandSelection/DY_test/DY_test_" PostFix="_norm" TargetLumi="19700" >-->
-<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/OptimizationNoTaus/SidebandSelection/DY_test/DY_test_" PostFix="_norm" TargetLumi="19700" RunMode="PROOF" ProofServer="lite://" ProofWorkDir="/nfs/dust/cms/user/reimersa/.proof/">
+<!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/OptimizationNoTaus/1bJet+InvMassVeto20+HTLept200_morebins/1bJet+InvMassVeto20+HTLept200_morebins_" PostFix="_norm" TargetLumi="19700" >-->
+<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/OptimizationNoTaus/1bJet+InvMassVeto20+HTLept200_morebins/1bJet+InvMassVeto20+HTLept200_morebins_" PostFix="_norm" TargetLumi="19700" RunMode="PROOF" ProofServer="lite://" ProofWorkDir="/nfs/dust/cms/user/reimersa/.proof/">
     
     <!-- normiert auf 1 pb -->   
     <InputData Lumi="71944" NEventsMax="-1" Type="MC" Version="LQtoTMuM300" Cacheable="False">
