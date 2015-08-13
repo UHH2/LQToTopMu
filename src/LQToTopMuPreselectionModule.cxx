@@ -137,7 +137,7 @@ bool LQToTopMuPreselectionModule::process(Event & event) {
   h_ele_ht350->fill(event);
   h_mu_ht350->fill(event);
 
-  if (!nmuon_sel->passes(event)) return false;
+  if (nmuon_sel->passes(event)) return false; // ohne ! - Sideband
   h_2mu->fill(event);
   h_jets_2mu->fill(event);
   h_ele_2mu->fill(event);

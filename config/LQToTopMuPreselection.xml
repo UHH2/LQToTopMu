@@ -22,6 +22,11 @@
 <!ENTITY SingleTop_T_tch SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_2_1_patch4/src/UHH2/common/datasets/MC_TToLeptons_t-channel_20x25.xml">
 <!ENTITY SingleTop_T_tWch SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_2_1_patch4/src/UHH2/common/datasets/MC_T_tW_20x25.xml">
 <!ENTITY SingleTop_Tbar_tWch SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_2_1_patch4/src/UHH2/common/datasets/MC_Tbar_tW_20x25.xml">
+<!ENTITY QCDHT100to250 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_2_1_patch4/src/UHH2/common/datasets/MC_QCD_HT100To250_20x25.xml">
+<!ENTITY QCDHT250to500 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_2_1_patch4/src/UHH2/common/datasets/MC_QCD_HT250To500_20x25.xml">
+<!ENTITY QCDHT500to1000 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_2_1_patch4/src/UHH2/common/datasets/MC_QCD_HT500To1000_20x25.xml">
+<!ENTITY QCDHT1000toInf SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_2_1_patch4/src/UHH2/common/datasets/MC_QCD_HT1000ToInf_20x25.xml">
+
 ]>
 
 <!-- OutputLevel controls which messages are printed; set to VERBOSE or DEBUG for more verbosity, to WARNING or ERROR for less -->
@@ -29,8 +34,8 @@
     <Library Name="libSUHH2LQToTopMu"/>
     <Package Name="SUHH2LQToTopMu.par" />
 
-<!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/PreselectionNoTaus/" PostFix="" TargetLumi="19700" >-->
-<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/PreselectionNoTaus/" PostFix="" TargetLumi="19700" RunMode="PROOF" ProofServer="lite://" ProofWorkDir="/nfs/dust/cms/user/reimersa/.proof/">
+<!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/PreselectionNoTaus/New_" PostFix="" TargetLumi="19700" >-->
+<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/PreselectionNoTaus/New_" PostFix="" TargetLumi="19700" RunMode="PROOF" ProofServer="lite://" ProofWorkDir="/nfs/dust/cms/user/reimersa/.proof/">
 
 
    <InputData Lumi="8937.1" NEventsMax="-1" Type="MC" Version="LQtoTMuM300" Cacheable="False">
@@ -108,25 +113,25 @@
      <OutputTree Name="AnalysisTree" />
    </InputData>
 
-   <InputData Lumi="9900.6" NEventsMax="-1" Type="MC" Version="DYJetsHT100to200" Cacheable="False">
+   <InputData Lumi="18944.66" NEventsMax="-1" Type="MC" Version="DYJetsHT100to200" Cacheable="False">
      &DYJetsHT100to200;
      <InputTree Name="AnalysisTree" />
      <OutputTree Name="AnalysisTree" />
    </InputData>
 
-   <InputData Lumi="42124.3" NEventsMax="-1" Type="MC" Version="DYJetsHT200to400" Cacheable="False">
+   <InputData Lumi="81156.45" NEventsMax="-1" Type="MC" Version="DYJetsHT200to400" Cacheable="False">
      &DYJetsHT200to400;
      <InputTree Name="AnalysisTree" />
      <OutputTree Name="AnalysisTree" />
    </InputData>
 
-   <InputData Lumi="374240.6" NEventsMax="-1" Type="MC" Version="DYJetsHT400to600" Cacheable="False">
+   <InputData Lumi="684912.7" NEventsMax="-1" Type="MC" Version="DYJetsHT400to600" Cacheable="False">
      &DYJetsHT400to600;
      <InputTree Name="AnalysisTree" />
      <OutputTree Name="AnalysisTree" />
    </InputData>
 
-   <InputData Lumi="994112.4" NEventsMax="-1" Type="MC" Version="DYJetsHT600toinf" Cacheable="False">
+   <InputData Lumi="1872322" NEventsMax="-1" Type="MC" Version="DYJetsHT600toinf" Cacheable="False">
      &DYJetsHT600toinf;
      <InputTree Name="AnalysisTree" />
      <OutputTree Name="AnalysisTree" />
@@ -164,6 +169,30 @@
 
    <InputData Lumi="27185.39" NEventsMax="-1" Type="MC" Version="SingleTop_Tbar_tWch" Cacheable="False">
      &SingleTop_Tbar_tWch;
+     <InputTree Name="AnalysisTree" />
+     <OutputTree Name="AnalysisTree" />
+   </InputData>
+
+   <InputData Lumi="0.1435" NEventsMax="-1" Type="MC" Version="QCDHT100to250" Cacheable="False">
+     &QCDHT100to250;
+     <InputTree Name="AnalysisTree" />
+     <OutputTree Name="AnalysisTree" />
+   </InputData>
+
+   <InputData Lumi="0.9902" NEventsMax="-1" Type="MC" Version="QCDHT250to500" Cacheable="False">
+     &QCDHT250to500;
+     <InputTree Name="AnalysisTree" />
+     <OutputTree Name="AnalysisTree" />
+   </InputData>
+
+   <InputData Lumi="31.75" NEventsMax="-1" Type="MC" Version="QCDHT500to1000" Cacheable="False">
+     &QCDHT500to1000;
+     <InputTree Name="AnalysisTree" />
+     <OutputTree Name="AnalysisTree" />
+   </InputData>
+
+   <InputData Lumi="433.59" NEventsMax="-1" Type="MC" Version="QCDHT1000toInf" Cacheable="False">
+     &QCDHT1000toInf;
      <InputTree Name="AnalysisTree" />
      <OutputTree Name="AnalysisTree" />
    </InputData>
