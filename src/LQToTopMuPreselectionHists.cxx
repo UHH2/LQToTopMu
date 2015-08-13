@@ -31,6 +31,7 @@ LQToTopMuPreselectionHists::LQToTopMuPreselectionHists(Context & ctx, const stri
   // general
   book<TH1F>("N_pv", "N_{PV}", 50, 0, 50);
   book<TH1F>("H_T", "H_{T}", 100, 0, 5000);
+  book<TH1F>("sum_event_weights", "BinContent = sum(eventweights)", 1, 0.5, 1.5);
 }
 
 
@@ -102,11 +103,11 @@ void LQToTopMuPreselectionHists::fill(const Event & event){
   for(const auto & muon : *event.muons){
     ht_lep += muon.pt();
   }
-  /*for(const auto & tau : *event.taus){
-    ht_lep += tau.pt();
-    }*/
+
   ht = ht_lep + ht_jets + met;
   hist("H_T")->Fill(ht, weight);
+
+  hist("sum_event_weights")->Fill(1., weight);
    
 } //Methode
 

@@ -114,6 +114,7 @@ namespace uhh2examples {
     common.reset(new CommonModules());
     common->disable_jersmear();
     common->disable_jec();
+    //common->disable_mcpileupreweight();
     common->init(ctx);
     
     MuIso = MuonIso(0.12);
@@ -133,6 +134,7 @@ namespace uhh2examples {
     LQgenprod.reset(new LQGenProducer(ctx, "LQLQbargen", false));
     h_ttbargen = ctx.get_handle<TTbarGen>("ttbargen");
     h_LQLQbargen = ctx.get_handle<LQGen>("LQLQbargen");*/
+
     
     // 2. set up selections
     //Selection
@@ -373,50 +375,8 @@ namespace uhh2examples {
   
   
   bool LQToTopMuAnalysisModule::process(Event & event) {
-
-    //for sideband selection, reweight certain events
-    //auto ptmu1 = event.muons->at(0).pt();
-    // good after InvMassVeto
-    //double corrfactor_ptmu1reweight = (0.030397+0.00059467*ptmu1-0.0000007976*ptmu1*ptmu1+0.0000000003271*ptmu1*ptmu1*ptmu1)*(1.77298+0.00061177*ptmu1-0.000001238*ptmu1*ptmu1);
-    //event.weight *= corrfactor_ptmu1reweight;
-
-    // good after 2 inverted cuts
-    //double corrfactor_ptmu1reweight = (0.01554+0.0002551*ptmu1-0.00000009559*ptmu1*ptmu1)*(0.9264+0.0004183*ptmu1-0.0000003478*ptmu1*ptmu1-0.0000000002636*ptmu1*ptmu1*ptmu1);
-    //event.weight *= corrfactor_ptmu1reweight;
-
-    //good after HTLEP
-    //double corrfactor_ptmu1reweight = 1.1337*(0.10969+0.00006686*ptmu1+0.000000175*ptmu1*ptmu1-0.0000000001767*ptmu1*ptmu1*ptmu1);
-    //event.weight *= corrfactor_ptmu1reweight;
-
-    //double x = event.jets->at(0).pt();
-    //pt jet1 good after HTLEP
-    //double corrfactor_ptjet1reweight =(0.1119-0.00004389*x+0.00000006373*x*x)*0.9456;
-    //event.weight *= corrfactor_ptjet1reweight;
-
-    //******// HT berechnen //******//
-    /*auto met = event.met->pt();
-    double ht = 0.0;
-    double ht_jets = 0.0;
-    double ht_lep = 0.0;
-    for(const auto & jet : *event.jets){
-      ht_jets += jet.pt();
-    }
     
-    for(const auto & electron : *event.electrons){
-      ht_lep += electron.pt();
-    }
-    for(const auto & muon : *event.muons){
-    ht_lep += muon.pt();
-    }
-    ht = ht_lep + ht_jets + met;
-    
-    //HT reweight
-    double corrfactor_htreweight = 0.9893*(0.006318+0.00006524*ht+0.00000002097*ht*ht-0.000000000005891*ht*ht*ht);
-    event.weight *= corrfactor_htreweight;*/
-    
-    
-    //cout << "eventweight: " << event.weight << endl;
-    
+
     common->process(event);
     
     muoncleaner->process(event);
@@ -433,6 +393,7 @@ namespace uhh2examples {
     /*ttgenprod->process(event);
       LQgenprod->process(event);*/
 
+
     // MLQ reco
     for(auto & m : recomodules){
       m->process(event);
@@ -441,6 +402,7 @@ namespace uhh2examples {
     //FUER SIDEBAND SELECTION:
     //if(nele_sel->passes(event)) return false; // ohne !: 0 Ele
     
+
     h_nocuts->fill(event);
     h_jets_nocuts->fill(event);
     h_ele_nocuts->fill(event);
@@ -461,7 +423,7 @@ namespace uhh2examples {
     //h_tau_1ele->fill(event);
 
     //1 bTag1 loose
-    if(!nbtag_loose_sel->passes(event)) return false; // !: Signal, ohne : Sideband
+    if(nbtag_loose_sel->passes(event)) return false; // !: Signal, ohne : Sideband
     h_jets_1bJetLoose->fill(event);
     h_1bJetLoose->fill(event);
     h_ele_1bJetLoose->fill(event);
@@ -471,7 +433,7 @@ namespace uhh2examples {
     //h_tau_1bJetLoose->fill(event);
 
     //InvMassVeto
-    if(!m_mumu_veto->passes(event)) return false; // mit !: Signal, ohne : Sideband
+    if(m_mumu_veto->passes(event)) return false; // mit !: Signal, ohne : Sideband
     h_jets_InvMassVeto->fill(event);
     h_InvMassVeto->fill(event);
     h_ele_InvMassVeto->fill(event);

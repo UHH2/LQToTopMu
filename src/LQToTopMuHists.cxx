@@ -72,6 +72,9 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   //electron fakes
   book<TH1F>("ele_type", "0 real ele, 1 fake ele", 2,-0.5,1.5);
 
+  //event weights: sum
+  book<TH1F>("sum_event_weights", "BinContent = sum(eventweights)", 1, 0.5, 1.5);
+
   //book <TH1F>("M_t_had", "M_{t,had}", 50, 0, 500);
   //book <TH1F>("M_t_lep", "M_{t,lep}", 70, 0, 700);
   //book <TH1F>("M_ttbar", "M_{t#bar{t}}", 100, 0, 5000);
@@ -127,13 +130,13 @@ void LQToTopMuHists::fill(const Event & event){
   //# b-jets
   std::vector<Jet> bjets_loose, bjets_med, bjets_tight;
   for (unsigned int i =0; i<jets->size(); ++i) {
-    if(jets->at(i).btag_combinedSecondaryVertex()>0.423) { //loose: >0.423, medium: >0.814, tight: >0.914
+    if(jets->at(i).btag_combinedSecondaryVertex()>0.605) { //loose: >0.605, medium: >0.890, tight: >0.970
       bjets_loose.push_back(jets->at(i));
     }
-    if(jets->at(i).btag_combinedSecondaryVertex()>0.814) { //loose: >0.423, medium: >0.814, tight: >0.914
+    if(jets->at(i).btag_combinedSecondaryVertex()>0.890) { //loose: >0.605, medium: >0.890, tight: >0.970
       bjets_med.push_back(jets->at(i));
     }
-    if(jets->at(i).btag_combinedSecondaryVertex()>0.914) { //loose: >0.423, medium: >0.814, tight: >0.914
+    if(jets->at(i).btag_combinedSecondaryVertex()>0.970) { //loose: >0.605, medium: >0.890, tight: >0.970
       bjets_tight.push_back(jets->at(i));
     }
   }
@@ -245,7 +248,7 @@ if(Nele >= 1){
  
 //CMSTopTags
 
- double mDiminLower = 50., mjetLower = 140., mjetUpper = 250.;
+double mDiminLower = 50., mjetLower = 140., mjetUpper = 250.;
  //std::vector<TopJet>* topjets = event.topjets;
  //std::vector<TopJet> taggedtopjets;
  int N_toptaggedjets = 0;
@@ -264,21 +267,24 @@ if(Nele >= 1){
    if(subjets.size() > 3) sort_by_pt(subjets);
    
    double m01 = 0;
-   auto sum01 = subjets[0].v4()+subjets[1].v4();
-   if(sum01.isTimelike())  m01 = sum01.M();
+
+   if(subjets.size() >= 3){
+     auto sum01 = subjets[0].v4()+subjets[1].v4();
+     if(sum01.isTimelike())  m01 = sum01.M();
    
-   if(subjets.size() < 3) m_disubjet_min = m01;
+     if(subjets.size() < 3) m_disubjet_min = m01;
    
-   double m02 = 0;
-   auto sum02 = subjets[0].v4()+subjets[2].v4();
-   if( sum02.isTimelike() ) m02 = sum02.M();
+     double m02 = 0;
+     auto sum02 = subjets[0].v4()+subjets[2].v4();
+     if( sum02.isTimelike() ) m02 = sum02.M();
    
-   double m12 = 0;
-   auto sum12 = subjets[1].v4()+subjets[2].v4();
-   if( sum12.isTimelike() )  m12 = sum12.M();
+     double m12 = 0;
+     auto sum12 = subjets[1].v4()+subjets[2].v4();
+     if( sum12.isTimelike() )  m12 = sum12.M();
+     m_disubjet_min = std::min(m01,std::min(m02, m12));
+   }
 
 
-   m_disubjet_min = std::min(m01,std::min(m02, m12));
    hist("min_mDisubjet")->Fill(m_disubjet_min, weight);
    if(m_disubjet_min < mDiminLower) CMSTopTag = false;
 
@@ -325,7 +331,7 @@ if(Nele >= 1){
 
 
 
-
+    hist("sum_event_weights")->Fill(1, weight);
 
 } //Methode
 
