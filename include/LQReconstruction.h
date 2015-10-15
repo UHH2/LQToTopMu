@@ -63,6 +63,21 @@ private:
 };
 
 
+
+class HighMassHadronicLQReconstruction: public uhh2::AnalysisModule {
+public:
+
+    explicit HighMassHadronicLQReconstruction(uhh2::Context & ctx, const std::string & label="HighMassHadronicLQReconstruction");
+
+    virtual bool process(uhh2::Event & event) override;
+
+    virtual ~HighMassHadronicLQReconstruction();
+
+private:
+    uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_hadr_recohyps;
+};
+
+
 /** \brief Make a list of ttbar reconstruction hypotheses using top tagging
  *
  * Take the C/A-Jet with the TopTag and use it as hadronic Top.

@@ -132,4 +132,12 @@ namespace uhh2examples {
     double eta_max;
   };
 
+  class InvMassMuEleVeto: public uhh2::Selection {
+  public:
+    explicit InvMassMuEleVeto(double m_min = 81., double m_max = 101.);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double m_min, m_max;
+  };
+
 }

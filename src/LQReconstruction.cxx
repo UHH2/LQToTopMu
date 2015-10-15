@@ -143,7 +143,7 @@ bool HighMassLQReconstruction::process(uhh2::Event & event) {
 		hyp.set_tophad_v4(tophad_v4);
 		hyp.set_toplep_v4(toplep_v4);
 		recoHyps.emplace_back(move(hyp));	
-	      }
+	      } // charge comparison_2
 	    } // 1 muon per top
 	  } // muon combs for-loop
 	} // if at least 1 jet is assigned to each top quark
@@ -152,6 +152,94 @@ bool HighMassLQReconstruction::process(uhh2::Event & event) {
     event.set(h_recohyps, move(recoHyps));
     return true;
 }
+
+
+
+
+HighMassHadronicLQReconstruction::HighMassHadronicLQReconstruction(Context & ctx, const string & label) {
+    h_hadr_recohyps = ctx.declare_event_output<vector<LQReconstructionHypothesis>>(label);
+}
+
+HighMassHadronicLQReconstruction::~HighMassHadronicLQReconstruction() {}
+
+bool HighMassHadronicLQReconstruction::process(uhh2::Event & event) {
+    assert(event.jets);
+    std::vector<LQReconstructionHypothesis> recoHyps;
+
+    unsigned int n_jets = event.jets->size();
+    if(n_jets>12) n_jets=12; //avoid crashes in events with many jets
+    // idea: loop over 3^Njet possibilities and write the current loop
+    // index j in the 3-base system. The Njets digits represent whether
+    // to assign each jet to the hadronic side (0), leptonic side (1),
+    // or none of them (2).
+    const unsigned int max_j = pow(3, n_jets);
+
+    //loop over neutrino solutions and jet assignments to fill hyotheses
+    for (unsigned int j=0; j < max_j; j++) {
+      LorentzVector tophad1_v4;
+      LorentzVector tophad2_v4;
+      int hadjets1=0;
+      int hadjets2=0;
+      int num = j;
+      LQReconstructionHypothesis hyp;
+      for (unsigned int k=0; k<n_jets; k++) {
+	if(num%3==0) {
+	  tophad1_v4 = tophad1_v4 + event.jets->at(k).v4();
+	  hyp.add_tophad1_jet(event.jets->at(k));
+	  hadjets1++;
+	}
+
+	if(num%3==1) {
+	  tophad2_v4 = tophad2_v4 + event.jets->at(k).v4();
+	  hyp.add_tophad2_jet(event.jets->at(k));
+	  hadjets2++;
+	}
+	//in case num%3==2 do not take this jet at all
+	//shift the trigits of num to the right:
+	num /= 3;
+      }
+
+      //fill only hypotheses with at least one jet assigned to each top quark
+      if(hadjets1>0 && hadjets2>0) {
+	LorentzVector mu1_v4;
+	LorentzVector mu2_v4;
+
+	for(int i=0; i<2; i++){
+	hyp.set_mu_had1(event.muons->at(i));
+	mu1_v4 = event.muons->at(i).v4();
+	hyp.set_mu_had2(event.muons->at(1-i));
+	mu2_v4 = event.muons->at(1-i).v4();
+	
+	hyp.set_mu_had1_v4(mu1_v4);
+	hyp.set_mu_had2_v4(mu2_v4);
+	hyp.set_tophad1_v4(tophad1_v4);
+	hyp.set_tophad2_v4(tophad2_v4);
+	recoHyps.emplace_back(move(hyp));
+	} // 2 possible muon combinations	
+      } // if at least 1 jet is assigned to each top quark
+    } // 3^n_jets jet combinations
+    event.set(h_hadr_recohyps, move(recoHyps));
+    return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 LQTopTagReconstruction::LQTopTagReconstruction(Context & ctx, const NeutrinoReconstructionMethod & neutrinofunction, const string & label, TopJetId tjetid, float minDR_tj_j):

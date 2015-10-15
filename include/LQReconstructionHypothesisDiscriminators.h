@@ -57,6 +57,23 @@ private:
 };
 
 
+
+class LQHadronicChi2Discriminator: public uhh2::AnalysisModule {
+public:
+    struct cfg {
+        std::string discriminator_label;
+        cfg(): discriminator_label("Chi2Hadronic"){}
+    };
+    
+    LQHadronicChi2Discriminator(uhh2::Context & ctx, const std::string & rechyps_name, const cfg & config = cfg());
+    virtual bool process(uhh2::Event & event) override;
+    
+private:
+    uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_hyps;
+    cfg config;
+};
+
+
 /** \brief Top-DeltaR quality flag for Monte-Carlo
  * 
  * Requires a TTbarGen object in the event (see TTbarGen.h).

@@ -230,4 +230,30 @@ bool EtaLeadingJetSelection::passes(const Event & event){
   return pass;
 }
 
+InvMassMuEleVeto::InvMassMuEleVeto(double m_min_, double m_max_):m_min(m_min_), m_max(m_max_){}
+bool InvMassMuEleVeto::passes(const Event & event){
+
+  bool pass = true;
+  int Nmuons = event.muons->size();
+  int Nelectrons = event.electrons->size();
+  double M_muele;
+  LorentzVector muons[Nmuons];
+  LorentzVector electrons[Nelectrons];
+  for(int i=0; i<Nmuons; i++){
+    muons[i] = event.muons->at(i).v4();
+  }
+  for(int i=0; i<Nelectrons; i++){
+    electrons[i] = event.electrons->at(i).v4();
+  }
+  for(int i=0; i<Nmuons; i++){
+    for(int j=0; j<Nelectrons; j++){
+      M_muele = (muons[i] + electrons[j]).M();
+      if(M_muele > m_min && M_muele < m_max){
+	pass = false;
+      } 
+    }
+  }
+  return pass;
+}
+
 

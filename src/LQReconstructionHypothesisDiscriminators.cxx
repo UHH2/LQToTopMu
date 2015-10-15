@@ -33,6 +33,7 @@ const LQReconstructionHypothesis * get_best_hypothesis(const std::vector<LQRecon
         }
     }
     if(std::isfinite(current_best_disc)){
+      //cout << "minimal Chi2: " << current_best_disc << endl;
         return best;
     }
     else{
@@ -51,20 +52,48 @@ bool LQChi2Discriminator::process(uhh2::Event & event){
     const double mass_thad_sigma = 15;
     const double mass_tlep = 174;
     const double mass_tlep_sigma = 18;
-    //const double mass_LQ_diff = -12; // from Histo-sum: -12, from M500: -13, from M1300: -12
-    //const double mass_LQ_diff_sigma = 152; // from Histo-sum: 46, from M500: 63, from M1300: 152
+    const double mass_LQ_diff = -12; // from Histo-sum: -12, from M500: -13, from M1300: -12
+    const double mass_LQ_diff_sigma = 152; // from Histo-sum: 46, from M500: 63, from M1300: 152
     for(auto & hyp: hyps){
         double mass_thad_rec = inv_mass(hyp.tophad_v4());
         double mass_tlep_rec = inv_mass(hyp.toplep_v4());
-	//double mass_LQ_had_rec = inv_mass(hyp.LQhad_v4()); // added
-	//double mass_LQ_lep_rec = inv_mass(hyp.LQlep_v4()); // added
+	double mass_LQ_had_rec = inv_mass(hyp.LQhad_v4()); // added
+	double mass_LQ_lep_rec = inv_mass(hyp.LQlep_v4()); // added
         double chi2_thad = pow((mass_thad_rec - mass_thad) / mass_thad_sigma, 2);
         double chi2_tlep = pow((mass_tlep_rec - mass_tlep) / mass_tlep_sigma, 2);
-	//double chi2_MLQdiff = pow(((mass_LQ_had_rec - mass_LQ_lep_rec) - mass_LQ_diff) / mass_LQ_diff_sigma, 2); // added
-        hyp.set_discriminator(config.discriminator_label, chi2_thad + chi2_tlep /*+ chi2_MLQdiff*/); // modified
+	double chi2_MLQdiff = pow(((mass_LQ_had_rec - mass_LQ_lep_rec) - mass_LQ_diff) / mass_LQ_diff_sigma, 2); // added
+        hyp.set_discriminator(config.discriminator_label, chi2_thad + chi2_tlep + chi2_MLQdiff); // modified
         hyp.set_discriminator(config.discriminator_label + "_tlep", chi2_tlep);
         hyp.set_discriminator(config.discriminator_label + "_thad", chi2_thad);
-        //hyp.set_discriminator(config.discriminator_label + "_MLQdiff", chi2_MLQdiff);// added
+        hyp.set_discriminator(config.discriminator_label + "_MLQdiff", chi2_MLQdiff);// added
+  }
+  return true;
+}
+
+LQHadronicChi2Discriminator::LQHadronicChi2Discriminator(Context & ctx, const std::string & rechyps_name, const cfg & config_): config(config_){
+    h_hyps = ctx.get_handle<vector<LQReconstructionHypothesis>>(rechyps_name);
+}
+
+
+bool LQHadronicChi2Discriminator::process(uhh2::Event & event){
+    auto & hyps = event.get(h_hyps);
+    const double mass_thad1 = 181;
+    const double mass_thad1_sigma = 15;
+
+    const double mass_LQ_diff = -12; // from Histo-sum: -12, from M500: -13, from M1300: -12
+    const double mass_LQ_diff_sigma = 46; // from Histo-sum: 46, from M500: 63, from M1300: 152
+    for(auto & hyp: hyps){
+        double mass_thad1_rec = inv_mass(hyp.tophad1_v4());
+        double mass_thad2_rec = inv_mass(hyp.tophad2_v4());
+	double mass_LQ_had1_rec = inv_mass(hyp.LQhad1_v4()); // added
+	double mass_LQ_had2_rec = inv_mass(hyp.LQhad2_v4()); // added
+        double chi2_thad1 = pow((mass_thad1_rec - mass_thad1) / mass_thad1_sigma, 2);
+        double chi2_thad2 = pow((mass_thad2_rec - mass_thad1) / mass_thad1_sigma, 2);
+	double chi2_MLQdiff = pow(((mass_LQ_had1_rec - mass_LQ_had2_rec) - mass_LQ_diff) / mass_LQ_diff_sigma, 2); // added
+        hyp.set_discriminator(config.discriminator_label, chi2_thad1 + chi2_thad2 + chi2_MLQdiff); // modified
+        hyp.set_discriminator(config.discriminator_label + "_thad2", chi2_thad2);
+        hyp.set_discriminator(config.discriminator_label + "_thad1", chi2_thad1);
+        hyp.set_discriminator(config.discriminator_label + "_MLQdiff", chi2_MLQdiff);// added
   }
   return true;
 }

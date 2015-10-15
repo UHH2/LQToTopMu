@@ -4,6 +4,7 @@
 #include <math.h>
 
 #include "TH1F.h"
+#include "TH1D.h"
 #include <iostream>
 
 using namespace std;
@@ -13,25 +14,27 @@ using namespace uhh2examples;
 LQToTopMuPreselectionHists::LQToTopMuPreselectionHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
   // book all histograms here
   // jets
-  book<TH1F>("N_jets", "N_{jets}", 20, 0, 20);  
-  book<TH1F>("eta_jet1", "#eta^{jet 1}", 40, -2.5, 2.5);
-  book<TH1F>("eta_jet2", "#eta^{jet 2}", 40, -2.5, 2.5);
-  book<TH1F>("eta_jet3", "#eta^{jet 3}", 40, -2.5, 2.5);
-  book<TH1F>("eta_jet4", "#eta^{jet 4}", 40, -2.5, 2.5);
-  book<TH1F>("pt_jet1", "#p_{T}^{jet 1}", 100, 0, 3000);
-  book<TH1F>("pt_jet2", "#p_{T}^{jet 2}", 100, 0, 3000);
-  book<TH1F>("pt_jet3", "#p_{T}^{jet 3}", 100, 0, 3000);
+  book<TH1D>("N_jets", "N_{jets}", 20, 0, 20);  
+  book<TH1D>("eta_jet1", "#eta^{jet 1}", 40, -2.5, 2.5);
+  book<TH1D>("eta_jet2", "#eta^{jet 2}", 40, -2.5, 2.5);
+  book<TH1D>("eta_jet3", "#eta^{jet 3}", 40, -2.5, 2.5);
+  book<TH1D>("eta_jet4", "#eta^{jet 4}", 40, -2.5, 2.5);
+  book<TH1D>("pt_jet1", "#p_{T}^{jet 1}", 100, 0, 3000);
+  book<TH1D>("pt_jet2", "#p_{T}^{jet 2}", 100, 0, 3000);
+  book<TH1D>("pt_jet3", "#p_{T}^{jet 3}", 100, 0, 3000);
 
   // leptons
-  book<TH1F>("N_mu", "N^{#mu}", 10, 0, 10);
-  book<TH1F>("pt_mu", "p_{T}^{#mu} [GeV/c]", 40, 0, 200);
-  book<TH1F>("eta_mu", "#eta^{#mu}", 40, -2.1, 2.1);
-  book<TH1F>("reliso_mu", "#mu rel. Iso", 40, 0, 0.5);
+  book<TH1D>("N_mu", "N^{#mu}", 10, 0, 10);
+  book<TH1D>("pt_mu", "p_{T}^{#mu} [GeV/c]", 40, 0, 200);
+  book<TH1D>("eta_mu", "#eta^{#mu}", 40, -2.1, 2.1);
+  book<TH1D>("reliso_mu", "#mu rel. Iso", 40, 0, 0.5);
 
   // general
-  book<TH1F>("N_pv", "N_{PV}", 50, 0, 50);
-  book<TH1F>("H_T", "H_{T}", 100, 0, 5000);
-  book<TH1F>("sum_event_weights", "BinContent = sum(eventweights)", 1, 0.5, 1.5);
+  book<TH1D>("N_pv", "N_{PV}", 50, 0, 50);
+  book<TH1D>("H_T", "H_{T}", 100, 0, 5000);
+  book<TH1D>("sum_event_weights", "BinContent = sum(eventweights)", 1, 0.5, 1.5);
+  book<TH1D>("mindr_mujet", "min(#Delta R) between a muon and a jet", 50,0,5);
+  book<TH1D>("mindr_elejet", "min(#Delta R) between an electron and a jet", 50,0,5);
 }
 
 
@@ -43,7 +46,7 @@ void LQToTopMuPreselectionHists::fill(const Event & event){
   
   // Don't forget to always use the weight when filling.
   double weight = event.weight;
-  
+
   std::vector<Jet>* jets = event.jets;
   int Njets = jets->size();
   hist("N_jets")->Fill(Njets, weight);
@@ -108,7 +111,29 @@ void LQToTopMuPreselectionHists::fill(const Event & event){
   hist("H_T")->Fill(ht, weight);
 
   hist("sum_event_weights")->Fill(1., weight);
-   
+
+  double mindr_mujet = 999;
+  double mindr_elejet = 999;
+  for(const Muon & thismu : *event.muons){
+    for(const Jet & thisjet : *event.jets){
+      double dr = deltaR(thismu,thisjet);
+      if (dr < mindr_mujet) mindr_mujet = dr;
+    }
+    hist("mindr_mujet")->Fill(mindr_mujet,weight);
+  }
+
+  for(const Electron & thisele : *event.electrons){
+    for(const Jet & thisjet : *event.jets){
+      double dr = deltaR(thisele,thisjet);
+      if (dr < mindr_elejet) mindr_elejet = dr;
+    }
+    hist("mindr_elejet")->Fill(mindr_elejet,weight);
+  }
+
+
+
+
+
 } //Methode
 
 

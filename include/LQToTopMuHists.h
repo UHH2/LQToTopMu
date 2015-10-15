@@ -26,6 +26,7 @@ public:
 
   protected:
     uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_hyps;
+    uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_hadr_hyps;
     std::string m_discriminator_name;
 
 
