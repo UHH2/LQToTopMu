@@ -3,6 +3,7 @@
 #include "TH2F.h"
 
 using namespace uhh2;
+using namespace std;
 
 HypothesisHistsOwn::HypothesisHistsOwn(uhh2::Context & ctx, const std::string & dirname, const std::string & hyps_name, const std::string & discriminator_name ): Hists(ctx, dirname){
 
@@ -33,6 +34,7 @@ HypothesisHistsOwn::HypothesisHistsOwn(uhh2::Context & ctx, const std::string & 
     M_LQmean_rec = book<TH1F>("M_LQmean_rec", "M_{LQmean}^{rec} [GeV/c^{2}]", 40, 0, 2000 );
 
     M_LQ_rec_diff = book<TH1F>("M_LQ_rec_diff", "M_{LQ}^{had} - M_{LQ}^{lep} [GeV/c^2]", 50, -500, 500);
+    M_LQ_rec_diff_rel = book<TH1F>("M_LQ_rec_diff_rel", "(M_{LQ}^{had} - M_{LQ}^{lep}) / M_{LQ}^{mean} [GeV/c^]", 50, -0.5, 0.5);
 
     //rebinned for theta-analysis
     double binsxLQmean[19] = {0,50,100, 150,200,250,300,350,400,450,500,550,600,650,700,750,800,1000,2000};
@@ -78,24 +80,21 @@ void HypothesisHistsOwn::fill(const uhh2::Event & e){
   double mtophad=0;
 
   if(hyp->toplep_v4().isTimelike()) mtoplep = hyp->toplep_v4().M();
+  else mtoplep = sqrt( -(hyp->toplep_v4()).mass2());
   if(hyp->tophad_v4().isTimelike()) mtophad = hyp->tophad_v4().M();
+  else mtophad = sqrt( -(hyp->tophad_v4()).mass2());
   M_toplep_rec->Fill(mtoplep,weight);
   M_tophad_rec->Fill(mtophad,weight);
+
+  /*cout << "in hyphists: MTopLep: " << mtoplep << ", MTopHad: " << mtophad << endl;
+  cout << "Timelike: " << hyp->toplep_v4().isTimelike() << endl;
+  cout << "2 Masses: " << hyp->toplep_v4().M() << " and " << sqrt( -(hyp->toplep_v4()).mass2()) << endl;
+  cout << "4 vec:    " << hyp->toplep_v4() << endl;*/
 
   Discriminator->Fill(hyp->discriminator(m_discriminator_name) ,weight);
   Discriminator_2->Fill(hyp->discriminator(m_discriminator_name) ,weight); 
   Discriminator_3->Fill(hyp->discriminator(m_discriminator_name) ,weight);
 
-  //Get Muons and Electrons
-  /*std::vector<Muon>*my_muons = e.muons; ////////////////////////
-  std::vector<Electron>*my_electrons = e.electrons;
-
-  LorentzVector Muon1 = (my_muons->at(0).v4());
-  LorentzVector Muon2 = (my_muons->at(1).v4());
-
-  double charge_M1 = (my_muons->at(0).charge());
-  //double charge_M2 = (my_muons->at(1).charge());
-  double charge_E1 = (my_electrons->at(0).charge());*/
   
   //Combine Top and Muon (Electron and Muon Charge have to be opposite)
   double mLQlep_rec = 0;
@@ -103,31 +102,8 @@ void HypothesisHistsOwn::fill(const uhh2::Event & e){
   double mLQmax_rec = 0;
   double mLQmed_rec = 0;
   double mLQ_rec_diff = 0;
+  double mLQ_rec_diff_rel = 0;
 
-  /*  if(charge_M1 != charge_E1){ 
-    if( (hyp->toplep_v4()+Muon1).isTimelike() )
-      mLQlep_rec = (hyp->toplep_v4()+Muon1).M();
-    else{
-      mLQlep_rec = sqrt( -(hyp->toplep_v4()+Muon1).mass2());
-    }
-    if( (hyp->tophad_v4()+Muon2).isTimelike() )
-      mLQhad_rec = (hyp->tophad_v4()+Muon2).M();
-    else{
-      mLQhad_rec = sqrt( -(hyp->tophad_v4()+Muon2).mass2());
-    }
-  }
-  else{
-    if( (hyp->toplep_v4()+Muon2).isTimelike() )
-      mLQlep_rec = (hyp->toplep_v4()+Muon2).M();
-    else{
-      mLQlep_rec = sqrt( -(hyp->toplep_v4()+Muon2).mass2());
-    } 
-    if( (hyp->tophad_v4()+Muon1).isTimelike() )
-      mLQhad_rec = (hyp->tophad_v4()+Muon1).M();
-    else{
-      mLQhad_rec = sqrt( -(hyp->tophad_v4()+Muon1).mass2());
-    }
-  }*/
   if( (hyp->LQlep_v4()).isTimelike() ) {mLQlep_rec = (hyp->LQlep_v4()).M();}
   else {mLQlep_rec = sqrt( -(hyp->LQlep_v4()).mass2());}
   if( (hyp->LQhad_v4()).isTimelike() ) {mLQhad_rec = (hyp->LQhad_v4()).M();}
@@ -142,6 +118,8 @@ void HypothesisHistsOwn::fill(const uhh2::Event & e){
   
   mLQmed_rec = (mLQhad_rec + mLQlep_rec)/2;
   mLQ_rec_diff = mLQhad_rec - mLQlep_rec;
+  mLQ_rec_diff_rel = mLQ_rec_diff/mLQmed_rec;
+  //cout << "in hyphists: MLQmean: " << mLQmed_rec << ", mLQdiff: " << mLQ_rec_diff << endl << endl;
   
   M_LQlep_rec->Fill(mLQlep_rec, weight);
   M_LQhad_rec->Fill(mLQhad_rec, weight);
@@ -150,6 +128,7 @@ void HypothesisHistsOwn::fill(const uhh2::Event & e){
   M_LQmean_rec_rebin->Fill(mLQmed_rec, weight);
   if(hyp->discriminator(m_discriminator_name) < 20){ // 999999 is set as discr. value on CorrectMatchDiscr, if one of the required conditions is not matched
     M_LQ_rec_diff->Fill(mLQ_rec_diff, weight);
+    M_LQ_rec_diff_rel->Fill(mLQ_rec_diff_rel,weight);
   }
   
 }

@@ -45,13 +45,13 @@ bool LQGenModule::process(Event & event) {
   //printer->process(event);
   LQgenprod->process(event);
 
-    //const auto & LQLQbargen = event.get(h_LQgen);
+  const auto & LQLQbargen = event.get(h_LQLQbargen);
     
-    //cout << "Decay channel is " << int(LQLQbargen.DecayChannel()) << endl;
+  cout << "Decay channel is " << int(LQLQbargen.LQ().v4().M()) << endl;
 
-    h_LQgenhists->fill(event);
+  //h_LQgenhists->fill(event);
 
-    return true;
+  return true;
 }
 
 UHH2_REGISTER_ANALYSIS_MODULE(LQGenModule)

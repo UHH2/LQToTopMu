@@ -20,7 +20,7 @@ public:
 
 protected:
     TH1F *Discriminator, *Discriminator_2, *Discriminator_3;
-    TH1F *M_LQlep_rec, *M_LQhad_rec, *M_LQmax_rec, *M_LQmean_rec, *M_LQmean_rec_rebin, *M_LQ_rec_diff;
+    TH1F *M_LQlep_rec, *M_LQhad_rec, *M_LQmax_rec, *M_LQmean_rec, *M_LQmean_rec_rebin, *M_LQ_rec_diff, *M_LQ_rec_diff_rel;
     TH1F *M_ttbar_rec, *M_toplep_rec, *M_tophad_rec, *M_tophad_rec_1jet, *M_tophad_rec_2jet, *M_tophad_rec_3jet;
     TH1F *Pt_toplep_rec, *Pt_tophad_rec, *Pt_ttbar_rec;
 

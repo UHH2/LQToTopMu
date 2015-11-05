@@ -20,6 +20,8 @@ public:
   LorentzVector tophad_v4() const{return m_tophad_v4;} 
   LorentzVector tophad1_v4() const{return m_tophad1_v4;} 
   LorentzVector tophad2_v4() const{return m_tophad2_v4;} 
+  LorentzVector whad1_v4() const{return m_whad1_v4;}
+  LorentzVector whad2_v4() const{return m_whad2_v4;}
   LorentzVector neutrino_v4() const{return m_neutrino_v4;} 
   Particle electron() const{return m_electron;}
   LorentzVector electron_v4() const{return m_electron_v4;}
@@ -39,6 +41,8 @@ public:
   std::vector<Particle> tophad_jets() const{return m_tophad_jets;}
   std::vector<Particle> tophad1_jets() const{return m_tophad1_jets;}
   std::vector<Particle> tophad2_jets() const{return m_tophad2_jets;}
+  std::vector<Particle> whad1_jets() const{return m_whad1_jets;}
+  std::vector<Particle> whad2_jets() const{return m_whad2_jets;}
   std::vector<Particle> toplep_jets() const{return m_toplep_jets;}
   LorentzVector top_v4() const{ return m_electron.charge() > 0 ? m_toplep_v4 : m_tophad_v4;}
   LorentzVector antitop_v4() const{ return m_electron.charge() < 0 ? m_toplep_v4 : m_tophad_v4;}
@@ -64,11 +68,15 @@ public:
   void set_tophad_v4(LorentzVector v4){m_tophad_v4=v4;} 
   void set_tophad1_v4(LorentzVector v4){m_tophad1_v4=v4;} 
   void set_tophad2_v4(LorentzVector v4){m_tophad2_v4=v4;} 
+  void set_whad1_v4(LorentzVector v4){m_whad1_v4=v4;}
+  void set_whad2_v4(LorentzVector v4){m_whad2_v4=v4;}
   void set_neutrino_v4(LorentzVector v4){m_neutrino_v4=v4;}
   void add_toplep_jet(const Particle & j){m_toplep_jets.push_back(j);}
   void add_tophad_jet(const Particle & j){m_tophad_jets.push_back(j);}
   void add_tophad1_jet(const Particle & j){m_tophad1_jets.push_back(j);}
   void add_tophad2_jet(const Particle & j){m_tophad2_jets.push_back(j);}
+  void add_whad1_jet(const Particle & j){m_whad1_jets.push_back(j);}
+  void add_whad2_jet(const Particle & j){m_whad2_jets.push_back(j);}
   void set_electron(const Particle & l){m_electron = l;}
   void set_mu_lep(const Particle & l){m_mu_lep = l;}
   void set_mu_had(const Particle & l){m_mu_had = l;}
@@ -91,6 +99,8 @@ private:
   LorentzVector m_tophad_v4;
   LorentzVector m_tophad1_v4;
   LorentzVector m_tophad2_v4;
+  LorentzVector m_whad1_v4;
+  LorentzVector m_whad2_v4;
   LorentzVector m_neutrino_v4;
 
   LorentzVector m_electron_v4;
@@ -106,6 +116,8 @@ private:
   std::vector<Particle> m_tophad_jets;
   std::vector<Particle> m_tophad1_jets;
   std::vector<Particle> m_tophad2_jets;
+  std::vector<Particle> m_whad1_jets;
+  std::vector<Particle> m_whad2_jets;
   std::vector<Particle> m_toplep_jets;
   Particle m_electron;
   Particle m_mu_lep;

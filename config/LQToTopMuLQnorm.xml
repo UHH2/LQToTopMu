@@ -16,73 +16,73 @@
 -->
 
   
-<!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_v2/Optimization/66196pb_1bJet+InvMassVeto20+HTLept200/66196pb_1bJet+InvMassVeto20+HTLept200_" PostFix="_norm" TargetLumi="66.196" >-->
-<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_v2/Optimization/66196pb_1bJet+InvMassVeto20+HTLept200/66196pb_1bJet+InvMassVeto20+HTLept200_" PostFix="_norm" TargetLumi="66.196" RunMode="PROOF" ProofServer="lite://" ProofWorkDir="/nfs/dust/cms/user/reimersa/.proof/">
+<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Optimization/55267pb_1bJet+InvMassVeto20+HTLept200/test_55267pb_1bJet+InvMassVeto20+HTLept200_" PostFix="_norm" TargetLumi="552.67" >
+<!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Optimization/55267pb_1bJet+InvMassVeto20+HTLept200/55267pb_1bJet+InvMassVeto20+HTLept200_" PostFix="_norm" TargetLumi="552.67" RunMode="PROOF" ProofServer="lite://" ProofWorkDir="/nfs/dust/cms/user/reimersa/.proof2/">-->
     
     <!-- normiert auf 1 pb -->   
  
-     <InputData Lumi="74316" NEventsMax="-1" Type="MC" Version="LQtoTMuM200_25ns" Cacheable="False">
-      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_v2/Preselection/66196pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM200_25ns.root" Lumi="0.0"/>
+     <InputData Lumi="74158" NEventsMax="-1" Type="MC" Version="LQtoTMuM200_25ns" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Preselection/55267pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM200_25ns.root" Lumi="0.0"/>
       <InputTree Name="AnalysisTree" />
     </InputData>  
     
-    <InputData Lumi="74139" NEventsMax="-1" Type="MC" Version="LQtoTMuM300_25ns" Cacheable="False">
-      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_v2/Preselection/66196pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM300_25ns.root" Lumi="0.0"/>
+    <InputData Lumi="73983" NEventsMax="-1" Type="MC" Version="LQtoTMuM300_25ns" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Preselection/55267pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM300_25ns.root" Lumi="0.0"/>
       <InputTree Name="AnalysisTree" />
     </InputData> 
  
-    <InputData Lumi="74783" NEventsMax="-1" Type="MC" Version="LQtoTMuM400_25ns" Cacheable="False">
-      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_v2/Preselection/66196pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM400_25ns.root" Lumi="0.0"/>
+    <InputData Lumi="74621" NEventsMax="-1" Type="MC" Version="LQtoTMuM400_25ns" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Preselection/55267pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM400_25ns.root" Lumi="0.0"/>
       <InputTree Name="AnalysisTree" />
     </InputData> 
     
-    <InputData Lumi="74722" NEventsMax="-1" Type="MC" Version="LQtoTMuM500_25ns" Cacheable="False">
-      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_v2/Preselection/66196pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM500_25ns.root" Lumi="0.0"/>
+    <InputData Lumi="74560" NEventsMax="-1" Type="MC" Version="LQtoTMuM500_25ns" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Preselection/55267pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM500_25ns.root" Lumi="0.0"/>
       <InputTree Name="AnalysisTree" />
     </InputData>
     
-    <InputData Lumi="71928" NEventsMax="-1" Type="MC" Version="LQtoTMuM600_25ns" Cacheable="False">
-      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_v2/Preselection/66196pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM600_25ns.root" Lumi="0.0"/>
+    <InputData Lumi="71743" NEventsMax="-1" Type="MC" Version="LQtoTMuM600_25ns" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Preselection/55267pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM600_25ns.root" Lumi="0.0"/>
       <InputTree Name="AnalysisTree" />
     </InputData> 
 
-    <InputData Lumi="75000" NEventsMax="-1" Type="MC" Version="LQtoTMuM700_25ns" Cacheable="False">
-      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_v2/Preselection/66196pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM700_25ns.root" Lumi="0.0"/>
+    <InputData Lumi="74830" NEventsMax="-1" Type="MC" Version="LQtoTMuM700_25ns" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Preselection/55267pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM700_25ns.root" Lumi="0.0"/>
       <InputTree Name="AnalysisTree" />
     </InputData>
     
-    <InputData Lumi="74812" NEventsMax="-1" Type="MC" Version="LQtoTMuM800_25ns" Cacheable="False">
-      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_v2/Preselection/66196pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM800_25ns.root" Lumi="0.0"/>
+    <InputData Lumi="74668" NEventsMax="-1" Type="MC" Version="LQtoTMuM800_25ns" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Preselection/55267pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM800_25ns.root" Lumi="0.0"/>
       <InputTree Name="AnalysisTree" />
     </InputData>
 
-    <InputData Lumi="73462" NEventsMax="-1" Type="MC" Version="LQtoTMuM900_25ns" Cacheable="False">
-      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_v2/Preselection/66196pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM900_25ns.root" Lumi="0.0"/>
+    <InputData Lumi="73304" NEventsMax="-1" Type="MC" Version="LQtoTMuM900_25ns" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Preselection/55267pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM900_25ns.root" Lumi="0.0"/>
       <InputTree Name="AnalysisTree" />
     </InputData> 
  
-    <InputData Lumi="73765" NEventsMax="-1" Type="MC" Version="LQtoTMuM1000_25ns" Cacheable="False">
-      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_v2/Preselection/66196pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM1000_25ns.root" Lumi="0.0"/>
+    <InputData Lumi="73595" NEventsMax="-1" Type="MC" Version="LQtoTMuM1000_25ns" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Preselection/55267pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM1000_25ns.root" Lumi="0.0"/>
       <InputTree Name="AnalysisTree" />
     </InputData> 
     
-    <InputData Lumi="75000" NEventsMax="-1" Type="MC" Version="LQtoTMuM1200_25ns" Cacheable="False">
-      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_v2/Preselection/66196pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM1200_25ns.root" Lumi="0.0"/>
+    <InputData Lumi="74832" NEventsMax="-1" Type="MC" Version="LQtoTMuM1200_25ns" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Preselection/55267pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM1200_25ns.root" Lumi="0.0"/>
       <InputTree Name="AnalysisTree" />
     </InputData>
     
-    <InputData Lumi="74356" NEventsMax="-1" Type="MC" Version="LQtoTMuM1400_25ns" Cacheable="False">
-      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_v2/Preselection/66196pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM1400_25ns.root" Lumi="0.0"/>
+    <InputData Lumi="74177" NEventsMax="-1" Type="MC" Version="LQtoTMuM1400_25ns" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Preselection/55267pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM1400_25ns.root" Lumi="0.0"/>
       <InputTree Name="AnalysisTree" />
     </InputData> 
 
-    <InputData Lumi="74172" NEventsMax="-1" Type="MC" Version="LQtoTMuM1700_25ns" Cacheable="False">
-      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_v2/Preselection/66196pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM1700_25ns.root" Lumi="0.0"/>
+    <InputData Lumi="74024" NEventsMax="-1" Type="MC" Version="LQtoTMuM1700_25ns" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Preselection/55267pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM1700_25ns.root" Lumi="0.0"/>
       <InputTree Name="AnalysisTree" />
     </InputData>
     
-    <InputData Lumi="75000" NEventsMax="-1" Type="MC" Version="LQtoTMuM2000_25ns" Cacheable="False">
-      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_v2/Preselection/66196pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM2000_25ns.root" Lumi="0.0"/>
+    <InputData Lumi="74822" NEventsMax="-1" Type="MC" Version="LQtoTMuM2000_25ns" Cacheable="False">
+      <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Preselection/55267pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM2000_25ns.root" Lumi="0.0"/>
       <InputTree Name="AnalysisTree" />
     </InputData>
 
@@ -100,8 +100,8 @@
 	    <Item Name="TopJetCollection" Value="slimmedJetsAK8_CMSTopTag" /> <!-- for CMSTopTagger -->
 	    <!-- <Item Name="TopJetCollection" Value="patJetsHepTopTagCHSPacked" /> --> <!-- for HEPTopTagger -->
 	    <Item Name="GenParticleCollection" Value="GenParticles" />
-            <Item Name="lumi_file" Value="/nfs/dust/cms/user/peiffer/NtupleWriter/Ntuples/RunII_v2/Lumifile_withRun254833.root" />
-            <Item Name="lumihists_lumi_per_bin" Value="1"/>
+            <Item Name="lumi_file" Value="/nfs/dust/cms/user/peiffer/NtupleWriter/Ntuples/RunII_25ns_v1/Lumifile_Cert_246908-258159_13TeV_PromptReco_Collisions15_25ns_JSON_v3.root" />
+            <Item Name="lumihists_lumi_per_bin" Value="5."/>
 	    <Item Name="GenInfoName" Value="genInfo" />
 
             
@@ -139,10 +139,10 @@
             <Item Name="use_sframe_weight" Value="false" />
             
             <!-- configuration for MCPileupReweight (run as part of CommonModules): -->
-            <Item Name="pileup_directory" Value="" />
-	    <Item Name="pileup_directory_data" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_v2/MCPUReweight/uhh2.AnalysisModuleRunner.Data.Data.root" />
-	    <Item Name="pileup_directory_50ns" Value="/nfs/dust/cms/user/gonvaq/CMSSW/CMSSW_7_4_3/src/UHH2/VLQToTopAndLepton/config/PU_reweighting/uhh2.AnalysisModuleRunner.MC.TTbar.root" />
-	    <Item Name="pileup_directory_25ns" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_v2/MCPUReweight/uhh2.AnalysisModuleRunner.MC.MC_LQToTopMuM900.root" />
+            <Item Name="pileup_directory" Value="" /> 
+	    <Item Name="pileup_directory_data" Value="/nfs/dust/cms/user/marchesi/PUData/MyDataPileupHistogram.root" />
+	    <Item Name="pileup_directory_50ns" Value="/nfs/dust/cms/user/peiffer/NtupleWriter/Ntuples/RunII_25ns_v1/Pileup.MC.TTbar.root" />
+	    <Item Name="pileup_directory_25ns" Value="/nfs/dust/cms/user/peiffer/NtupleWriter/Ntuples/RunII_25ns_v1/Pileup.MC.TTbar.root" />
 
 	    <Item Name="ScaleVariationMuR" Value="none" />
 	    <Item Name="ScaleVariationMuF" Value="none" />

@@ -5,6 +5,7 @@
 #include <math.h>
 
 #include "TH1F.h"
+#include "TH2D.h"
 #include <iostream>
 
 using namespace std;
@@ -51,6 +52,7 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   // general
   book<TH1F>("N_pv", "N_{PV}", 50, 0, 50);
   book<TH1F>("E_Tmiss", "missing E_{T} [GeV]", 75, 0, 1500);
+  book<TH1F>("E_Tmiss_0Ele2Mu", "missing E_{T} [GeV] for N_{e}=0, N_{#mu}=2", 75, 0,1500);
   book<TH1F>("H_T", "H_{T} [GeV]", 50, 0, 7000);
   double bins_low_1Ele[12] = {0,350,500,700,900,1100,1300,1500,1750,2000,2500,7000};
   double bins_low_NoEle[23] = {0,200,350,500,650,800,950,1100,1250,1400,1550,1700,1850,2000,2150,2300,2450,2600,2750,2900,3050,3200,7000};
@@ -66,12 +68,16 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("H_T_comb_1Ele", "H_{T}, N_{Ele} #geq 1 [GeV]", 50, 0, 7000);
   book<TH1F>("H_T_comb_1Ele_rebin", "H_{T}, N_{Ele} #geq 1 [GeV]", 11, bins_low_1Ele);
   book<TH1F>("H_T_comb_1Ele_rebin2", "H_{T}, N_{Ele} #geq 1, same binning as for N_{Ele} = 0 [GeV]", 22, bins_low_NoEle);
-  book<TH1F>("M_LQ_comb", "M_{LQ,mean} [GeV/c^{2}]", 40, 0, 2000);
+  book<TH1F>("M_LQ_comb", "M_{LQ,mean} [GeV/c^{2}]", 60, 0, 3000);
   double bins_mlq_low[17] = {100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,1000,2000};
   book<TH1F>("M_LQ_comb_rebin", "M_{LQ,mean} [GeV/c^{2}]", 16, bins_mlq_low);
   double bins_mlq_low2[6] = {100,200,300,500,800,2000};
   book<TH1F>("M_LQ_comb_rebin2", "M_{LQ,mean} [GeV/c^{2}]", 5, bins_mlq_low2);
   book<TH1F>("M_LQ_diff", "M_{LQ}^{had} - M_{LQ}^{lep} [GeV/c^{2}]", 50, -500, 500);
+  book<TH1F>("M_LQ_diff_rel", "(M_{LQ}^{had} - M_{LQ}^{lep})/M_{LQ,mean} [GeV/c]", 50, -0.5, 0.5);
+  book<TH1F>("M_LQLQ", "M_{LQLQ} [GeV/c^{2}]", 100, 0, 5000);
+  double bins_mlqlq_low[11] = {400,500,600,700,800,900,1000,1250,1500,2000,5000};
+  book<TH1F>("M_LQLQ_rebin", "M_{LQLQ} [GeV/c^{2}]", 10, bins_mlqlq_low);
 
   book<TH1F>("dR_toplep_mulep","#Delta R(t^{lep},#mu^{lep})",50,0,5);
   book<TH1F>("dR_tophad_muhad","#Delta R(t^{had},#mu^{had})",50,0,5);
@@ -92,18 +98,33 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   //event weights: sum
   book<TH1F>("sum_event_weights", "BinContent = sum(eventweights)", 1, 0.5, 1.5);
 
-  book <TH1F>("M_t_had", "M_{t,had} total", 50, 0, 500);
+  /*  book <TH1F>("M_t_had", "M_{t,had} total", 50, 0, 500);
   book <TH1F>("M_t_had1", "M_{t1,had}", 50, 0, 500);
   book <TH1F>("M_t_had2", "M_{t2,had}", 50, 0, 500);
 
-  book <TH1F>("M_LQ_had", "M_{LQ,had} total", 40, 0, 2000);
-  book <TH1F>("M_LQ_had1", "M_{LQ1,had}", 40, 0, 2000);
-  book <TH1F>("M_LQ_had2", "M_{LQ2,had}", 40, 0, 2000);
-  book <TH1F>("M_LQ_had_mean", "M_{LQ,had}^{mean}", 40, 0, 2000);
+  book <TH1F>("M_LQ_had", "M_{LQ,had} total", 60, 0, 3000);
+  book <TH1F>("M_LQ_had1", "M_{LQ1,had}", 60, 0, 3000);
+  book <TH1F>("M_LQ_had2", "M_{LQ2,had}", 60, 0, 3000);
+  book <TH1F>("M_LQ_had_mean", "M_{LQ,had}^{mean}", 60, 0, 3000);
+
+  book <TH1F>("Chi2Had", "#chi^{2}_{had}", 100, 0, 500);
+  book <TH1F>("Chi2Had_top1", "#chi^{2}_{had} top1", 150, 0, 300);
+  book <TH1F>("Chi2Had_top2", "#chi^{2}_{had} top2", 150, 0, 300);
+  book <TH1F>("Chi2Had_MLQdiff", "#chi^{2}_{had} M_{LQ}^{diff}", 150, 0, 300);
+  book <TH1F>("Chi2Had_PTLQLQ", "#chi^{2}_{had} p_{T}^{LQLQ}", 150, 0, 300);
+  book <TH1F>("Chi2Had_w1", "#chi^{2}_{had} w1", 100, 0, 500);
+  book <TH1F>("Chi2Had_w2", "#chi^{2}_{had} w2", 100, 0, 500);
+  book <TH1F>("Chi2Had_Top", "#chi^{2}_{had} from top", 200,0,1000);
+  book <TH1F>("Chi2Had_LQ", "#chi^{2}_{had} from LQ", 150,0,300);
+  book <TH2D>("Chi2Had_top1_vs_NJetsTop1","#chi^{2}_{had} top1 vs N_{Jets}^{top1}",150,0,300,10,-0.5,9.5);
+  book <TH1F>("PTLQhadLQhad", "p_{T}^{LQ#bar{LQ}}", 100, 0, 1500);
+  book <TH2D>("Chi2vsMLQ","#chi^{2} vs M_{LQ,had}^{mean}",150,0,300, 60,0,3000);
+  book <TH2D>("PTvsMLQ","p_{T}^{LQ#bar{LQ}} vs M_{LQ,had}^{mean}",100,0,1500, 60,0,3000);
+  book <TH2D>("Chi2vsPT","#chi^{2} vs p_{T}^{LQ#bar{LQ}}",150,0,300, 100,0,1500); */
 
   //For MLQ reconstruction
   h_hyps = ctx.get_handle<std::vector<LQReconstructionHypothesis>>("HighMassLQReconstruction");
-  h_hadr_hyps = ctx.get_handle<std::vector<LQReconstructionHypothesis>>("HighMassHadronicLQReconstruction");
+  //h_hadr_hyps = ctx.get_handle<std::vector<LQReconstructionHypothesis>>("HighMassHadronicLQReconstruction");
   m_discriminator_name ="Chi2";
   //m_discriminator_name ="CorrectMatch";
 
@@ -243,7 +264,6 @@ void LQToTopMuHists::fill(const Event & event){
   double ht_jets = 0.0;
   double ht_lep = 0.0;
   for(const auto & jet : *event.jets){
-    //ht += jet.pt();
     ht_jets += jet.pt();
   }
 
@@ -294,14 +314,13 @@ void LQToTopMuHists::fill(const Event & event){
     std::vector<LQReconstructionHypothesis> hyps = event.get(h_hyps); 
     const LQReconstructionHypothesis* hyp = get_best_hypothesis( hyps, m_discriminator_name );
     
-    
-    //Combine Top and Muon (Electron and Muon Charge have to be opposite)
+
     double mLQlep_rec = 0;
     double mLQhad_rec = 0;
     double mLQmed_rec = 0;
     double mLQdiff = 0;
-
-
+    double mLQdiff_rel = 0;
+    double mLQLQ = 0;
 
     if( (hyp->LQlep_v4()).isTimelike() ) {mLQlep_rec = (hyp->LQlep_v4()).M();}
     else {mLQlep_rec = sqrt( -(hyp->LQlep_v4()).mass2());}
@@ -309,20 +328,25 @@ void LQToTopMuHists::fill(const Event & event){
     else {mLQhad_rec = sqrt( -(hyp->LQhad_v4()).mass2());}
     
 
-    
-    mLQmed_rec = (mLQhad_rec + mLQlep_rec)/2;
+    mLQdiff = mLQhad_rec - mLQlep_rec;
+    //mLQmed_rec = (1/hyp->discriminator("Chi2_tlep")*mLQhad_rec + 1/hyp->discriminator("Chi2_thad")*mLQlep_rec)/(2*(1/hyp->discriminator("Chi2_tlep")+1/hyp->discriminator("Chi2_thad"))/2);
+    mLQmed_rec = (mLQhad_rec + mLQlep_rec) / 2;
     hist("M_LQ_comb")->Fill(mLQmed_rec, weight);
     hist("M_LQ_comb_rebin")->Fill(mLQmed_rec, weight);
     hist("M_LQ_comb_rebin2")->Fill(mLQmed_rec, weight);
     hist("M_LQ_diff")->Fill(mLQdiff, weight);
-
+    mLQdiff_rel = mLQdiff / mLQmed_rec;
+    hist("M_LQ_diff_rel")->Fill(mLQdiff_rel,weight);
+    mLQLQ = (hyp->LQlep_v4()+hyp->LQhad_v4()).M();
+    hist("M_LQLQ")->Fill(mLQLQ,weight);
+    hist("M_LQLQ_rebin")->Fill(mLQLQ,weight);
+    
     //deltaR between tops and associated muons
     double dR_lep = deltaR(hyp->toplep_v4(),hyp->mu_lep_v4());
     double dR_had = deltaR(hyp->tophad_v4(),hyp->mu_had_v4());
     double dR_lephad = deltaR(hyp->toplep_v4(),hyp->mu_had_v4());
     double dR_hadlep = deltaR(hyp->tophad_v4(),hyp->mu_lep_v4());
-    //cout << "dR_lep: " << dR_lep << endl;
-    //cout << "dR_had: " << dR_had << endl << endl;
+
     hist("dR_toplep_mulep")->Fill(dR_lep,weight);
     hist("dR_tophad_muhad")->Fill(dR_had,weight);
     hist("dR_toplep_muhad")->Fill(dR_lephad,weight);
@@ -339,7 +363,10 @@ void LQToTopMuHists::fill(const Event & event){
   }
 
   //all-hadronic LQ reco
-  if(Nele == 0 && event.muons->size() == 2){
+  /*if(Nele == 0 && event.muons->size() == 2){
+
+    hist("E_Tmiss_0Ele2Mu")->Fill(met,weight);
+
     std::vector<LQReconstructionHypothesis> hadr_hyps = event.get(h_hadr_hyps); 
     const LQReconstructionHypothesis* hadr_hyp = get_best_hypothesis( hadr_hyps, "Chi2Hadronic" );
 
@@ -348,8 +375,9 @@ void LQToTopMuHists::fill(const Event & event){
     double mLQHad1 = hadr_hyp->LQhad1_v4().M();
     double mLQHad2 = hadr_hyp->LQhad2_v4().M();
     double mLQHadMean = (mLQHad1 + mLQHad2)/2;
+    double PTLQLQ = (hadr_hyp->LQhad1_v4()+ hadr_hyp->LQhad2_v4()).Pt();
 
-    //if(hadr_hyp->discriminator("Chi2Hadronic") <= 30){
+    if(hadr_hyp->discriminator("Chi2Hadronic_thad1") <= 100 && hadr_hyp->discriminator("Chi2Hadronic_thad2") <= 100){
       hist("M_t_had1")->Fill(mTopHad1,weight);
       hist("M_t_had2")->Fill(mTopHad2,weight);
       hist("M_t_had")->Fill(mTopHad1,weight);
@@ -360,18 +388,49 @@ void LQToTopMuHists::fill(const Event & event){
       hist("M_LQ_had")->Fill(mLQHad1,weight);
       hist("M_LQ_had")->Fill(mLQHad2,weight);
       hist("M_LQ_had_mean")->Fill(mLQHadMean,weight);
+      hist("Chi2Had")->Fill(hadr_hyp->discriminator("Chi2Hadronic"), weight);
+      hist("Chi2Had_top1")->Fill(hadr_hyp->discriminator("Chi2Hadronic_thad1"),weight);
+      hist("Chi2Had_top2")->Fill(hadr_hyp->discriminator("Chi2Hadronic_thad2"),weight);
+      hist("Chi2Had_MLQdiff")->Fill(hadr_hyp->discriminator("Chi2Hadronic_MLQdiff"),weight);
+      hist("Chi2Had_PTLQLQ")->Fill(hadr_hyp->discriminator("Chi2Hadronic_PTLQLQ"),weight);
+      //hist("Chi2Had_w1")->Fill(hadr_hyp->discriminator("Chi2Hadronic_whad1"),weight);
+      //hist("Chi2Had_w2")->Fill(hadr_hyp->discriminator("Chi2Hadronic_whad2"),weight);
+      hist("Chi2Had_Top")->Fill(hadr_hyp->discriminator("Chi2Hadronic_thad1")+hadr_hyp->discriminator("Chi2Hadronic_thad2"),weight);
+      hist("Chi2Had_LQ")->Fill(hadr_hyp->discriminator("Chi2Hadronic_PTLQLQ")+hadr_hyp->discriminator("Chi2Hadronic_MLQdiff"),weight);
+      hist("PTLQhadLQhad")->Fill(PTLQLQ,weight);
+      ((TH2D*)hist("Chi2Had_top1_vs_NJetsTop1"))->Fill(hadr_hyp->discriminator("Chi2Hadronic_thad1"),hadr_hyp->tophad1_jets().size(),weight);
+      ((TH2D*)hist("Chi2vsMLQ"))->Fill(hadr_hyp->discriminator("Chi2Hadronic"),mLQHadMean,weight);
+      ((TH2D*)hist("PTvsMLQ"))->Fill(PTLQLQ,mLQHadMean,weight);
+      ((TH2D*)hist("Chi2vsPT"))->Fill(hadr_hyp->discriminator("Chi2Hadronic"),PTLQLQ,weight);
+    }
+
+      if(hadr_hyp->tophad1_jets().size() == 0 || hadr_hyp->tophad2_jets().size() == 0) throw runtime_error("0 jets assinged to at least one top quark");
+      
+      
+      if((100 < hadr_hyp->discriminator("Chi2Hadronic_thad1") ) || (100 < hadr_hyp->discriminator("Chi2Hadronic_thad2") ) ){
+	cout << "Chi2_top1:    " << hadr_hyp->discriminator("Chi2Hadronic_thad1") << endl;
+	cout << "Chi2_top2:    " << hadr_hyp->discriminator("Chi2Hadronic_thad2") << endl;
+	cout << "Chi2_w1:      " << hadr_hyp->discriminator("Chi2Hadronic_whad1") << endl;
+	cout << "Chi2_w2:      " << hadr_hyp->discriminator("Chi2Hadronic_whad2") << endl;
+	cout << "Chi2_MLQdiff: " << hadr_hyp->discriminator("Chi2Hadronic_MLQdiff") << endl;
+	cout << "Chi2_PTLQLQ:  " << hadr_hyp->discriminator("Chi2Hadronic_PTLQLQ") << endl << endl;
+
+	cout << "Chi2_TOP:     " << hadr_hyp->discriminator("Chi2Hadronic_thad1")+hadr_hyp->discriminator("Chi2Hadronic_thad2")+hadr_hyp->discriminator("Chi2Hadronic_whad1")+hadr_hyp->discriminator("Chi2Hadronic_whad2") << endl;
+	cout << "Chi2_LQ:      " << hadr_hyp->discriminator("Chi2Hadronic_PTLQLQ")+hadr_hyp->discriminator("Chi2Hadronic_MLQdiff") << endl << endl;
+
+	cout << "Chi2_TOTAL:   " << hadr_hyp->discriminator("Chi2Hadronic") << endl;
+	cout << "# Jets in t1: " << hadr_hyp->tophad1_jets().size() << endl;
+	cout << "# Jets in t2: " << hadr_hyp->tophad2_jets().size() << endl;
+	cout << "MTopHad1:     " << mTopHad1 << endl;
+	cout << "MTopHad2:     " << mTopHad2 << endl << endl << endl << endl;
+      }
+      
 
       //cout << "TopMass1: " << mTopHad1 << endl;
       //cout << "TopMass2: " << mTopHad2 << endl;
       //}
 
-
-
-
-
-
-
-  }
+  }*/
  
   //CMSTopTags
 

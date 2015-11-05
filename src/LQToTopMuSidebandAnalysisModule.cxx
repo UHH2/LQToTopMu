@@ -206,11 +206,10 @@ namespace uhh2examples {
     /*ttgenprod->process(event);
       LQgenprod->process(event);*/
 
-
     // MLQ reco
-    for(auto & m : recomodules){
-      m->process(event);
-      }
+    // for(auto & m : recomodules){
+    //   m->process(event);
+    //   }
 
     h_nocuts->fill(event);
     h_jets_nocuts->fill(event);
@@ -287,7 +286,6 @@ namespace uhh2examples {
     h_event_finalSelection->fill(event);
     h_topjets_finalSelection->fill(event);
     h_ht_finalSelection->fill(event);
-    cout << endl;
 
     return true;
   }

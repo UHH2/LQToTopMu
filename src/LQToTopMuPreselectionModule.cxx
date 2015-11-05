@@ -89,7 +89,7 @@ namespace uhh2examples {
     //common->disable_mcpileupreweight();
     //common->disable_metfilters();
     //common->disable_pvfilter();
-    common->disable_lumisel();
+    //common->disable_lumisel();
     common->switch_jetlepcleaner(true);
     common->set_electron_id(EleId);
     common->set_muon_id(MuId);
@@ -101,7 +101,7 @@ namespace uhh2examples {
     // 2. set up selections
 
     //Preselection
-    trigger_sel.reset(new TriggerSelection("HLT_IsoMu24_eta2p1_v*"));
+    trigger_sel.reset(new TriggerSelection("HLT_IsoMu27_v*"));
     njet_sel.reset(new NJetSelection(2, -1));
     mu1_sel.reset(new NMuonSelection(1, -1));
     nmuon_sel.reset(new NMuonSelection(2, -1)); 

@@ -64,7 +64,7 @@ private:
 
 
 
-class HighMassHadronicLQReconstruction: public uhh2::AnalysisModule {
+/*class HighMassHadronicLQReconstruction: public uhh2::AnalysisModule {
 public:
 
     explicit HighMassHadronicLQReconstruction(uhh2::Context & ctx, const std::string & label="HighMassHadronicLQReconstruction");
@@ -75,7 +75,7 @@ public:
 
 private:
     uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_hadr_recohyps;
-};
+    };*/
 
 
 /** \brief Make a list of ttbar reconstruction hypotheses using top tagging

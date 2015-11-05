@@ -58,7 +58,7 @@ private:
 
 
 
-class LQHadronicChi2Discriminator: public uhh2::AnalysisModule {
+/*class LQHadronicChi2Discriminator: public uhh2::AnalysisModule {
 public:
     struct cfg {
         std::string discriminator_label;
@@ -71,7 +71,7 @@ public:
 private:
     uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_hyps;
     cfg config;
-};
+    };*/
 
 
 /** \brief Top-DeltaR quality flag for Monte-Carlo

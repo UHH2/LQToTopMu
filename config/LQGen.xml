@@ -13,7 +13,7 @@
     <Library Name="libSUHH2LQToTopMu"/>
     <Package Name="SUHH2LQToTopMu.par"/>
 
-   <Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/GeneratorPlots/Leptoquarks_" PostFix="" TargetLumi="19700" >
+   <Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/GeneratorPlots/TEST_" PostFix="" TargetLumi="19700" >
 
 
 <!-- Neu produziertes NTuple mit Aenderung in GenFilter -->
