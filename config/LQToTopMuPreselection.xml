@@ -41,17 +41,22 @@
 
 ]>
 
+<!--
+<ConfigParse NEventsBreak="100000" FileSplit="0" />
+<ConfigSGE RAM ="2" DISK ="3" Mail="arne.reimers@desy.de" Notification="as" Workdir="workdir"/>
+-->
+
 <!-- OutputLevel controls which messages are printed; set to VERBOSE or DEBUG for more verbosity, to WARNING or ERROR for less -->
 <JobConfiguration JobName="ExampleCycleJob" OutputLevel="INFO">
   <Library Name="libSUHH2LQToTopMu"/>
   <Package Name="SUHH2LQToTopMu.par" />
 
-<!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Preselection/55267pb_" PostFix="" TargetLumi="552.67" >-->
-<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Preselection/55267pb_" PostFix="" TargetLumi="552.67" RunMode="PROOF" ProofServer="lite://" ProofWorkDir="/nfs/dust/cms/user/reimersa/.proof2/">
+<!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Preselection/55267pb_EleMuEff_" PostFix="" TargetLumi="552.67" >-->
+<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/Preselection/55267pb_EleMuEff_" PostFix="" TargetLumi="552.67" RunMode="PROOF" ProofServer="lite://" ProofWorkDir="/nfs/dust/cms/user/reimersa/.proof2/">
   
   
 
-  <InputData Lumi="552.67" NEventsMax="-1" Type="DATA" Version="DATA" Cacheable="True">
+<!--  <InputData Lumi="552.67" NEventsMax="-1" Type="DATA" Version="DATA" Cacheable="True">
     &DATA;
     <InputTree Name="AnalysisTree" />
     <OutputTree Name="AnalysisTree" />
@@ -135,7 +140,7 @@
     &LQtoTMuM2000;
     <InputTree Name="AnalysisTree" />
     <OutputTree Name="AnalysisTree" />
-  </InputData> 
+  </InputData> -->
 
 
   
@@ -143,9 +148,9 @@
       &TTbar;
       <InputTree Name="AnalysisTree" />
       <OutputTree Name="AnalysisTree" />
-    </InputData> 
+    </InputData>
 
-    <InputData Lumi="60501928.3" NEventsMax="-1" Type="MC" Version="WJets_25ns" Cacheable="True">
+<!--    <InputData Lumi="60501928.3" NEventsMax="-1" Type="MC" Version="WJets_25ns" Cacheable="True">
       &WJets;
       <InputTree Name="AnalysisTree" />
       <OutputTree Name="AnalysisTree" />
@@ -277,7 +282,7 @@
       &QCDPT1000toInf;
       <InputTree Name="AnalysisTree" />
       <OutputTree Name="AnalysisTree" />
-    </InputData> 
+    </InputData> -->
 
 
 

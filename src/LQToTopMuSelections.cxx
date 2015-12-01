@@ -39,9 +39,6 @@ bool HtSelection::passes(const Event & event){
   for(const auto & muon : *event.muons){
     ht_lep += muon.pt();
   }
-  /*for(const auto & tau : *event.taus){
-    ht_lep += tau.pt();
-    }*/
 
   ht = ht_lep + ht_jets + met;
 
@@ -179,6 +176,38 @@ bool GenLvlZMuMuSelection::passes(const Event & event){
   return pass;
 }
 
+GenLvlTopDileptonSelection::GenLvlTopDileptonSelection(){}
+bool GenLvlTopDileptonSelection::passes(const Event & event){
+  
+  bool pass = false;
+  int N_w = 0;
+  for(const auto & genpart : *event.genparticles){
+    if(abs(genpart.pdgId()) == 24){
+      //only W-bosons are left here
+      //now check decay mode
+      if(abs(genpart.daughter(event.genparticles, 1)->pdgId()) == 11 || abs(genpart.daughter(event.genparticles, 1)->pdgId()) == 13 || abs(genpart.daughter(event.genparticles, 2)->pdgId()) == 11 || abs(genpart.daughter(event.genparticles, 2)->pdgId()) == 13){
+	//here, 1 of the daughters of the first W is either a electron or a muon
+	//1 leptonic W is found, now allow search for second.
+	if(N_w == 0){
+	  N_w++;
+	}
+
+	//the following is only done, if this if-loop is entered for a second time
+	else if(N_w == 1){
+	  //the second W is also found to decay in the right way, now set pass = true
+	  pass = true;
+	  N_w++;
+	}
+
+	if(N_w != 2 && pass == true) throw std::runtime_error("in GelLvlTopDibosonSelection: Not exactly 2 W-bosons found despite pass = true");
+
+      }//decay mode
+    }//W bosons
+  }//genptcls
+
+  return pass;
+}//method
+
 PtRelMu1JetSelection::PtRelMu1JetSelection(double ptrel_min_, double ptrel_max_) : ptrel_min(ptrel_min_), ptrel_max(ptrel_max_){}
 bool PtRelMu1JetSelection::passes(const Event & event){
   
@@ -253,6 +282,26 @@ bool InvMassMuEleVeto::passes(const Event & event){
       } 
     }
   }
+  return pass;
+}
+
+dRLeptonJetSelection::dRLeptonJetSelection(double dRmin_, double dRmax_) : dRmin(dRmin_), dRmax(dRmax_){}
+bool dRLeptonJetSelection::passes(const Event & event){
+  
+  bool pass = true;
+
+  for(const auto & thismu : *event.muons){
+    for(const auto & thisjet : *event.jets){
+      if(!(deltaR(thismu,thisjet) >= dRmin && (deltaR(thismu,thisjet) <= dRmax || dRmax < 0))) pass = false;
+    }
+  }
+
+  for(const auto & thisele : *event.electrons){
+    for(const auto & thisjet : *event.jets){
+      if(!(deltaR(thisele,thisjet) >= dRmin && (deltaR(thisele,thisjet) <= dRmax || dRmax < 0))) pass = false;
+    }
+  }
+  
   return pass;
 }
 

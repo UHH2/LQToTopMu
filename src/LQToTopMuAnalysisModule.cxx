@@ -50,7 +50,7 @@ namespace uhh2examples {
     std::unique_ptr<JetCleaner> jetcleaner;
     
     // declare the Selections to use.
-    std::unique_ptr<Selection>  nele_sel, njet_sel, nbtag_loose_sel, nbtag_med_sel, nbtag_tight_sel, m_mumu_veto, htlept_sel, mttbar_gen_sel, m_muele_veto;
+    std::unique_ptr<Selection>  nele_sel, njet_sel, nbtag_loose_sel, nbtag_med_sel, nbtag_tight_sel, m_mumu_veto, htlept_sel, mttbar_gen_sel, m_muele_veto, ht_sel, dr_lepjet_sel, genlvl_TopDilepton_sel;
     
     // store the Hists collection as member variables. 
     std::unique_ptr<Hists> h_nocuts, h_jets_nocuts, h_ele_nocuts, h_mu_nocuts, h_event_nocuts, h_topjets_nocuts, h_tau_nocuts;
@@ -131,6 +131,9 @@ namespace uhh2examples {
     nele_sel.reset(new NElectronSelection(1, -1));
     htlept_sel.reset(new HTLeptSelection(200., -1));
     m_muele_veto.reset(new InvMassMuEleVeto(71.,111.));
+    ht_sel.reset(new HtSelection(840.,1540.));
+    dr_lepjet_sel.reset(new dRLeptonJetSelection(0.4,-1));
+    genlvl_TopDilepton_sel.reset(new GenLvlTopDileptonSelection());
     
     //make reconstruction hypotheses
     recomodules.emplace_back(new LQPrimaryLepton(ctx));
@@ -157,7 +160,7 @@ namespace uhh2examples {
     h_mu_1ele.reset(new MuonHists(ctx, "Mu_1Ele"));  
     h_event_1ele.reset(new EventHists(ctx, "Event_1Ele"));
     h_topjets_1ele.reset(new TopJetHists(ctx, "TopJets_1Ele"));
-    h//_hyphists.reset(new HypothesisHistsOwn(ctx, "Chi2_Hists", "HighMassLQReconstruction", "Chi2"));
+    //h_hyphists.reset(new HypothesisHistsOwn(ctx, "Chi2_Hists", "HighMassLQReconstruction", "Chi2"));
     //h_hyphists.reset(new HypothesisHistsOwn(ctx, "CorrectMatch_Hists", "HighMassLQReconstruction", "CorrectMatch"));
 
     h_1bJetLoose.reset(new LQToTopMuHists(ctx, "1bJetLoose"));
@@ -227,6 +230,9 @@ namespace uhh2examples {
       }
     }
 
+    if(!genlvl_TopDilepton_sel->passes(event)) return false;
+    //GenParticles_printer->process(event);
+
     h_nocuts->fill(event);
     h_jets_nocuts->fill(event);
     h_ele_nocuts->fill(event);
@@ -235,7 +241,7 @@ namespace uhh2examples {
     h_topjets_nocuts->fill(event);
  
     //Nele
-    if(nele_sel->passes(event)) {
+    //if(nele_sel->passes(event)) {
       //cout << "Event contains an electron" << endl;
       h_1ele->fill(event);
       h_jets_1ele->fill(event);
@@ -244,7 +250,7 @@ namespace uhh2examples {
       //h_hyphists->fill(event);
       h_event_1ele->fill(event);
       h_topjets_1ele->fill(event);
-    }
+      //}
 
     //1 bTag1 loose
     if(!nbtag_loose_sel->passes(event)) return false; // !: Signal, ohne : Sideband
@@ -302,6 +308,8 @@ namespace uhh2examples {
     //cout << "############ Final Selection filling ###################" << endl << endl;
     //cout << "pt_lept2 calculated in cycle: " << pt_lept2 << endl;
 
+    //if(!ht_sel->passes(event)) return false;
+    //if(!dr_lepjet_sel->passes(event)) return false;
     //Final Selection
     h_finalSelection->fill(event);
     h_jets_finalSelection->fill(event);

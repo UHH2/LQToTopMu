@@ -50,7 +50,7 @@ namespace uhh2examples {
     std::unique_ptr<JetCleaner> jetcleaner;
     
     // declare the Selections to use.
-    std::unique_ptr<Selection>  nele_sel, njet_sel, nbtag_loose_sel, nbtag_med_sel, nbtag_tight_sel, m_mumu_veto, htlept_sel, mttbar_gen_sel, m_muele_veto;
+    std::unique_ptr<Selection>  nele_sel, njet_sel, nbtag_loose_sel, nbtag_med_sel, nbtag_tight_sel, m_mumu_veto, htlept_sel, mttbar_gen_sel, m_muele_veto, ht_sel, dr_lepjet_sel, genlvl_TopDilepton_sel;
     
     // store the Hists collection as member variables. 
     std::unique_ptr<Hists> h_nocuts, h_jets_nocuts, h_ele_nocuts, h_mu_nocuts, h_event_nocuts, h_topjets_nocuts, h_tau_nocuts;
@@ -95,7 +95,8 @@ namespace uhh2examples {
     GenParticles_printer.reset(new GenParticlesPrinter(ctx));
     MuId = AndId<Muon>(MuonIDTight(),PtEtaCut(30.0, 2.1),MuonIso(0.12));
     //EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium,PtEtaCut(30.0, 2.5));
-    EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium,PtEtaCut(30.0, 2.5),ElectronIso(0.12)); ///////////////////////////default: medium
+    EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium,PtEtaCut(30.0, 2.5),Electron_MINIIso(0.12,"uncorrected")); ///////////////////////////default: medium
+    //EleId = AndId<Electron>(ElectronID_Spring15_25ns_tight,PtEtaCut(30.0, 2.5),Electron_MINIIso(0.12,"uncorrected"));
 
     common.reset(new CommonModules());
     //common->disable_mcpileupreweight();
@@ -130,6 +131,9 @@ namespace uhh2examples {
     nele_sel.reset(new NElectronSelection(1, 1));
     htlept_sel.reset(new HTLeptSelection(200., -1));
     m_muele_veto.reset(new InvMassMuEleVeto(71.,111.));
+    ht_sel.reset(new HtSelection(840.,1540.));
+    dr_lepjet_sel.reset(new dRLeptonJetSelection(0.4,-1.));
+    genlvl_TopDilepton_sel.reset(new GenLvlTopDileptonSelection());
     
     //make reconstruction hypotheses
     recomodules.emplace_back(new LQPrimaryLepton(ctx));
@@ -194,14 +198,47 @@ namespace uhh2examples {
   
   
   bool LQToTopMuSidebandAnalysisModule::process(Event & event) {
-
+    
+    
+    
+    
     if(do_scale_variation){
       syst_module->process(event);    
     }
-
+    
     bool pass_common = common->process(event);
     if(!pass_common) return false;
     jetcleaner->process(event);
+
+    //if(!genlvl_TopDilepton_sel->passes(event)) return false;
+    
+    //reweight to leading jet pt in final selection with dRLeptonJets >= 0.4
+    /*int x = event.jets->at(0).v4().Pt() / 30;
+    double weights[] = {0, 0.970937, 0.986331, 1.03007, 1.02064, 1.00185, 1.02792, 0.980082, 1.00694, 0.964859, 0.947135, 1.05152, 0.673803, 0.976613, 1.10257, 1.05612, 0.786872, 0.686733, 1.06108, 0.954829, 1.19673, 1.37777, 1.07625, 0.563526, 0.745786, 0.745921, 1.90805, 1.34211, 1.32791, 1.25015, 0.971307, 2.11851, 3.17493, 0.411562, 1.68742, 0.451649, 0.267761, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    event.weight = event.weight * weights[x];*/
+
+    /*
+  auto met = event.met->pt();
+  double ht = 0.0;
+  double ht_jets = 0.0;
+  double ht_lep = 0.0;
+  for(const auto & jet : *event.jets){
+    ht_jets += jet.pt();
+  }
+  for(const auto & electron : *event.electrons){
+    ht_lep += electron.pt();
+  }
+  for(const auto & muon : *event.muons){
+    ht_lep += muon.pt();
+  }
+  ht = ht_lep + ht_jets + met;
+
+  int x = ht / 140;
+  double weights[] = {0, 0, 0.94901, 1.01079, 1.01164, 1.05264, 0.913678, 0.973179, 1.01561, 1.06625, 0.866487, 0.542488, 1.06798, 1.06617, 1.16734, 1.12277, 1.33328, 2.87436, 0, 1.08488, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  event.weight = event.weight * weights[x];
+    */
+
+
 
     /*ttgenprod->process(event);
       LQgenprod->process(event);*/
@@ -256,10 +293,7 @@ namespace uhh2examples {
     h_event_htlept200->fill(event);
     h_topjets_htlept200->fill(event);
 
-    /*Electron_printer->process(event);
-    Muon_printer->process(event);
-    Jet_printer->process(event);
-    GenParticles_printer->process(event);*/
+
 
     //test1
     //if(!(event.muons->at(0).pt() > event.electrons->at(0).pt())) return false;
@@ -278,6 +312,9 @@ namespace uhh2examples {
     //cout << "############ Final Selection filling ###################" << endl << endl;
     //cout << "pt_lept2 calculated in cycle: " << pt_lept2 << endl;
 
+
+    //if(!ht_sel->passes(event)) return false;
+    //if(!dr_lepjet_sel->passes(event)) return false;
     //Final Selection
     h_finalSelection->fill(event);
     h_jets_finalSelection->fill(event);

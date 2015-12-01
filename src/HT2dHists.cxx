@@ -20,6 +20,8 @@ HT2dHists::HT2dHists(Context & ctx, const string & dirname): Hists(ctx, dirname)
   book<TH2F>("ht_etamu", "H_{T} vs #eta^{#mu}", 100, 0, 5000, 40, -2.5, 2.5);
   book<TH2F>("ht_etajet", "H_{T} vs #eta^{jet}", 100, 0, 5000, 40, -2.5, 2.5);
   book<TH2F>("ht_met", "H_{T} vs missing E_{T}", 100, 0, 5000, 50, 0, 1000);
+  book<TH2F>("ht_Nmu", "H_{T} vs missing N_{#mu}", 100, 0, 5000, 6, -0.5, 5.5);
+
 } // end of constructor
 
 
@@ -52,6 +54,7 @@ void HT2dHists::fill(const Event & event){
   ((TH2F*)hist("ht_ptmu1"))->Fill(ht, ptmu1, weight);
   ((TH2F*)hist("ht_ptjet1"))->Fill(ht, ptjet1, weight);
   ((TH2F*)hist("ht_met"))->Fill(ht, met, weight);
+  ((TH2F*)hist("ht_Nmu"))->Fill(ht, event.muons->size(), weight);
 
 
  for (const Muon & thismu : *event.muons){

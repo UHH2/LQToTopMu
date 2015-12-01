@@ -2,11 +2,6 @@
 
 #include "UHH2/core/include/Hists.h"
 #include "UHH2/core/include/Event.h"
-#include "UHH2/common/include/TTbarGen.h"
-#include "UHH2/LQToTopMu/include/LQReconstructionHypothesisDiscriminators.h"
-#include "UHH2/LQToTopMu/include/LQReconstructionHypothesis.h"
-#include "UHH2/LQToTopMu/include/LQGen.h"
-
 
 namespace uhh2examples {
 
@@ -17,21 +12,16 @@ namespace uhh2examples {
  * many histograms. Therefore, it is recommended to use histogram
  * pointers as member data instead, like in 'common/include/ElectronHists.h'.
  */
-class LQToTopMuHists: public uhh2::Hists {
+class LQToTopMuEfficiencyHists: public uhh2::Hists {
 public:
     // use the same constructor arguments as Hists for forwarding:
-    LQToTopMuHists(uhh2::Context & ctx, const std::string & dirname);
+    LQToTopMuEfficiencyHists(uhh2::Context & ctx, const std::string & dirname);
 
     virtual void fill(const uhh2::Event & ev) override;
 
-  protected:
-    uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_hyps;
-    uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_hadr_hyps;
-    std::string m_discriminator_name;
-    bool is_mc;
 
 
-    virtual ~LQToTopMuHists();
+    virtual ~LQToTopMuEfficiencyHists();
 };
 
 }

@@ -16,13 +16,13 @@
 -->
 
 
-<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/TTbarSideband/55267pb_1Ele+1bJet+InvMassVeto20+HTLept200/55267pb_1Ele+1bJet+InvMassVeto20+HTLept200_" PostFix="" TargetLumi="552.67" >
-<!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/TTbarSideband/55267pb_1Ele+1bJet+InvMassVeto20+HTLept200/55267pb_1Ele+1bJet+InvMassVeto20+HTLept200_" PostFix="" TargetLumi="552.67" RunMode="PROOF" ProofServer="lite://" ProofWorkDir="/nfs/dust/cms/user/reimersa/.proof2/">-->
+<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/TTbarSideband/55267pb_1Ele+1bJet+InvMassVeto20+HTLept200/55267pb_TightEle_1Ele+1bJet+InvMassVeto20+HTLept200_" PostFix="" TargetLumi="552.67" >
+<!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/TTbarSideband/55267pb_1Ele+1bJet+InvMassVeto20+HTLept200/55267pb_NoJEC_1Ele+1bJet+InvMassVeto20+HTLept200_" PostFix="" TargetLumi="552.67" RunMode="PROOF" ProofServer="lite://" ProofWorkDir="/nfs/dust/cms/user/reimersa/.proof2/">-->
 
 
 
 
-  <InputData Lumi="552.67" NEventsMax="-1" Type="DATA" Version="DATA" Cacheable="False">
+<!--  <InputData Lumi="552.67" NEventsMax="-1" Type="DATA" Version="DATA" Cacheable="False">
     <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/TTbarSideband/Preselection/55267pb_uhh2.AnalysisModuleRunner.DATA.DATA.root" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
   </InputData>
@@ -92,7 +92,7 @@
   <InputData Lumi="4827225806.5" NEventsMax="-1" Type="MC" Version="LQtoTMuM2000_25ns" Cacheable="False">
     <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/TTbarSideband/Preselection/55267pb_uhh2.AnalysisModuleRunner.MC.LQtoTMuM2000_25ns.root" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
-  </InputData>
+  </InputData>-->
   
   
   
@@ -103,7 +103,7 @@
       <InputTree Name="AnalysisTree" />
     </InputData>    
 
-    <InputData Lumi="60501928.3" NEventsMax="-1" Type="MC" Version="WJets" Cacheable="False">
+<!--    <InputData Lumi="60501928.3" NEventsMax="-1" Type="MC" Version="WJets" Cacheable="False">
       <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/TTbarSideband/Preselection/55267pb_uhh2.AnalysisModuleRunner.MC.WJets_25ns.root" Lumi="0.0"/>
       <InputTree Name="AnalysisTree" />
     </InputData>
@@ -151,7 +151,7 @@
   <InputData Lumi="60158.9" NEventsMax="-1" Type="MC" Version="Diboson_ZZ_25ns" Cacheable="False">
       <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/TTbarSideband/Preselection/55267pb_uhh2.AnalysisModuleRunner.MC.Diboson_ZZ_25ns.root" Lumi="0.0"/>
       <InputTree Name="AnalysisTree" />
-    </InputData> 
+    </InputData> -->
 
 
   <!--
@@ -171,7 +171,7 @@
   </InputData> 
 -->
   
-  <InputData Lumi="11.52" NEventsMax="-1" Type="MC" Version="QCDPT50to80" Cacheable="False">
+<!--  <InputData Lumi="11.52" NEventsMax="-1" Type="MC" Version="QCDPT50to80" Cacheable="False">
     <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/TTbarSideband/Preselection/55267pb_uhh2.AnalysisModuleRunner.MC.QCDPT50to80_25ns.root" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
   </InputData> 
@@ -214,7 +214,7 @@
   <InputData Lumi="1219588.2" NEventsMax="-1" Type="MC" Version="QCDPT1000toInf" Cacheable="False">
     <In FileName="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns/TTbarSideband/Preselection/55267pb_uhh2.AnalysisModuleRunner.MC.QCDPT1000toInf_25ns.root" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
-  </InputData> 
+  </InputData> -->
 
   
 

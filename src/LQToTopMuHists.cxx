@@ -54,6 +54,9 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("E_Tmiss", "missing E_{T} [GeV]", 75, 0, 1500);
   book<TH1F>("E_Tmiss_0Ele2Mu", "missing E_{T} [GeV] for N_{e}=0, N_{#mu}=2", 75, 0,1500);
   book<TH1F>("H_T", "H_{T} [GeV]", 50, 0, 7000);
+  book<TH1F>("H_T_from350", "H_{T} [GeV] (from 350)", 40, 0,7000);
+  book<TH1F>("H_T_from350_rebin", "H_{T} [GeV] (from 350)", 80, 0,7000);
+  book<TH1F>("Parton_H_T", "H_{T} [GeV] (from 350) on parton level", 80,0,7000);
   double bins_low_1Ele[12] = {0,350,500,700,900,1100,1300,1500,1750,2000,2500,7000};
   double bins_low_NoEle[23] = {0,200,350,500,650,800,950,1100,1250,1400,1550,1700,1850,2000,2150,2300,2450,2600,2750,2900,3050,3200,7000};
   book<TH1F>("H_T_rebin", "H_{T} [GeV]", 22, bins_low_NoEle);
@@ -62,10 +65,13 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("H_T_lept", "H_{T}^{leptons} [GeV]", 50, 0, 7000);
   book<TH1F>("H_T_jets_rebin", "H_{T}^{jets} rebinned [GeV]", 5, bins_HTlept_low);
   book<TH1F>("H_T_lept_rebin", "H_{T}^{leptons} rebinned [GeV]", 5, bins_HTlept_low);
-
   book<TH1F>("H_T_comb_NoEle", "H_{T}, no Ele [GeV]", 50, 0, 7000);
+  book<TH1F>("H_T_comb_NoEle_from350", "H_{T}, no Ele [GeV] (from 350)", 40, 0, 7000);
+  book<TH1F>("H_T_comb_NoEle_from350_rebin", "H_{T}, no Ele [GeV] (from 350)", 80, 0, 7000);
   book<TH1F>("H_T_comb_NoEle_rebin", "H_{T}, no Ele [GeV]", 22, bins_low_NoEle);
   book<TH1F>("H_T_comb_1Ele", "H_{T}, N_{Ele} #geq 1 [GeV]", 50, 0, 7000);
+  book<TH1F>("H_T_comb_1Ele_from350", "H_{T}, N_{Ele} #geq 1 [GeV] (from 350)", 40, 0, 7000);
+  book<TH1F>("H_T_comb_1Ele_from350_rebin", "H_{T}, N_{Ele} #geq 1 [GeV] (from 350)", 80, 0, 7000);
   book<TH1F>("H_T_comb_1Ele_rebin", "H_{T}, N_{Ele} #geq 1 [GeV]", 11, bins_low_1Ele);
   book<TH1F>("H_T_comb_1Ele_rebin2", "H_{T}, N_{Ele} #geq 1, same binning as for N_{Ele} = 0 [GeV]", 22, bins_low_NoEle);
   book<TH1F>("M_LQ_comb", "M_{LQ,mean} [GeV/c^{2}]", 60, 0, 3000);
@@ -127,6 +133,8 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   //h_hadr_hyps = ctx.get_handle<std::vector<LQReconstructionHypothesis>>("HighMassHadronicLQReconstruction");
   m_discriminator_name ="Chi2";
   //m_discriminator_name ="CorrectMatch";
+
+  is_mc = ctx.get("dataset_type") == "MC";
 
 }
 
@@ -280,8 +288,28 @@ void LQToTopMuHists::fill(const Event & event){
   hist("H_T_jets_rebin")->Fill(ht_jets,weight);
   hist("H_T_lept_rebin")->Fill(ht_lep,weight);
   hist("H_T")->Fill(ht, weight);
+  hist("H_T_from350")->Fill(ht, weight);
+  hist("H_T_from350_rebin")->Fill(ht, weight);
   hist("H_T_rebin")->Fill(ht, weight);
   hist("H_T_rebin2")->Fill(ht,weight);
+
+  //partonlvl HT:
+  if(is_mc){
+    double partonHT = 0;
+    constexpr const int invalid_daughter = (unsigned short)(-1);
+    for(const auto & gp : *event.genparticles){
+      if(gp.daughter1() != invalid_daughter || gp.daughter2() != invalid_daughter) continue;
+      // if we are here, it means we have a final state particle.
+      // Add to HT in cas it is a parton (quark -- including b but not top as tops are never final state particles -- or gluon -- or ele/mu -- or its respective neutrino).
+      // Note that the exact HT definition depends on the madgraph configuration, but this
+      // should cover the most common case.
+      int id = abs(gp.pdgId());
+      if((id >= 1 && id <= 5) || (id == 21) || (id>=11 && id <= 14)){
+	partonHT += gp.pt();
+      }
+    }
+    hist("Parton_H_T")->Fill(partonHT, weight);
+  }
 
   // M_mumu Invariant Mass
   double M_mumu;
@@ -305,6 +333,8 @@ void LQToTopMuHists::fill(const Event & event){
   int Nele = event.electrons->size();
   if(Nele == 0){
     hist("H_T_comb_NoEle")->Fill(ht, weight);
+    hist("H_T_comb_NoEle_from350")->Fill(ht, weight);
+    hist("H_T_comb_NoEle_from350_rebin")->Fill(ht, weight);
     hist("H_T_comb_NoEle_rebin")->Fill(ht, weight);
     hist("Pt_mu1_NoEle")->Fill(event.muons->at(0).pt(), weight);
     hist("Pt_mu1_NoEle_rebin")->Fill(event.muons->at(0).pt(), weight);
@@ -358,6 +388,8 @@ void LQToTopMuHists::fill(const Event & event){
 
   if(Nele >= 1){
     hist("H_T_comb_1Ele")->Fill(ht, weight);
+    hist("H_T_comb_1Ele_from350")->Fill(ht, weight);
+    hist("H_T_comb_1Ele_from350_rebin")->Fill(ht, weight);
     hist("H_T_comb_1Ele_rebin")->Fill(ht, weight);
     hist("H_T_comb_1Ele_rebin2")->Fill(ht, weight);
   }

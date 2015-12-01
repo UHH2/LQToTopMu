@@ -100,6 +100,12 @@ namespace uhh2examples {
     virtual bool passes(const uhh2::Event & event);
   };
 
+  class GenLvlTopDileptonSelection : public uhh2::Selection{
+  public: 
+    explicit GenLvlTopDileptonSelection();
+    virtual bool passes(const uhh2::Event & event);
+  };
+
   class PtRelMu1JetSelection : public uhh2::Selection{
   public:
     explicit PtRelMu1JetSelection(double ptrel_min = 0., double ptrel_max = -1);
@@ -138,6 +144,14 @@ namespace uhh2examples {
     virtual bool passes(const uhh2::Event & event);
   private:
     double m_min, m_max;
+  };
+
+  class dRLeptonJetSelection : public uhh2::Selection{
+  public:
+    explicit dRLeptonJetSelection(double dRmin = 0., double dRmax = -1);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double dRmin, dRmax;
   };
 
 }

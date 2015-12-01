@@ -22,6 +22,8 @@
 #include "UHH2/common/include/MCWeight.h"
 #include "UHH2/common/include/AdditionalSelections.h"
 #include "UHH2/LQToTopMu/include/LQToTopMuModules.h"
+#include "UHH2/LQToTopMu/include/HT2dHists.h"
+#include "UHH2/LQToTopMu/include/LQToTopMuEfficiencyHists.h"
 
 using namespace std;
 using namespace uhh2;
@@ -49,7 +51,7 @@ namespace uhh2examples {
     std::unique_ptr<AnalysisModule> syst_module;
   
     // declare the Selections to use.
-    std::unique_ptr<Selection> njet_sel, nmuon_sel, ht_sel, lumi_sel, mu1_sel, trigger_sel, mttbargen_sel;
+    std::unique_ptr<Selection> njet_sel, nmuon_sel, ht_sel, lumi_sel, mu1_sel, trigger_sel, mttbargen_sel, ht_test_sel;
   
     // store the Hists collection as member variables. 
     std::unique_ptr<Hists> h_nocuts, h_jets_nocuts, h_ele_nocuts, h_mu_nocuts, h_event_nocuts, h_topjets_nocuts, h_lumi_nocuts, 
@@ -59,7 +61,9 @@ namespace uhh2examples {
       h_1mu, h_jets_1mu, h_ele_1mu, h_mu_1mu, h_event_1mu, h_topjets_1mu, h_lumi_1mu, 
       h_2jets, h_jets_2jets, h_ele_2jets, h_mu_2jets, h_event_2jets, h_topjets_2jets, h_lumi_2jets,
       h_ht350, h_jets_ht350, h_ele_ht350, h_mu_ht350, h_event_ht350, h_topjets_ht350, h_lumi_ht350, 
-      h_2mu, h_jets_2mu, h_ele_2mu, h_mu_2mu, h_event_2mu, h_topjets_2mu, h_lumi_2mu;
+    /*h_httest, h_jets_httest, h_ele_httest, h_mu_httest, h_event_httest, h_topjets_httest, h_lumi_httest,*/ 
+      h_2mu, h_jets_2mu, h_ele_2mu, h_mu_2mu, h_event_2mu, h_topjets_2mu, h_lumi_2mu,
+      h_ht2d,h_eff_2jets, h_eff_cleaner;
 
     //std::unique_ptr<Hists> h_scale_var;
 
@@ -76,8 +80,8 @@ namespace uhh2examples {
     cout << "Hello World from LQToTopMuPreselectionModule!" << endl;
 
     do_scale_variation = false;
-    EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium, PtEtaCut(30.0, 2.5));
-    MuId = AndId<Muon>(MuonIDTight(), PtEtaCut(30.0, 2.1),MuonIso(0.12));
+    EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium, PtEtaCut(30.0, 2.4));
+    MuId = AndId<Muon>(MuonIDTight(), PtEtaCut(30.0, 2.4),MuonIso(0.12));
     MuLoose = MuonIDLoose();
     MuMedium = MuonIDMedium();
     MuTight = MuonIDTight();
@@ -89,7 +93,7 @@ namespace uhh2examples {
     //common->disable_mcpileupreweight();
     //common->disable_metfilters();
     //common->disable_pvfilter();
-    //common->disable_lumisel();
+    //common->disable_lumisel();    
     common->switch_jetlepcleaner(true);
     common->set_electron_id(EleId);
     common->set_muon_id(MuId);
@@ -108,6 +112,7 @@ namespace uhh2examples {
     ht_sel.reset(new HtSelection(350)); 
     lumi_sel.reset(new LumiSelection(ctx));
     mttbargen_sel.reset(new MttbarGenSelection(1000.,-1));
+    ht_test_sel.reset(new HtSelection(1400.,1700.));
 
     // 3. Set up Hists classes:
     h_nocuts.reset(new LQToTopMuPreselectionHists(ctx, "NoCuts"));
@@ -134,6 +139,8 @@ namespace uhh2examples {
     h_topjets_cleaner.reset(new TopJetHists(ctx, "Topjets_Cleaner"));
     h_lumi_cleaner.reset(new LuminosityHists(ctx, "Lumi_Cleaner"));
 
+    h_eff_cleaner.reset(new LQToTopMuEfficiencyHists(ctx,"Eff_Cleaner"));
+
     h_1mu.reset(new LQToTopMuPreselectionHists(ctx, "1Mu"));
     h_jets_1mu.reset(new JetHists(ctx, "Jets_1Mu"));
     h_ele_1mu.reset(new ElectronHists(ctx, "Ele_1Mu"));
@@ -150,6 +157,8 @@ namespace uhh2examples {
     h_topjets_2jets.reset(new TopJetHists(ctx, "Topjets_2Jets"));
     h_lumi_2jets.reset(new LuminosityHists(ctx, "Lumi_2Jets"));
 
+    h_eff_2jets.reset(new LQToTopMuEfficiencyHists(ctx,"Eff_2Jets"));
+
     h_ht350.reset(new LQToTopMuPreselectionHists(ctx, "HT350"));
     h_jets_ht350.reset(new JetHists(ctx, "Jets_HT350"));
     h_ele_ht350.reset(new ElectronHists(ctx, "Ele_HT350"));
@@ -157,6 +166,15 @@ namespace uhh2examples {
     h_event_ht350.reset(new EventHists(ctx, "Event_HT350"));
     h_topjets_ht350.reset(new TopJetHists(ctx, "Topjets_HT350"));
     h_lumi_ht350.reset(new LuminosityHists(ctx, "Lumi_HT350"));
+    h_ht2d.reset(new HT2dHists(ctx, "HT2d_HT350"));
+
+    /* h_httest.reset(new LQToTopMuPreselectionHists(ctx, "HTtest"));
+    h_jets_httest.reset(new JetHists(ctx, "Jets_HTtest"));
+    h_ele_httest.reset(new ElectronHists(ctx, "Ele_HTtest"));
+    h_mu_httest.reset(new MuonHists(ctx, "Mu_HTtest"));
+    h_event_httest.reset(new EventHists(ctx, "Event_HTtest"));
+    h_topjets_httest.reset(new TopJetHists(ctx, "Topjets_HTtest"));
+    h_lumi_httest.reset(new LuminosityHists(ctx, "Lumi_HTtest"));*/
 
     h_2mu.reset(new LQToTopMuPreselectionHists(ctx, "2Mu"));
     h_jets_2mu.reset(new JetHists(ctx, "Jets_2Mu"));
@@ -202,10 +220,14 @@ namespace uhh2examples {
     h_topjets_trigger->fill(event);
     h_lumi_trigger->fill(event);
 
+    //cout << event.weight << endl;
+
     bool pass_common = common->process(event);
     if(!pass_common) return false;
     //jetlep_overlap_cleaner->process(event);
     jetcleaner->process(event);
+
+    //cout << event.weight << endl << endl;
 
     h_cleaner->fill(event);
     h_jets_cleaner->fill(event);
@@ -214,6 +236,8 @@ namespace uhh2examples {
     h_event_cleaner->fill(event);
     h_topjets_cleaner->fill(event);
     h_lumi_cleaner->fill(event);
+
+    h_eff_cleaner->fill(event);
 
     if(!mu1_sel->passes(event)) return false;
     h_1mu->fill(event);
@@ -233,6 +257,9 @@ namespace uhh2examples {
     h_topjets_2jets->fill(event);
     h_lumi_2jets->fill(event);
 
+    h_eff_2jets->fill(event);
+
+
     if (!ht_sel->passes(event)) return false;
     h_ht350->fill(event);
     h_jets_ht350->fill(event);
@@ -241,6 +268,19 @@ namespace uhh2examples {
     h_event_ht350->fill(event);
     h_topjets_ht350->fill(event);
     h_lumi_ht350->fill(event);
+    h_ht2d->fill(event);
+
+    /*
+    if(ht_test_sel->passes(event)){
+      h_httest->fill(event);
+      h_jets_httest->fill(event);
+      h_ele_httest->fill(event);
+      h_mu_httest->fill(event);
+      h_event_httest->fill(event);
+      h_topjets_httest->fill(event);
+      h_lumi_httest->fill(event);
+    }
+    */
 
     if (!nmuon_sel->passes(event)) return false;
     h_2mu->fill(event);
