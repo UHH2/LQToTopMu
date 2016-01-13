@@ -29,6 +29,8 @@
 #include "UHH2/LQToTopMu/include/LQGen.h"
 #include "UHH2/common/include/MCWeight.h"
 #include "UHH2/common/include/AdditionalSelections.h"
+#include "TFile.h"
+#include "TGraphAsymmErrors.h"
 
 
 using namespace std;
@@ -45,7 +47,7 @@ namespace uhh2examples {
   private:
     
     std::unique_ptr<CommonModules> common;
-    std::unique_ptr<AnalysisModule> Muon_printer, Electron_printer, Jet_printer, GenParticles_printer, syst_module;
+    std::unique_ptr<AnalysisModule> Muon_printer, Electron_printer, Jet_printer, GenParticles_printer, syst_module, SF_muonID, SF_muonTrigger, SF_btag;
     
     std::unique_ptr<JetCleaner> jetcleaner;
     
@@ -54,11 +56,11 @@ namespace uhh2examples {
     
     // store the Hists collection as member variables. 
     std::unique_ptr<Hists> h_nocuts, h_jets_nocuts, h_ele_nocuts, h_mu_nocuts, h_event_nocuts, h_topjets_nocuts, h_tau_nocuts;
-    std::unique_ptr<Hists> h_hyphists, h_1ele, h_jets_1ele, h_ele_1ele, h_mu_1ele, h_event_1ele, h_topjets_1ele, h_tau_1ele;
+    std::unique_ptr<Hists> h_hyphists, h_1ele, h_jets_1ele, h_ele_1ele, h_mu_1ele, h_event_1ele, h_topjets_1ele, /*h_btageff_1ele,*/ h_tau_1ele;
     std::unique_ptr<Hists> h_3jets, h_jets_3jets, h_ele_3jets, h_mu_3jets, h_event_3jets, h_topjets_3jets, h_tau_3jets;
     std::unique_ptr<Hists> h_1bJetLoose, h_jets_1bJetLoose, h_mu_1bJetLoose, h_ele_1bJetLoose, h_event_1bJetLoose, h_topjets_1bJetLoose, h_tau_1bJetLoose;
     std::unique_ptr<Hists> h_InvMassVeto, h_jets_InvMassVeto, h_mu_InvMassVeto, h_ele_InvMassVeto, h_event_InvMassVeto, h_topjets_InvMassVeto, h_tau_InvMassVeto;
-    std::unique_ptr<Hists> h_htlept200, h_jets_htlept200, h_ele_htlept200, h_mu_htlept200, h_event_htlept200, h_topjets_htlept200, h_tau_htlept200;
+    std::unique_ptr<Hists> h_htlept200, h_jets_htlept200, h_ele_htlept200, h_mu_htlept200, h_event_htlept200, h_topjets_htlept200, h_tau_htlept200, h_btageff_htlept200;
     std::unique_ptr<Hists> h_finalSelection, h_jets_finalSelection, h_ele_finalSelection, h_mu_finalSelection, h_event_finalSelection, h_topjets_finalSelection, h_tau_finalSelection;
     std::unique_ptr<Hists> h_ht_InvMassVeto, h_ht_finalSelection;
 
@@ -71,9 +73,12 @@ namespace uhh2examples {
     MuonId MuId;
     ElectronId EleId;
     JetId Btag_loose, Btag_medium, Btag_tight;
+    CSVBTag::wp wp_btag_loose;
 
-    bool do_scale_variation;
+
+    bool do_scale_variation, is_mc;
     int runnr;
+ 
     
     std::vector<std::unique_ptr<AnalysisModule>> recomodules;
     uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_hyps;
@@ -87,15 +92,23 @@ namespace uhh2examples {
     cout << "Hello World from LQToTopMuAnalysisModule!" << endl;
 
     do_scale_variation = false;
-    runnr = 0;
-    
+    runnr = 0; 
+    is_mc = ctx.get("dataset_type") == "MC";
+   
     // 1. setup other modules. CommonModules and the JetCleaner:
     Jet_printer.reset(new JetPrinter("Jet-Printer", 0));
     Electron_printer.reset(new ElectronPrinter("Electron-Printer"));
     Muon_printer.reset(new MuonPrinter("Muon-Printer"));
     GenParticles_printer.reset(new GenParticlesPrinter(ctx));
-    MuId = AndId<Muon>(MuonIDTight(),PtEtaCut(30.0, 2.1),MuonIso(0.12));
-    EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium,PtEtaCut(30.0, 2.5));
+    MuId = AndId<Muon>(MuonIDTight(),PtEtaCut(30.0, 2.4),MuonIso(0.12));
+    EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium,PtEtaCut(30.0, 2.4));
+
+    Btag_loose = CSVBTag(CSVBTag::WP_LOOSE);
+    wp_btag_loose = CSVBTag::WP_LOOSE;
+    Btag_medium = CSVBTag(CSVBTag::WP_MEDIUM);
+    Btag_tight = CSVBTag(CSVBTag::WP_TIGHT); 
+    jetcleaner.reset(new JetCleaner(30.0, 2.5));
+
 
     common.reset(new CommonModules());
     //common->disable_mcpileupreweight();
@@ -107,11 +120,10 @@ namespace uhh2examples {
     common->set_electron_id(EleId);
     common->set_muon_id(MuId);
     common->init(ctx);
+    SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MuonID_Z_RunD_Reco74X_Nov20.root", "NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1", 1, "tightID", "nominal"));
+    SF_muonTrigger.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/SingleMuonTrigger_Z_RunD_Reco74X_Nov20.root", "IsoMu20_OR_IsoTkMu20_HLTv4p3_PtEtaBins", 0.5, "trigger", "nominal"));
+    SF_btag.reset(new MCBTagScaleFactor(ctx,wp_btag_loose));
 
-    Btag_loose = CSVBTag(CSVBTag::WP_LOOSE);
-    Btag_medium = CSVBTag(CSVBTag::WP_MEDIUM);
-    Btag_tight = CSVBTag(CSVBTag::WP_TIGHT); 
-    jetcleaner.reset(new JetCleaner(30.0, 2.5)); 
     
     h_hyps = ctx.get_handle<std::vector<LQReconstructionHypothesis>>("HighMassLQReconstruction");
     //h_hadr_hyps = ctx.get_handle<std::vector<LQReconstructionHypothesis>>("HighMassHadronicLQReconstruction");
@@ -127,13 +139,13 @@ namespace uhh2examples {
     nbtag_loose_sel.reset(new NJetSelection(1, -1, Btag_loose));  //default: (1, -1)
     nbtag_med_sel.reset(new NJetSelection(1, -1, Btag_medium));
     nbtag_tight_sel.reset(new NJetSelection(2, -1, Btag_tight));
-    m_mumu_veto.reset(new InvMass2MuVeto(71, 111)); //81, 101
+    m_mumu_veto.reset(new InvMass2MuVeto(71, 111));
     nele_sel.reset(new NElectronSelection(1, -1));
     htlept_sel.reset(new HTLeptSelection(200., -1));
     m_muele_veto.reset(new InvMassMuEleVeto(71.,111.));
     ht_sel.reset(new HtSelection(840.,1540.));
     dr_lepjet_sel.reset(new dRLeptonJetSelection(0.4,-1));
-    genlvl_TopDilepton_sel.reset(new GenLvlTopDileptonSelection());
+    if(is_mc)genlvl_TopDilepton_sel.reset(new GenLvlTopDileptonSelection());
     
     //make reconstruction hypotheses
     recomodules.emplace_back(new LQPrimaryLepton(ctx));
@@ -160,6 +172,7 @@ namespace uhh2examples {
     h_mu_1ele.reset(new MuonHists(ctx, "Mu_1Ele"));  
     h_event_1ele.reset(new EventHists(ctx, "Event_1Ele"));
     h_topjets_1ele.reset(new TopJetHists(ctx, "TopJets_1Ele"));
+    //h_btageff_1ele.reset(new BTagMCEfficiencyHists(ctx, "BTagEff_1Ele",wp_btag_loose));
     //h_hyphists.reset(new HypothesisHistsOwn(ctx, "Chi2_Hists", "HighMassLQReconstruction", "Chi2"));
     //h_hyphists.reset(new HypothesisHistsOwn(ctx, "CorrectMatch_Hists", "HighMassLQReconstruction", "CorrectMatch"));
 
@@ -193,6 +206,7 @@ namespace uhh2examples {
     h_mu_htlept200.reset(new MuonHists(ctx, "Mu_HTLept200"));
     h_topjets_htlept200.reset(new TopJetHists(ctx, "TopJets_HTLept200"));
     h_event_htlept200.reset(new EventHists(ctx, "Event_HTLept200"));
+    h_btageff_htlept200.reset(new BTagMCEfficiencyHists(ctx, "BTagEff_HTLept200",wp_btag_loose));
 
 
     h_finalSelection.reset(new LQToTopMuHists(ctx, "FinalSelection"));
@@ -202,7 +216,7 @@ namespace uhh2examples {
     h_topjets_finalSelection.reset(new TopJetHists(ctx, "TopJets_FinalSelection"));
     h_event_finalSelection.reset(new EventHists(ctx, "Event_FinalSelection")); 
     h_ht_finalSelection.reset(new HT2dHists(ctx, "HT2d_FinalSelection"));
-
+    
     
   }
   
@@ -210,18 +224,22 @@ namespace uhh2examples {
   bool LQToTopMuAnalysisModule::process(Event & event) {
     runnr++;
 
-    //if(runnr%100==0)    cout << "Processed events: " << runnr << endl;
+    //apply muon SFs as in preselection
+    SF_muonTrigger->process(event);
+    SF_muonID->process(event);
+
     if(do_scale_variation){
       syst_module->process(event);    
     }
 
     bool pass_common = common->process(event);
-    if(!pass_common) return false;
+    if(!pass_common) {
+      return false;
+    }
     jetcleaner->process(event);
 
     /*ttgenprod->process(event);
       LQgenprod->process(event);*/
-
 
     // MLQ reco
     if(nele_sel->passes(event)){
@@ -230,8 +248,8 @@ namespace uhh2examples {
       }
     }
 
-    if(!genlvl_TopDilepton_sel->passes(event)) return false;
-    //GenParticles_printer->process(event);
+    
+    //if(is_mc)GenParticles_printer->process(event);
 
     h_nocuts->fill(event);
     h_jets_nocuts->fill(event);
@@ -242,19 +260,21 @@ namespace uhh2examples {
  
     //Nele
     //if(nele_sel->passes(event)) {
-      //cout << "Event contains an electron" << endl;
-      h_1ele->fill(event);
-      h_jets_1ele->fill(event);
-      h_ele_1ele->fill(event);
-      h_mu_1ele->fill(event);
-      //h_hyphists->fill(event);
-      h_event_1ele->fill(event);
-      h_topjets_1ele->fill(event);
-      //}
+    h_1ele->fill(event);
+    h_jets_1ele->fill(event);
+    h_ele_1ele->fill(event);
+    h_mu_1ele->fill(event);
+    //h_hyphists->fill(event);
+    h_event_1ele->fill(event);
+    h_topjets_1ele->fill(event);
+    //h_btageff_1ele->fill(event);
+    //}
 
     //1 bTag1 loose
     if(!nbtag_loose_sel->passes(event)) return false; // !: Signal, ohne : Sideband
-    //if(!nbtag_tight_sel->passes(event)) return false;
+    SF_btag->process(event);
+    //LOESCHEMICH
+
     h_jets_1bJetLoose->fill(event);
     h_1bJetLoose->fill(event);
     h_ele_1bJetLoose->fill(event);
@@ -264,7 +284,6 @@ namespace uhh2examples {
  
     //InvMassVeto
     if(!m_mumu_veto->passes(event)) return false; // mit !: Signal, ohne : Sideband
-    //if(!m_muele_veto->passes(event)) return false;
     h_jets_InvMassVeto->fill(event);
     h_InvMassVeto->fill(event);
     h_ele_InvMassVeto->fill(event);
@@ -272,17 +291,7 @@ namespace uhh2examples {
     h_event_InvMassVeto->fill(event);
     h_topjets_InvMassVeto->fill(event);
 
-  
-    //Njets >= 3
-    /*if(!njet_sel->passes(event)) return false;
-    h_3jets->fill(event);
-    h_jets_3jets->fill(event);
-    h_ele_3jets->fill(event);
-    h_mu_3jets->fill(event);
-    h_event_3jets->fill(event);
-    h_topjets_3jets->fill(event);*/
-
-
+    //HT Lept
     if(!htlept_sel->passes(event)) return false;
     h_jets_htlept200->fill(event);
     h_htlept200->fill(event);
@@ -290,6 +299,7 @@ namespace uhh2examples {
     h_mu_htlept200->fill(event);
     h_event_htlept200->fill(event);
     h_topjets_htlept200->fill(event);
+    h_btageff_htlept200->fill(event);
     
 /*
     double pt_lept2 = 0;
@@ -310,6 +320,7 @@ namespace uhh2examples {
 
     //if(!ht_sel->passes(event)) return false;
     //if(!dr_lepjet_sel->passes(event)) return false;
+
     //Final Selection
     h_finalSelection->fill(event);
     h_jets_finalSelection->fill(event);
@@ -319,6 +330,7 @@ namespace uhh2examples {
     h_topjets_finalSelection->fill(event);
     h_ht_finalSelection->fill(event);
 
+    
 
     return true;
   }

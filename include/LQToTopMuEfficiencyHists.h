@@ -22,6 +22,10 @@ public:
 
 
     virtual ~LQToTopMuEfficiencyHists();
+
+  private:
+    bool is_mc = false;
+
 };
 
 }

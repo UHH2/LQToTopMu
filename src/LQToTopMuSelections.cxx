@@ -29,10 +29,9 @@ bool HtSelection::passes(const Event & event){
   double ht = 0.0;
   double ht_jets = 0.0;
   double ht_lep = 0.0;
-
   for(const auto & jet : *event.jets){
     ht_jets += jet.pt();
-    }
+  }
   for(const auto & electron : *event.electrons){
     ht_lep += electron.pt();
   }

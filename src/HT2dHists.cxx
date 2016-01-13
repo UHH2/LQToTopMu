@@ -29,7 +29,10 @@ void HT2dHists::fill(const Event & event){
 
   double weight = event.weight;
   double met = event.met->pt();
-  double ptmu1 = event.muons->at(0).pt();
+  double ptmu1 = 0;
+  if(event.muons->size()>0){
+    ptmu1 = event.muons->at(0).pt();
+  }
   double ptjet1 = event.jets->at(0).pt();
 
   double ht = 0.0;
@@ -50,8 +53,9 @@ void HT2dHists::fill(const Event & event){
   ht = ht_lep + ht_jets + met;
 
  
-
-  ((TH2F*)hist("ht_ptmu1"))->Fill(ht, ptmu1, weight);
+   if(event.muons->size()>0){
+     ((TH2F*)hist("ht_ptmu1"))->Fill(ht, ptmu1, weight);
+   }
   ((TH2F*)hist("ht_ptjet1"))->Fill(ht, ptjet1, weight);
   ((TH2F*)hist("ht_met"))->Fill(ht, met, weight);
   ((TH2F*)hist("ht_Nmu"))->Fill(ht, event.muons->size(), weight);

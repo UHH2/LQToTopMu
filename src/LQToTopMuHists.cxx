@@ -59,8 +59,10 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("Parton_H_T", "H_{T} [GeV] (from 350) on parton level", 80,0,7000);
   double bins_low_1Ele[12] = {0,350,500,700,900,1100,1300,1500,1750,2000,2500,7000};
   double bins_low_NoEle[23] = {0,200,350,500,650,800,950,1100,1250,1400,1550,1700,1850,2000,2150,2300,2450,2600,2750,2900,3050,3200,7000};
+  double bins_low_NoEle2[10] = {0,350,550,750,950,1150,1350,1550,1950,2200};
   book<TH1F>("H_T_rebin", "H_{T} [GeV]", 22, bins_low_NoEle);
   book<TH1F>("H_T_rebin2", "H_{T} [GeV]", 100, 0, 7000);
+  book<TH1F>("H_T_rebin3", "H_{T} [GeV]", 9,bins_low_NoEle2);
   book<TH1F>("H_T_jets", "H_{T}^{jets} [GeV]", 50, 0, 7000);
   book<TH1F>("H_T_lept", "H_{T}^{leptons} [GeV]", 50, 0, 7000);
   book<TH1F>("H_T_jets_rebin", "H_{T}^{jets} rebinned [GeV]", 5, bins_HTlept_low);
@@ -69,11 +71,15 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("H_T_comb_NoEle_from350", "H_{T}, no Ele [GeV] (from 350)", 40, 0, 7000);
   book<TH1F>("H_T_comb_NoEle_from350_rebin", "H_{T}, no Ele [GeV] (from 350)", 80, 0, 7000);
   book<TH1F>("H_T_comb_NoEle_rebin", "H_{T}, no Ele [GeV]", 22, bins_low_NoEle);
+  book<TH1F>("H_T_comb_NoEle_rebin2", "H_{T}, no Ele [GeV]", 9, bins_low_NoEle2);
+  book<TH1F>("Integral_NoEle", "BinContent = sum(eventweights), NoEle", 1, 0.5, 1.5);
   book<TH1F>("H_T_comb_1Ele", "H_{T}, N_{Ele} #geq 1 [GeV]", 50, 0, 7000);
   book<TH1F>("H_T_comb_1Ele_from350", "H_{T}, N_{Ele} #geq 1 [GeV] (from 350)", 40, 0, 7000);
   book<TH1F>("H_T_comb_1Ele_from350_rebin", "H_{T}, N_{Ele} #geq 1 [GeV] (from 350)", 80, 0, 7000);
   book<TH1F>("H_T_comb_1Ele_rebin", "H_{T}, N_{Ele} #geq 1 [GeV]", 11, bins_low_1Ele);
   book<TH1F>("H_T_comb_1Ele_rebin2", "H_{T}, N_{Ele} #geq 1, same binning as for N_{Ele} = 0 [GeV]", 22, bins_low_NoEle);
+  book<TH1F>("H_T_comb_1Ele_rebin3", "H_{T}, N_{Ele} #geq 1, same binning as for N_{Ele} = 0 [GeV]", 9, bins_low_NoEle2);
+  book<TH1F>("Integral_1Ele", "BinContent = sum(eventweights), 1Ele", 1, 0.5, 1.5);
   book<TH1F>("M_LQ_comb", "M_{LQ,mean} [GeV/c^{2}]", 60, 0, 3000);
   double bins_mlq_low[17] = {100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,1000,2000};
   book<TH1F>("M_LQ_comb_rebin", "M_{LQ,mean} [GeV/c^{2}]", 16, bins_mlq_low);
@@ -289,9 +295,13 @@ void LQToTopMuHists::fill(const Event & event){
   hist("H_T_lept_rebin")->Fill(ht_lep,weight);
   hist("H_T")->Fill(ht, weight);
   hist("H_T_from350")->Fill(ht, weight);
+  // cout << "in hists: ht: " << ht << ", weight: " << weight << endl;
+  // if(weight != 1) throw runtime_error("in hists: event weight != 1");
   hist("H_T_from350_rebin")->Fill(ht, weight);
   hist("H_T_rebin")->Fill(ht, weight);
   hist("H_T_rebin2")->Fill(ht,weight);
+  if(ht <= 2000) hist("H_T_rebin3")->Fill(ht,weight);
+  else hist("H_T_rebin3")->Fill(2100,weight);
 
   //partonlvl HT:
   if(is_mc){
@@ -336,11 +346,28 @@ void LQToTopMuHists::fill(const Event & event){
     hist("H_T_comb_NoEle_from350")->Fill(ht, weight);
     hist("H_T_comb_NoEle_from350_rebin")->Fill(ht, weight);
     hist("H_T_comb_NoEle_rebin")->Fill(ht, weight);
+    if(ht <= 2000) hist("H_T_comb_NoEle_rebin2")->Fill(ht, weight);
+    else hist("H_T_comb_NoEle_rebin2")->Fill(2100., weight);
     hist("Pt_mu1_NoEle")->Fill(event.muons->at(0).pt(), weight);
     hist("Pt_mu1_NoEle_rebin")->Fill(event.muons->at(0).pt(), weight);
+    hist("Integral_NoEle")->Fill(1,weight);
   }
   
-  if(Nele >= 1 && event.muons->size() >= 2){   
+  //check for at least 1 muon pair with opposite charge
+  bool charge_opposite = false;
+  for(unsigned int i=0; i<event.muons->size(); i++){
+    for(unsigned int j=0; j<event.muons->size(); j++){
+      if(j>i){
+	if(event.muons->at(i).charge() != event.muons->at(j).charge()) {
+	  charge_opposite = true;
+	}
+      }
+    }
+  }
+  //if(charge_opposite) cout << "opposite charges detected" << endl;
+  //else cout << "NO opposite charges detected!!" << endl;
+
+  if(Nele >= 1 && event.muons->size() >= 2 && charge_opposite){   
     std::vector<LQReconstructionHypothesis> hyps = event.get(h_hyps); 
     const LQReconstructionHypothesis* hyp = get_best_hypothesis( hyps, m_discriminator_name );
     
@@ -392,6 +419,9 @@ void LQToTopMuHists::fill(const Event & event){
     hist("H_T_comb_1Ele_from350_rebin")->Fill(ht, weight);
     hist("H_T_comb_1Ele_rebin")->Fill(ht, weight);
     hist("H_T_comb_1Ele_rebin2")->Fill(ht, weight);
+    if(ht <= 2000) hist("H_T_comb_1Ele_rebin3")->Fill(ht, weight);
+    else hist("H_T_comb_1Ele_rebin3")->Fill(2100, weight);
+    hist("Integral_1Ele")->Fill(1,weight);
   }
 
   //all-hadronic LQ reco

@@ -33,14 +33,7 @@ bool LQPrimaryLepton::process(uhh2::Event & event) {
             }
         }
     }
-    /*if(event.muons) {
-      for(const auto & mu : *event.muons) {
-      if(mu.pt() > ptmax) {
-      ptmax = mu.pt();
-      primlep = mu;
-      }
-      }
-      }*/
+ 
     event.set(h_primlep, std::move(primlep));
     return true;
 }
@@ -151,7 +144,8 @@ bool HighMassLQReconstruction::process(uhh2::Event & event) {
 	    }
 	    
 	    Particle mu_2 = hyp.mu_lep();
-	    if(hadmu==1 && lepmu==1){ //require exactly 1 muon assigned to each top
+	    Particle mu_1 = hyp.mu_had();
+	    if(hadmu==1 && lepmu==1 && (mu_1.charge()!=mu_2.charge())){ //require exactly 1 muon assigned to each top, opposite charges
 	      if(mu_2.charge() != electron.charge()){ //electron and leptonic mu must have opposite charges
 		hyp.set_mu_had_v4(mu1_v4);
 		hyp.set_mu_lep_v4(mu2_v4); // mu2 really is the leptonic one.
