@@ -2,11 +2,11 @@
 <!DOCTYPE JobConfiguration PUBLIC "" "JobConfig.dtd"[
 
 
-	  <!ENTITY TargetLumi      "2064">
-	  <!ENTITY SELdir          "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/Optimization/&TargetLumi;fb_MuonAndBTagSF">
+	  <!ENTITY TargetLumi      "2155">
+	  <!ENTITY SELdir          "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/Optimization/&TargetLumi;fb_MuonAndBTagSF ">
 	  <!ENTITY b_Cacheable     "False">
 	  <!ENTITY NEVT            "-1">
-	  <!ENTITY PRESELdir       "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/Preselection/&TargetLumi;fb_NoBadBS"> 
+	  <!ENTITY PRESELdir       "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/Preselection/&TargetLumi;fb_MuonSF"> 
 	  <!ENTITY PRESELfilename  "uhh2.AnalysisModuleRunner"> 
 	  <!ENTITY PROOFdir        "/nfs/dust/cms/user/reimersa/.proof2">
 
@@ -79,9 +79,10 @@
     -->
 
 
-  <Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="&SELdir;/"  PostFix="" TargetLumi="&TargetLumi;" >
-<!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="&SELdir;/" PostFix="" TargetLumi="&TargetLumi;" RunMode="PROOF" ProofServer="lite://" ProofWorkDir="&PROOFdir;/" ProofNodes="12">-->
+    <Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="&SELdir;/"  PostFix="" TargetLumi="&TargetLumi;" >
+<!--le Name="uhh2::AnalysisModuleRunner" OutputDirectory="&SELdir;/" PostFix="" TargetLumi="&TargetLumi;" RunMode="PROOF" ProofServer="lite://" ProofWorkDir="&PROOFdir;/" ProofNodes="12">-->
     
+
 
   <InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA1" Cacheable="&b_Cacheable;">
     <In FileName="&DATA1;" Lumi="0.0"/>
@@ -202,7 +203,7 @@
     <InputTree Name="AnalysisTree" />
   </InputData>  
   
-  <InputData Lumi="291220" NEventsMax="-1" Type="MC" Version="SingleTop_TTbar_sch" Cacheable="&b_Cacheable;"> 
+  <InputData Lumi="984601" NEventsMax="-1" Type="MC" Version="SingleTop_TTbar_sch" Cacheable="&b_Cacheable;"> 
     <In FileName="&SingleTop_TTbar_sch;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
   </InputData> 
@@ -319,9 +320,9 @@
             <Item Name="GenJetCollection" Value="slimmedGenJets" /> 
 	    <Item Name="TopJetCollection" Value="patJetsCa15CHSJetsSoftDropPacked_daughters" />
 	    <Item Name="GenParticleCollection" Value="GenParticles" />
-<!--            <Item Name="lumi_file" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/Latest_2015_Golden_JSON.root" />-->
-            <Item Name="lumi_file" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_NoBadBSRuns.root" /> <!-- No bad BS runs -->
-            <Item Name="lumihists_lumi_per_bin" Value="20."/>
+            <Item Name="lumi_file" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/Latest_2015_Golden_JSON.root" />
+<!--            <Item Name="lumi_file" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_NoBadBSRuns.root" /> --> <!-- No bad BS runs -->
+            <Item Name="lumihists_lumi_per_bin" Value="50."/>
 	    <Item Name="GenInfoName" Value="genInfo" />
 
             
@@ -365,7 +366,7 @@
 	    <Item Name="pileup_directory_50ns" Value="/nfs/dust/cms/user/nowatsd/PUHistogram-25ns-v2/Pileup.MC.TTbar.root" />
 	    <Item Name="pileup_directory_25ns" Value="/nfs/dust/cms/user/nowatsd/PUHistogram-25ns-v2/Pileup.MC.TTbar.root" />
 
-	    <Item Name="MCBtagEfficiencies" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/2006fb_BTagMCEfficiencyHists.root" />
+	    <Item Name="MCBtagEfficiencies" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/BTagMCEfficiencyHists/2155fb_BTagMCEfficiencyHists.root" />
 	    <Item Name="BTagCalibration" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/CSVv2.csv" />
 
 	    <Item Name="ScaleVariationMuR" Value="none" />

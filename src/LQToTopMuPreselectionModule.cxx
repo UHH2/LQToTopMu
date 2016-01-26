@@ -99,7 +99,7 @@ namespace uhh2examples {
     common->set_electron_id(EleId);
     common->set_muon_id(MuId);
     common->init(ctx);
-    jetcleaner.reset(new JetCleaner(30.0, 2.5));
+    jetcleaner.reset(new JetCleaner(ctx,30.0, 2.5));
     syst_module.reset(new MCScaleVariation(ctx));
     SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MuonID_Z_RunD_Reco74X_Nov20.root", "NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1", 1, "tightID", "nominal"));
     SF_muonTrigger.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/SingleMuonTrigger_Z_RunD_Reco74X_Nov20.root", "IsoMu20_OR_IsoTkMu20_HLTv4p3_PtEtaBins", 0.5, "trigger", "nominal"));
@@ -207,7 +207,6 @@ namespace uhh2examples {
     h_lumi_nocuts->fill(event);
 
     // trigger
-    //if(!trigger_sel->passes(event)) return false;
     if(!(trigger_sel1->passes(event) || trigger_sel2->passes(event))) return false;
     SF_muonTrigger->process(event);
 

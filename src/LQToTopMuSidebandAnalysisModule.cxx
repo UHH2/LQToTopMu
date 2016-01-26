@@ -63,7 +63,7 @@ namespace uhh2examples {
     std::unique_ptr<Hists> h_htlept200, h_jets_htlept200, h_ele_htlept200, h_mu_htlept200, h_event_htlept200, h_topjets_htlept200, h_tau_htlept200, h_btageff_htlept200;
     std::unique_ptr<Hists> h_finalSelection, h_jets_finalSelection, h_ele_finalSelection, h_mu_finalSelection, h_event_finalSelection, h_topjets_finalSelection, h_tau_finalSelection;
     std::unique_ptr<Hists> h_ht_InvMassVeto, h_ht_finalSelection;
-    std::unique_ptr<Hists> h_Sideband;
+    std::unique_ptr<Hists> h_Sideband, h_Sideband_inclusive;
 
     Event::Handle<TTbarGen> h_ttbargen;
     Event::Handle<LQGen> h_LQLQbargen;
@@ -78,9 +78,12 @@ namespace uhh2examples {
 
     bool do_scale_variation, is_mc;
 
-    TFile* file_alpha = new TFile("/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/TTbarSideband/2064fb_MuonAndBTagSF/ForSideband.root","READ");
+    TFile* file_alpha = new TFile("/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/TTbarSideband/2155fb_MuonAndBTagSF/ForSideband.root","READ");
     TGraphAsymmErrors* alpha = (TGraphAsymmErrors*)file_alpha->Get("Graph");
     TH1D* norm = (TH1D*)file_alpha->Get("h_normalization");
+    TFile* file_alpha_inclusive = new TFile("/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/TTbarSideband/2155fb_MuonAndBTagSF/ForSideband_Inclusive_Systematics.root","READ");
+    TGraphAsymmErrors* alpha_inclusive = (TGraphAsymmErrors*)file_alpha_inclusive->Get("ScaleVariation/UpUp/Graph");
+    TH1D* norm_inclusive = (TH1D*)file_alpha_inclusive->Get("ScaleVariation/UpUp/h_normalization");
     
     std::vector<std::unique_ptr<AnalysisModule>> recomodules;
     uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_hyps;
@@ -101,14 +104,14 @@ namespace uhh2examples {
     Muon_printer.reset(new MuonPrinter("Muon-Printer"));
     GenParticles_printer.reset(new GenParticlesPrinter(ctx));
     MuId = AndId<Muon>(MuonIDTight(),PtEtaCut(30.0, 2.4),MuonIso(0.12));
-    //EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium,PtEtaCut(30.0, 2.4));
-    EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium,PtEtaCut(30.0, 2.4),Electron_MINIIso(0.12,"uncorrected")); 
+    EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium,PtEtaCut(30.0, 2.4));
+    //EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium,PtEtaCut(30.0, 2.4),Electron_MINIIso(0.12,"uncorrected")); 
 
     Btag_loose = CSVBTag(CSVBTag::WP_LOOSE);
     wp_btag_loose = CSVBTag::WP_LOOSE;
     Btag_medium = CSVBTag(CSVBTag::WP_MEDIUM);
     Btag_tight = CSVBTag(CSVBTag::WP_TIGHT); 
-    jetcleaner.reset(new JetCleaner(30.0, 2.5)); 
+    jetcleaner.reset(new JetCleaner(ctx,30.0, 2.5)); 
 
     common.reset(new CommonModules());
     common->disable_lumisel();
@@ -202,6 +205,7 @@ namespace uhh2examples {
     h_event_finalSelection.reset(new EventHists(ctx, "Event_FinalSelection")); 
     h_ht_finalSelection.reset(new HT2dHists(ctx, "HT2d_FinalSelection"));
     h_Sideband.reset(new LQToTopMuHists(ctx, "Sideband_weights_applied"));
+    h_Sideband_inclusive.reset(new LQToTopMuHists(ctx, "Sideband_inclusive_weights_applied"));
     
   }
   
@@ -282,9 +286,11 @@ namespace uhh2examples {
     h_event_1ele->fill(event);
     h_topjets_1ele->fill(event);
 
+
     //1 bTag1 loose
     if(!nbtag_loose_sel->passes(event)) return false;
     SF_btag->process(event);
+
     h_jets_1bJetLoose->fill(event);
     h_1bJetLoose->fill(event);
     h_ele_1bJetLoose->fill(event);
@@ -292,6 +298,7 @@ namespace uhh2examples {
     h_event_1bJetLoose->fill(event);
     h_topjets_1bJetLoose->fill(event);
  
+
     //InvMassVeto
     if(!m_muele_veto->passes(event)) return false;
     h_jets_InvMassVeto->fill(event);
@@ -353,6 +360,16 @@ namespace uhh2examples {
     //change weights
     event.weight *= sideband_weight;
     h_Sideband->fill(event);
+    //restore weights
+    event.weight = original_weight;
+
+    double d_alpha_inclusive = alpha_inclusive->Eval(ht);
+    double d_norm_inclusive = norm_inclusive->GetBinContent(1);
+    double sideband_weight_inclusive = d_alpha_inclusive * d_norm_inclusive;
+    
+    //change weights
+    event.weight *= sideband_weight_inclusive;
+    h_Sideband_inclusive->fill(event);
     //restore weights
     event.weight = original_weight;
 

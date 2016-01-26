@@ -82,7 +82,8 @@ namespace uhh2examples {
     cout << "Hello World from LQToTopMuSidebandPreselectionModule!" << endl;
 
     do_scale_variation = false;
-    EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium, PtEtaCut(30.0, 2.4),Electron_MINIIso(0.12,"uncorrected"));
+    //EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium, PtEtaCut(30.0, 2.4),Electron_MINIIso(0.12,"uncorrected"));
+EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium, PtEtaCut(30.0, 2.4));
     //MuIdTight = AndId<Muon>(MuonIDTight(), PtEtaCut(30.0, 2.4),MuonIso(0.12));
     MuId = AndId<Muon>(MuonIDLoose(),PtEtaCut(30.0, 2.4),MuonIso(0.12));
     MuLoose = MuonIDLoose();
@@ -102,7 +103,7 @@ namespace uhh2examples {
     common->set_electron_id(EleId);
     common->set_muon_id(MuId);
     common->init(ctx);
-    jetcleaner.reset(new JetCleaner(30.0, 2.5));
+    jetcleaner.reset(new JetCleaner(ctx,30.0, 2.5));
     syst_module.reset(new MCScaleVariation(ctx));
     //jetlep_overlap_cleaner.reset(new JetLeptonOverlapCleaner(0.4));
     //muoncleaner_tight.reset(new MuonCleaner(MuIdTight));

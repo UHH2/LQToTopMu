@@ -63,6 +63,7 @@ namespace uhh2examples {
     std::unique_ptr<Hists> h_htlept200, h_jets_htlept200, h_ele_htlept200, h_mu_htlept200, h_event_htlept200, h_topjets_htlept200, h_tau_htlept200, h_btageff_htlept200;
     std::unique_ptr<Hists> h_finalSelection, h_jets_finalSelection, h_ele_finalSelection, h_mu_finalSelection, h_event_finalSelection, h_topjets_finalSelection, h_tau_finalSelection;
     std::unique_ptr<Hists> h_ht_InvMassVeto, h_ht_finalSelection;
+    std::unique_ptr<Hists> h_Sideband, h_Sideband_inclusive;
 
     /*Event::Handle<TTbarGen> h_ttbargen;
     Event::Handle<LQGen> h_LQLQbargen;
@@ -107,7 +108,7 @@ namespace uhh2examples {
     wp_btag_loose = CSVBTag::WP_LOOSE;
     Btag_medium = CSVBTag(CSVBTag::WP_MEDIUM);
     Btag_tight = CSVBTag(CSVBTag::WP_TIGHT); 
-    jetcleaner.reset(new JetCleaner(30.0, 2.5));
+    jetcleaner.reset(new JetCleaner(ctx,30.0, 2.5));
 
 
     common.reset(new CommonModules());
@@ -120,7 +121,7 @@ namespace uhh2examples {
     common->set_electron_id(EleId);
     common->set_muon_id(MuId);
     common->init(ctx);
-    SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MuonID_Z_RunD_Reco74X_Nov20.root", "NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1", 1, "tightID", "nominal"));
+    SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MuonID_Z_RunD_Reco74X_Nov20.root", "NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1", 1, "tightID", "nominal")); 
     SF_muonTrigger.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/SingleMuonTrigger_Z_RunD_Reco74X_Nov20.root", "IsoMu20_OR_IsoTkMu20_HLTv4p3_PtEtaBins", 0.5, "trigger", "nominal"));
     SF_btag.reset(new MCBTagScaleFactor(ctx,wp_btag_loose));
 
@@ -216,6 +217,8 @@ namespace uhh2examples {
     h_topjets_finalSelection.reset(new TopJetHists(ctx, "TopJets_FinalSelection"));
     h_event_finalSelection.reset(new EventHists(ctx, "Event_FinalSelection")); 
     h_ht_finalSelection.reset(new HT2dHists(ctx, "HT2d_FinalSelection"));
+    h_Sideband.reset(new LQToTopMuHists(ctx, "Sideband_weights_applied"));
+    h_Sideband_inclusive.reset(new LQToTopMuHists(ctx, "Sideband_inclusive_weights_applied"));
     
     
   }
@@ -329,6 +332,9 @@ namespace uhh2examples {
     h_event_finalSelection->fill(event);
     h_topjets_finalSelection->fill(event);
     h_ht_finalSelection->fill(event);
+
+    h_Sideband->fill(event);
+    h_Sideband_inclusive->fill(event);
 
     
 
