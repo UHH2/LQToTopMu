@@ -3,10 +3,10 @@
 
 
 	  <!ENTITY TargetLumi      "2155">
-	  <!ENTITY SELdir          "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/Optimization/&TargetLumi;fb_MuonAndBTagSF_Sys_JEC_Up">
+	  <!ENTITY SELdir          "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/Optimization/Final/&TargetLumi;fb_MuonAndBTagSF">
 	  <!ENTITY b_Cacheable     "False">
 	  <!ENTITY NEVT            "-1">
-	  <!ENTITY PRESELdir       "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/Preselection/&TargetLumi;fb_MuonSF_Sys_JEC_Up"> 
+	  <!ENTITY PRESELdir       "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/Preselection/&TargetLumi;fb_MuonSF"> 
 	  <!ENTITY PRESELfilename  "uhh2.AnalysisModuleRunner"> 
 	  <!ENTITY PROOFdir        "/nfs/dust/cms/user/reimersa/.proof2">
 
@@ -155,10 +155,10 @@
             
             <!-- configuration for MCPileupReweight (run as part of CommonModules): -->
  
-            <Item Name="pileup_directory" Value="" />  
+            <Item Name="pileup_directory" Value="/nfs/dust/cms/user/nowatsd/PUHistogram-25ns-v2/Pileup.MC.TTbar.root" />  
 	    <Item Name="pileup_directory_data" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden.root" />
-	    <Item Name="pileup_directory_50ns" Value="/nfs/dust/cms/user/nowatsd/PUHistogram-25ns-v2/Pileup.MC.TTbar.root" />
-	    <Item Name="pileup_directory_25ns" Value="/nfs/dust/cms/user/nowatsd/PUHistogram-25ns-v2/Pileup.MC.TTbar.root" />
+	    <Item Name="pileup_directory_data_up" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden_up.root" />
+	    <Item Name="pileup_directory_data_down" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden_down.root" />
 
 	    <Item Name="MCBtagEfficiencies" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/BTagMCEfficiencyHists/2155fb_BTagMCEfficiencyHists.root" />
 	    <Item Name="BTagCalibration" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/CSVv2.csv" />

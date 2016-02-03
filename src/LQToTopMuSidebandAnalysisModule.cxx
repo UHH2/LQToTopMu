@@ -18,6 +18,7 @@
 #include "UHH2/common/include/NSelections.h"
 #include "UHH2/LQToTopMu/include/LQToTopMuSelections.h"
 #include "UHH2/LQToTopMu/include/LQToTopMuHists.h"
+#include "UHH2/LQToTopMu/include/LQToTopMuPDFHists.h"
 #include "UHH2/LQToTopMu/include/LQToTopMuRecoHists.h"
 #include "UHH2/LQToTopMu/include/MET2dHists.h"
 #include "UHH2/LQToTopMu/include/HT2dHists.h"
@@ -64,6 +65,7 @@ namespace uhh2examples {
     std::unique_ptr<Hists> h_finalSelection, h_jets_finalSelection, h_ele_finalSelection, h_mu_finalSelection, h_event_finalSelection, h_topjets_finalSelection, h_tau_finalSelection;
     std::unique_ptr<Hists> h_ht_InvMassVeto, h_ht_finalSelection;
     std::unique_ptr<Hists> h_Sideband, h_Sideband_inclusive;
+    std::unique_ptr<Hists> h_PDF_variations;
 
     Event::Handle<TTbarGen> h_ttbargen;
     Event::Handle<LQGen> h_LQLQbargen;
@@ -76,15 +78,19 @@ namespace uhh2examples {
     JetId Btag_loose, Btag_medium, Btag_tight;
     CSVBTag::wp wp_btag_loose;
 
-    bool do_scale_variation, is_mc;
+    bool do_scale_variation, is_mc, do_pdf_variations;
 
-    TFile* file_alpha = new TFile("/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/TTbarSideband/2155fb_MuonAndBTagSF/ForSideband.root","READ");
-    TGraphAsymmErrors* alpha = (TGraphAsymmErrors*)file_alpha->Get("Graph");
-    TH1D* norm = (TH1D*)file_alpha->Get("h_normalization");
-    TFile* file_alpha_inclusive = new TFile("/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/TTbarSideband/2155fb_MuonAndBTagSF/ForSideband_Inclusive_Systematics.root","READ");
-    TGraphAsymmErrors* alpha_inclusive = (TGraphAsymmErrors*)file_alpha_inclusive->Get("ScaleVariation/UpUp/Graph");
-    TH1D* norm_inclusive = (TH1D*)file_alpha_inclusive->Get("ScaleVariation/UpUp/h_normalization");
-    
+    /*
+    TFile* file_alpha_inclusive = new TFile("/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/TTbarSideband/Final/2155fb_MuonAndBTagSF/ForSideband_Inclusive.root","READ");
+    TGraphAsymmErrors* alpha_inclusive = (TGraphAsymmErrors*)file_alpha_inclusive->Get("Graph");
+    TH1D* norm_inclusive = (TH1D*)file_alpha_inclusive->Get("h_normalization");
+    */
+
+    TFile* file_alpha_inclusive;
+    TGraphAsymmErrors* alpha_inclusive;
+    TH1D* norm_inclusive;
+    string filepath_alpha, Sys_MuonID, Sys_BTag, Sys_MuonTrigger;
+
     std::vector<std::unique_ptr<AnalysisModule>> recomodules;
     uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_hyps;
     
@@ -96,8 +102,18 @@ namespace uhh2examples {
     cout << "Hello World from LQToTopMuSidebandAnalysisModule!" << endl;
 
     do_scale_variation = false;
+    do_pdf_variations = ctx.get("b_PDFUncertainties") == "true";
     is_mc = ctx.get("dataset_type") == "MC";
-    
+    filepath_alpha = ctx.get("filepath_alpha");
+    Sys_MuonID = ctx.get("Systematic_MuonID");
+    Sys_MuonTrigger = ctx.get("Systematic_MuonTrigger");
+    Sys_BTag = ctx.get("Systematic_BTag");
+    const char* c_filepath_alpha = filepath_alpha.c_str();
+
+    file_alpha_inclusive = new TFile(c_filepath_alpha,"READ");
+    alpha_inclusive = (TGraphAsymmErrors*)file_alpha_inclusive->Get("Graph");
+    norm_inclusive = (TH1D*)file_alpha_inclusive->Get("h_normalization");
+
     // 1. setup other modules. CommonModules and the JetCleaner:
     Jet_printer.reset(new JetPrinter("Jet-Printer", 0));
     Electron_printer.reset(new ElectronPrinter("Electron-Printer"));
@@ -120,9 +136,9 @@ namespace uhh2examples {
     common->set_electron_id(EleId);
     common->set_muon_id(MuId);
     common->init(ctx);
-    SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MuonID_Z_RunD_Reco74X_Nov20.root", "NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1", 1, "tightID", "nominal"));
-    SF_muonTrigger.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/SingleMuonTrigger_Z_RunD_Reco74X_Nov20.root", "IsoMu20_OR_IsoTkMu20_HLTv4p3_PtEtaBins", 0.5, "trigger", "nominal"));
-    SF_btag.reset(new MCBTagScaleFactor(ctx,wp_btag_loose));
+    SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MuonID_Z_RunD_Reco74X_Nov20.root", "NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1", 1, "tightID", Sys_MuonID));
+    SF_muonTrigger.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/SingleMuonTrigger_Z_RunD_Reco74X_Nov20.root", "IsoMu20_OR_IsoTkMu20_HLTv4p3_PtEtaBins", 0.5, "trigger", Sys_MuonTrigger));
+    SF_btag.reset(new MCBTagScaleFactor(ctx,wp_btag_loose,"jets",Sys_BTag));
 
     
     h_hyps = ctx.get_handle<std::vector<LQReconstructionHypothesis>>("HighMassLQReconstruction");
@@ -206,6 +222,7 @@ namespace uhh2examples {
     h_ht_finalSelection.reset(new HT2dHists(ctx, "HT2d_FinalSelection"));
     h_Sideband.reset(new LQToTopMuHists(ctx, "Sideband_weights_applied"));
     h_Sideband_inclusive.reset(new LQToTopMuHists(ctx, "Sideband_inclusive_weights_applied"));
+    h_PDF_variations.reset(new LQToTopMuPDFHists(ctx, "PDF_variations", do_pdf_variations));
     
   }
   
@@ -351,18 +368,21 @@ namespace uhh2examples {
     h_topjets_finalSelection->fill(event);
     h_ht_finalSelection->fill(event);
 
+    h_PDF_variations->fill(event);
 
+    
     double original_weight = event.weight;
+    /*
     double d_alpha = alpha->Eval(ht);
     double d_norm = norm->GetBinContent(1);
     double sideband_weight = d_alpha * d_norm;
-    
+
     //change weights
     event.weight *= sideband_weight;
     h_Sideband->fill(event);
     //restore weights
     event.weight = original_weight;
-
+    */
     double d_alpha_inclusive = alpha_inclusive->Eval(ht);
     double d_norm_inclusive = norm_inclusive->GetBinContent(1);
     double sideband_weight_inclusive = d_alpha_inclusive * d_norm_inclusive;

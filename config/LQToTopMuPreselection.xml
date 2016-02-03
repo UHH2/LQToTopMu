@@ -195,19 +195,19 @@
     <OutputTree Name="AnalysisTree" />
   </InputData>
 
-<!--
-  <InputData Lumi="116421" NEventsMax="&NEVT;" Type="MC" Version="TTbarScaleUp" Cacheable="&b_Cacheable;">
+
+  <InputData Lumi="11896.0" NEventsMax="&NEVT;" Type="MC" Version="TTbarScaleUp" Cacheable="&b_Cacheable;">
     &TTbarScaleUp;
     <InputTree Name="AnalysisTree" />
     <OutputTree Name="AnalysisTree" />
   </InputData>
 
-  <InputData Lumi="116421" NEventsMax="&NEVT;" Type="MC" Version="TTbarScaleDown" Cacheable="&b_Cacheable;">
+  <InputData Lumi="11824.2" NEventsMax="&NEVT;" Type="MC" Version="TTbarScaleDown" Cacheable="&b_Cacheable;">
     &TTbarScaleDown;
     <InputTree Name="AnalysisTree" />
     <OutputTree Name="AnalysisTree" />
   </InputData>
--->
+
 <!--
   <InputData Lumi="50620.2" NEventsMax="&NEVT;" Type="MC" Version="TTbarM700to1000" Cacheable="&b_Cacheable;">
     &TTbarM700to1000;
@@ -484,15 +484,17 @@
             <Item Name="use_sframe_weight" Value="false" />
             
             <!-- configuration for MCPileupReweight (run as part of CommonModules): -->
-            <Item Name="pileup_directory" Value="" /> 
+            <Item Name="pileup_directory" Value="/nfs/dust/cms/user/nowatsd/PUHistogram-25ns-v2/Pileup.MC.TTbar.root" /> 
 	    <Item Name="pileup_directory_data" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden.root" />
+	    <!-- obsolete
 	    <Item Name="pileup_directory_50ns" Value="/nfs/dust/cms/user/nowatsd/PUHistogram-25ns-v2/Pileup.MC.TTbar.root" />
 	    <Item Name="pileup_directory_25ns" Value="/nfs/dust/cms/user/nowatsd/PUHistogram-25ns-v2/Pileup.MC.TTbar.root" />
-      
+	    -->
 
 	    <Item Name="ScaleVariationMuR" Value="none" />
 	    <Item Name="ScaleVariationMuF" Value="none" />
 	    <Item Name="jecsmear_direction" Value="nominal" />
+	    <Item Name="jersmear_direction" Value="nominal" />
             
             <!-- Some test configuration; see LQToTopMuModule.cxx for how to access it: -->
             <Item Name="TestKey" Value="TestKeyValue" />

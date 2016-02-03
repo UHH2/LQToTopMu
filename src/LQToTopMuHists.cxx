@@ -2,6 +2,7 @@
 #include "UHH2/LQToTopMu/include/HypothesisHistsOwn.h"
 #include "UHH2/core/include/Event.h"
 #include "UHH2/common/include/Utils.h"
+#include "UHH2/common/include/JetIds.h"
 #include <math.h>
 
 #include "TH1F.h"
@@ -188,6 +189,11 @@ void LQToTopMuHists::fill(const Event & event){
 
   //# b-jets
   std::vector<Jet> bjets_loose, bjets_med, bjets_tight;
+  CSVBTag Btag_loose = CSVBTag(CSVBTag::WP_LOOSE);
+  CSVBTag Btag_medium = CSVBTag(CSVBTag::WP_MEDIUM);
+  CSVBTag Btag_tight = CSVBTag(CSVBTag::WP_TIGHT);
+
+  /*
   for (unsigned int i =0; i<jets->size(); ++i) {
     if(jets->at(i).btag_combinedSecondaryVertex()>0.605) { //loose: >0.605, medium: >0.890, tight: >0.970
       bjets_loose.push_back(jets->at(i));
@@ -199,6 +205,19 @@ void LQToTopMuHists::fill(const Event & event){
       bjets_tight.push_back(jets->at(i));
     }
   }
+  */
+  for (unsigned int i =0; i<jets->size(); ++i) {
+    if(Btag_loose(jets->at(i),event)) { //loose: >0.605, medium: >0.890, tight: >0.970
+      bjets_loose.push_back(jets->at(i));
+    }
+    if(Btag_medium(jets->at(i),event)) { //loose: >0.605, medium: >0.890, tight: >0.970
+      bjets_med.push_back(jets->at(i));
+    }
+    if(Btag_tight(jets->at(i),event)) { //loose: >0.605, medium: >0.890, tight: >0.970
+      bjets_tight.push_back(jets->at(i));
+    }
+  }
+
   int NbJets_loose = bjets_loose.size();
   hist("N_bJets_loose")->Fill(NbJets_loose,weight);
   int NbJets_med = bjets_med.size();

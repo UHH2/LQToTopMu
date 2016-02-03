@@ -18,6 +18,7 @@
 #include "UHH2/common/include/NSelections.h"
 #include "UHH2/LQToTopMu/include/LQToTopMuSelections.h"
 #include "UHH2/LQToTopMu/include/LQToTopMuHists.h"
+#include "UHH2/LQToTopMu/include/LQToTopMuPDFHists.h"
 #include "UHH2/LQToTopMu/include/LQToTopMuRecoHists.h"
 #include "UHH2/LQToTopMu/include/MET2dHists.h"
 #include "UHH2/LQToTopMu/include/HT2dHists.h"
@@ -64,6 +65,7 @@ namespace uhh2examples {
     std::unique_ptr<Hists> h_finalSelection, h_jets_finalSelection, h_ele_finalSelection, h_mu_finalSelection, h_event_finalSelection, h_topjets_finalSelection, h_tau_finalSelection;
     std::unique_ptr<Hists> h_ht_InvMassVeto, h_ht_finalSelection;
     std::unique_ptr<Hists> h_Sideband, h_Sideband_inclusive;
+    std::unique_ptr<Hists> h_PDF_variations;
 
     /*Event::Handle<TTbarGen> h_ttbargen;
     Event::Handle<LQGen> h_LQLQbargen;
@@ -77,7 +79,7 @@ namespace uhh2examples {
     CSVBTag::wp wp_btag_loose;
 
 
-    bool do_scale_variation, is_mc;
+    bool do_scale_variation, is_mc, do_pdf_variations;
     int runnr;
  
     
@@ -93,6 +95,7 @@ namespace uhh2examples {
     cout << "Hello World from LQToTopMuAnalysisModule!" << endl;
 
     do_scale_variation = false;
+    do_pdf_variations = ctx.get("b_PDFUncertainties") == "true";
     runnr = 0; 
     is_mc = ctx.get("dataset_type") == "MC";
    
@@ -193,13 +196,6 @@ namespace uhh2examples {
     //h_ht_InvMassVeto.reset(new HT2dHists(ctx, "HT2d_InvMassVeto"));
 
 
-    /*h_3jets.reset(new LQToTopMuHists(ctx, "3Jets"));
-    h_jets_3jets.reset(new JetHists(ctx, "Jets_3Jets"));
-    h_ele_3jets.reset(new ElectronHists(ctx, "Ele_3Jets"));
-    h_mu_3jets.reset(new MuonHists(ctx, "Mu_3Jets"));
-    h_event_3jets.reset(new EventHists(ctx, "Event_3Jets"));
-    h_topjets_3jets.reset(new TopJetHists(ctx, "TopJets_3Jets"));*/
-
 
     h_htlept200.reset(new LQToTopMuHists(ctx, "HTLept200"));
     h_jets_htlept200.reset(new JetHists(ctx, "Jets_HTLept200"));
@@ -219,6 +215,7 @@ namespace uhh2examples {
     h_ht_finalSelection.reset(new HT2dHists(ctx, "HT2d_FinalSelection"));
     h_Sideband.reset(new LQToTopMuHists(ctx, "Sideband_weights_applied"));
     h_Sideband_inclusive.reset(new LQToTopMuHists(ctx, "Sideband_inclusive_weights_applied"));
+    h_PDF_variations.reset(new LQToTopMuPDFHists(ctx, "PDF_variations", do_pdf_variations));
     
     
   }
@@ -236,9 +233,7 @@ namespace uhh2examples {
     }
 
     bool pass_common = common->process(event);
-    if(!pass_common) {
-      return false;
-    }
+    if(!pass_common) return false;
     jetcleaner->process(event);
 
     /*ttgenprod->process(event);
@@ -251,7 +246,6 @@ namespace uhh2examples {
       }
     }
 
-    
     //if(is_mc)GenParticles_printer->process(event);
 
     h_nocuts->fill(event);
@@ -274,7 +268,7 @@ namespace uhh2examples {
     //}
 
     //1 bTag1 loose
-    if(!nbtag_loose_sel->passes(event)) return false; // !: Signal, ohne : Sideband
+    if(!nbtag_loose_sel->passes(event)) return false; 
     SF_btag->process(event);
     //LOESCHEMICH
 
@@ -286,7 +280,7 @@ namespace uhh2examples {
     h_topjets_1bJetLoose->fill(event);
  
     //InvMassVeto
-    if(!m_mumu_veto->passes(event)) return false; // mit !: Signal, ohne : Sideband
+    if(!m_mumu_veto->passes(event)) return false; 
     h_jets_InvMassVeto->fill(event);
     h_InvMassVeto->fill(event);
     h_ele_InvMassVeto->fill(event);
@@ -333,6 +327,7 @@ namespace uhh2examples {
     h_topjets_finalSelection->fill(event);
     h_ht_finalSelection->fill(event);
 
+    h_PDF_variations->fill(event);
     h_Sideband->fill(event);
     h_Sideband_inclusive->fill(event);
 

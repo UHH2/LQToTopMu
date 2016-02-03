@@ -5,7 +5,7 @@
 
 
 	  <!ENTITY TargetLumi      "2155">
-	  <!ENTITY SELdir          "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/TTbarSideband/&TargetLumi;fb_MuonAndBTagSF">
+	  <!ENTITY SELdir          "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/TTbarSideband/Final/&TargetLumi;fb_MuonAndBTagSF">
 	  <!ENTITY b_Cacheable     "False">
 	  <!ENTITY NEVT            "-1">
 	  <!ENTITY PRESELdir       "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/TTbarSideband/Preselection/&TargetLumi;fb_MuonSF"> 
@@ -65,7 +65,7 @@
 
 <!--
 <ConfigParse NEventsBreak="25000" FileSplit="0" AutoResubmit="5"/>
-<ConfigSGE RAM ="4" DISK ="3" Mail="arne.reimers@desy.de" Notification="as" Workdir="workdir_MuonAndBTagSF"/>
+<ConfigSGE RAM ="4" DISK ="3" Mail="arne.reimers@desy.de" Notification="as" Workdir="workdir_01"/>
 -->
 
 <!-- OutputLevel controls which messages are printed; set to VERBOSE or DEBUG for more verbosity, to WARNING or ERROR for less -->
@@ -361,16 +361,26 @@
             <Item Name="use_sframe_weight" Value="false" />
             
             <!-- configuration for MCPileupReweight (run as part of CommonModules): -->
-            <Item Name="pileup_directory" Value="" />  
+            <Item Name="pileup_directory" Value="/nfs/dust/cms/user/nowatsd/PUHistogram-25ns-v2/Pileup.MC.TTbar.root" />  
 	    <Item Name="pileup_directory_data" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden.root" />
+	    <Item Name="pileup_directory_data_up" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden_up.root" />
+	    <Item Name="pileup_directory_data_down" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden_down.root" />
+
+	    <!-- obsolete
 	    <Item Name="pileup_directory_50ns" Value="/nfs/dust/cms/user/nowatsd/PUHistogram-25ns-v2/Pileup.MC.TTbar.root" />
 	    <Item Name="pileup_directory_25ns" Value="/nfs/dust/cms/user/nowatsd/PUHistogram-25ns-v2/Pileup.MC.TTbar.root" />
+	    -->
 
 	    <Item Name="MCBtagEfficiencies" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/BTagMCEfficiencyHists/2155fb_BTagMCEfficiencyHists_TTbarSideband.root" />
 	    <Item Name="BTagCalibration" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/CSVv2.csv" />
 
+	    <Item Name="filepath_alpha" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/TTbarSideband/Final/2155fb_MuonAndBTagSF/ForSideband_Inclusive.root" />
 	    <Item Name="ScaleVariationMuR" Value="none" />
 	    <Item Name="ScaleVariationMuF" Value="none" />
+	    <Item Name="b_PDFUncertainties" Value="true" />
+	    <Item Name="Systematic_MuonID" Value="nominal" />
+	    <Item Name="Systematic_MuonTrigger" Value="nominal" />
+	    <Item Name="Systematic_BTag" Value="nominal" />
 
             
             <!-- Some test configuration; see LQToTopMuModule.cxx for how to access it: -->
