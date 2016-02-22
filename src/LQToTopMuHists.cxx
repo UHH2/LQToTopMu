@@ -62,7 +62,6 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("Parton_H_T", "H_{T} [GeV] on parton level", 80,0,7000);
   double bins_low_1Ele[12] = {0,350,500,700,900,1100,1300,1500,1750,2000,2500,7000};
   double bins_low_NoEle[23] = {0,200,350,500,650,800,950,1100,1250,1400,1550,1700,1850,2000,2150,2300,2450,2600,2750,2900,3050,3200,7000};
-  //double bins_low_NoEle2[10] = {0,350,550,750,950,1150,1350,1550,1950,2200};
   double bins_low_NoEle2[11] = {0,350,500,650,800,950,1100,1250,1450,1750,2050};
   book<TH1F>("H_T_rebin", "H_{T} [GeV]", 22, bins_low_NoEle);
   book<TH1F>("H_T_rebin2", "H_{T} [GeV]", 100, 0, 7000);
@@ -89,13 +88,13 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("M_LQ_comb", "M_{LQ,mean} [GeV]", 60, 0, 3000);
   double bins_mlq_low[17] = {100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,1000,2000};
   book<TH1F>("M_LQ_comb_rebin", "M_{LQ,mean} [GeV]", 16, bins_mlq_low);
-  double bins_mlq_low2[6] = {100,200,300,500,800,2000};
+  double bins_mlq_low2[6] = {0,200,400,600,800,1000};
   book<TH1F>("M_LQ_comb_rebin2", "M_{LQ,mean} [GeV]", 5, bins_mlq_low2);
   book<TH1F>("M_LQ_diff", "M_{LQ}^{had} - M_{LQ}^{lep} [GeV]", 50, -500, 500);
   book<TH1F>("M_LQ_diff_rel", "(M_{LQ}^{had} - M_{LQ}^{lep})/M_{LQ,mean} [GeV]", 50, -0.5, 0.5);
   book<TH1F>("M_LQLQ", "M_{LQLQ} [GeV]", 100, 0, 5000);
-  double bins_mlqlq_low[11] = {400,500,600,700,800,900,1000,1250,1500,2000,5000};
-  book<TH1F>("M_LQLQ_rebin", "M_{LQLQ} [GeV]", 10, bins_mlqlq_low);
+  double bins_mlqlq_low[12] = {0,400,500,600,700,800,900,1000,1250,1500,2000,5000};
+  book<TH1F>("M_LQLQ_rebin", "M_{LQLQ} [GeV]", 11, bins_mlqlq_low);
 
   book<TH1F>("dR_toplep_mulep","#Delta R(t^{lep},#mu^{lep})",50,0,5);
   book<TH1F>("dR_tophad_muhad","#Delta R(t^{had},#mu^{had})",50,0,5);
@@ -104,41 +103,14 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("dR_tophad_muX", "1: t^{had} closer to #mu^{had}, -1: closer to #mu^{lep}", 3,-1.5, 1.5);
   //book<TH1F>("dummy","dummy",50,0,5);
 
-  //substructure related
-  book<TH1F>("M_jet", "M_{Jet} [GeV]", 100, 0, 2000);
-  book<TH1F>("N_subjets", "N_{Subjets} in a Topjet", 11, -0.5, 10.5);
-  book<TH1F>("min_mDisubjet", "Min(m_{ij}) [GeV]", 50, 0, 1000);
-  book<TH1F>("N_TopTags", "Number of CMSTopTags",16 ,-0.5, 15.5 );
-
+ 
   //electron fakes
   book<TH1F>("ele_type", "0 real ele, 1 fake ele", 2,-0.5,1.5);
 
   //event weights: sum
   book<TH1F>("sum_event_weights", "BinContent = sum(eventweights)", 1, 0.5, 1.5);
 
-  /*  book <TH1F>("M_t_had", "M_{t,had} total", 50, 0, 500);
-  book <TH1F>("M_t_had1", "M_{t1,had}", 50, 0, 500);
-  book <TH1F>("M_t_had2", "M_{t2,had}", 50, 0, 500);
-
-  book <TH1F>("M_LQ_had", "M_{LQ,had} total", 60, 0, 3000);
-  book <TH1F>("M_LQ_had1", "M_{LQ1,had}", 60, 0, 3000);
-  book <TH1F>("M_LQ_had2", "M_{LQ2,had}", 60, 0, 3000);
-  book <TH1F>("M_LQ_had_mean", "M_{LQ,had}^{mean}", 60, 0, 3000);
-
-  book <TH1F>("Chi2Had", "#chi^{2}_{had}", 100, 0, 500);
-  book <TH1F>("Chi2Had_top1", "#chi^{2}_{had} top1", 150, 0, 300);
-  book <TH1F>("Chi2Had_top2", "#chi^{2}_{had} top2", 150, 0, 300);
-  book <TH1F>("Chi2Had_MLQdiff", "#chi^{2}_{had} M_{LQ}^{diff}", 150, 0, 300);
-  book <TH1F>("Chi2Had_PTLQLQ", "#chi^{2}_{had} p_{T}^{LQLQ}", 150, 0, 300);
-  book <TH1F>("Chi2Had_w1", "#chi^{2}_{had} w1", 100, 0, 500);
-  book <TH1F>("Chi2Had_w2", "#chi^{2}_{had} w2", 100, 0, 500);
-  book <TH1F>("Chi2Had_Top", "#chi^{2}_{had} from top", 200,0,1000);
-  book <TH1F>("Chi2Had_LQ", "#chi^{2}_{had} from LQ", 150,0,300);
-  book <TH2D>("Chi2Had_top1_vs_NJetsTop1","#chi^{2}_{had} top1 vs N_{Jets}^{top1}",150,0,300,10,-0.5,9.5);
-  book <TH1F>("PTLQhadLQhad", "p_{T}^{LQ#bar{LQ}}", 100, 0, 1500);
-  book <TH2D>("Chi2vsMLQ","#chi^{2} vs M_{LQ,had}^{mean}",150,0,300, 60,0,3000);
-  book <TH2D>("PTvsMLQ","p_{T}^{LQ#bar{LQ}} vs M_{LQ,had}^{mean}",100,0,1500, 60,0,3000);
-  book <TH2D>("Chi2vsPT","#chi^{2} vs p_{T}^{LQ#bar{LQ}}",150,0,300, 100,0,1500); */
+ 
 
   //For MLQ reconstruction
   h_hyps = ctx.get_handle<std::vector<LQReconstructionHypothesis>>("HighMassLQReconstruction");
@@ -158,12 +130,8 @@ void LQToTopMuHists::fill(const Event & event){
   // use histogram pointers as members as in 'UHH2/common/include/ElectronHists.h'
   
   // Don't forget to always use the weight when filling.
-  //auto ptmu2 = event.muons->at(1).pt();
-  //double corrfactor_metreweight = (7.76-0.169*met+0.00128*met*met-0.00000352*met*met*met+0.00000000323*met*met*met*met) * 4.6087; // MET reweight
-  //double corrfactor_ptmu2reweight = 0.08502+0.001746*ptmu2-0.000002253*ptmu2*ptmu2;
+
   double weight = event.weight;
-  //if(met >= 100 && met <= 580){weight = event.weight * corrfactor_metreweight;}
-  //weight = event.weight * corrfactor_ptmu2reweight;
   
   std::vector<Jet>* jets = event.jets;
   int Njets = jets->size();
@@ -201,19 +169,7 @@ void LQToTopMuHists::fill(const Event & event){
   CSVBTag Btag_medium = CSVBTag(CSVBTag::WP_MEDIUM);
   CSVBTag Btag_tight = CSVBTag(CSVBTag::WP_TIGHT);
 
-  /*
-  for (unsigned int i =0; i<jets->size(); ++i) {
-    if(jets->at(i).btag_combinedSecondaryVertex()>0.605) { //loose: >0.605, medium: >0.890, tight: >0.970
-      bjets_loose.push_back(jets->at(i));
-    }
-    if(jets->at(i).btag_combinedSecondaryVertex()>0.890) { //loose: >0.605, medium: >0.890, tight: >0.970
-      bjets_med.push_back(jets->at(i));
-    }
-    if(jets->at(i).btag_combinedSecondaryVertex()>0.970) { //loose: >0.605, medium: >0.890, tight: >0.970
-      bjets_tight.push_back(jets->at(i));
-    }
-  }
-  */
+
   for (unsigned int i =0; i<jets->size(); ++i) {
     if(Btag_loose(jets->at(i),event)) { //loose: >0.605, medium: >0.890, tight: >0.970
       bjets_loose.push_back(jets->at(i));
@@ -413,11 +369,11 @@ void LQToTopMuHists::fill(const Event & event){
     
 
     mLQdiff = mLQhad_rec - mLQlep_rec;
-    //mLQmed_rec = (1/hyp->discriminator("Chi2_tlep")*mLQhad_rec + 1/hyp->discriminator("Chi2_thad")*mLQlep_rec)/(2*(1/hyp->discriminator("Chi2_tlep")+1/hyp->discriminator("Chi2_thad"))/2);
     mLQmed_rec = (mLQhad_rec + mLQlep_rec) / 2;
     hist("M_LQ_comb")->Fill(mLQmed_rec, weight);
     hist("M_LQ_comb_rebin")->Fill(mLQmed_rec, weight);
-    hist("M_LQ_comb_rebin2")->Fill(mLQmed_rec, weight);
+    if(mLQmed_rec < 900)   hist("M_LQ_comb_rebin2")->Fill(mLQmed_rec, weight);
+    else                   hist("M_LQ_comb_rebin2")->Fill(900., weight);
     hist("M_LQ_diff")->Fill(mLQdiff, weight);
     mLQdiff_rel = mLQdiff / mLQmed_rec;
     hist("M_LQ_diff_rel")->Fill(mLQdiff_rel,weight);
@@ -453,65 +409,7 @@ void LQToTopMuHists::fill(const Event & event){
   }
 
  
-  //CMSTopTags
-
-double mDiminLower = 50., mjetLower = 140., mjetUpper = 250.;
- //std::vector<TopJet>* topjets = event.topjets;
- //std::vector<TopJet> taggedtopjets;
- int N_toptaggedjets = 0;
- bool CMSTopTag = true;
-
- double m_disubjet_min = 0.;
-
- for(const auto & topjet : *event.topjets){
-
-   auto subjets = topjet.subjets();
-   
-   if(subjets.size() < 2) m_disubjet_min = 0.0;
-   
-   // only need to sort if subjets there are more than 3 subjets, as
-   // otherwise, we use all 3 anyway.
-   if(subjets.size() > 3) sort_by_pt(subjets);
-   
-   double m01 = 0;
-
-   if(subjets.size() >= 3){
-     auto sum01 = subjets[0].v4()+subjets[1].v4();
-     if(sum01.isTimelike())  m01 = sum01.M();
-   
-     if(subjets.size() < 3) m_disubjet_min = m01;
-   
-     double m02 = 0;
-     auto sum02 = subjets[0].v4()+subjets[2].v4();
-     if( sum02.isTimelike() ) m02 = sum02.M();
-   
-     double m12 = 0;
-     auto sum12 = subjets[1].v4()+subjets[2].v4();
-     if( sum12.isTimelike() )  m12 = sum12.M();
-     m_disubjet_min = std::min(m01,std::min(m02, m12));
-   }
-
-
-   hist("min_mDisubjet")->Fill(m_disubjet_min, weight);
-   if(m_disubjet_min < mDiminLower) CMSTopTag = false;
-
-   auto mjet = topjet.v4().M();
-   hist("M_jet")->Fill(mjet, weight);
-   if(mjet < mjetLower) CMSTopTag = false;
-   if(mjet > mjetUpper) CMSTopTag = false;
-
-   hist("N_subjets")->Fill(subjets.size(), weight);
-   if(subjets.size() < 3) CMSTopTag = false;
-
-   //if (CMSTopTag) taggedtopjets.push_back(topjet); 
-   if (CMSTopTag) N_toptaggedjets++; 
- }
-
-
- //int N_toptaggedjets = taggedtopjets.size();
- hist("N_TopTags")->Fill(N_toptaggedjets, weight);
-
-
+ 
 
 
 

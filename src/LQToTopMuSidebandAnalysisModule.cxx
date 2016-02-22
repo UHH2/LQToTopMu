@@ -110,7 +110,7 @@ namespace uhh2examples {
     Electron_printer.reset(new ElectronPrinter("Electron-Printer"));
     Muon_printer.reset(new MuonPrinter("Muon-Printer"));
     GenParticles_printer.reset(new GenParticlesPrinter(ctx));
-    MuId = AndId<Muon>(MuonIDTight(),PtEtaCut(30.0, 2.4),MuonIso(0.12));
+    MuId = AndId<Muon>(MuonIDTight(),PtEtaCut(30.0, 2.4),MuonIso(0.15));
     EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium,PtEtaCut(30.0, 2.4));
 
     Btag_loose = CSVBTag(CSVBTag::WP_LOOSE);
