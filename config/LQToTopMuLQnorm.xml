@@ -138,7 +138,6 @@
 	    <Item Name="TopJetCollection" Value="patJetsCa15CHSJetsSoftDropPacked_daughters" />
 	    <Item Name="GenParticleCollection" Value="GenParticles" />
             <Item Name="lumi_file" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/Latest_2015_Golden_JSON.root" />
-<!--            <Item Name="lumi_file" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_NoBadBSRuns.root" />--> <!-- No bad BS runs -->
             <Item Name="lumihists_lumi_per_bin" Value="50."/>
 	    <Item Name="GenInfoName" Value="genInfo" />
 
@@ -165,6 +164,12 @@
 
 	    <Item Name="ScaleVariationMuR" Value="none" />
 	    <Item Name="ScaleVariationMuF" Value="none" />
+	    <Item Name="b_PDFUncertainties" Value="true" />
+	    <Item Name="Systematic_MuonID" Value="nominal" />
+	    <Item Name="Systematic_MuonTrigger" Value="nominal" />
+	    <Item Name="Systematic_MuonIso" Value="nominal" />
+	    <Item Name="Systematic_BTag" Value="nominal" />
+	    <Item Name="Systematic_PU" Value="central" />
 
             
             <!-- Some test configuration; see LQToTopMuModule.cxx for how to access it: -->

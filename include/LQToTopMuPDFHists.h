@@ -23,10 +23,14 @@ public:
     LQToTopMuPDFHists(uhh2::Context & ctx, const std::string & dirname, bool use_pdf_weights_ = false);
 
     virtual void fill(const uhh2::Event & ev) override;
-    std::string histo_names[102];
-    std::string histo_names2[102];
+    std::string histo_names[100];
+    std::string histo_names2[100];
+    std::string histo_names3[100];
+    std::string histo_names4[100];
 
   protected:
+    uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_hyps;
+    std::string m_discriminator_name;
     bool use_pdf_weights;
     bool is_mc;
 

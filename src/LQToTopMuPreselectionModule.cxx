@@ -38,22 +38,22 @@ namespace uhh2examples {
   
   private:
   
-    std::unique_ptr<CommonModules> common;
-    //std::unique_ptr<AnalysisModule> Muon_printer, Electron_printer, Jet_printer;
+    unique_ptr<CommonModules> common;
+    //unique_ptr<AnalysisModule> Muon_printer, Electron_printer, Jet_printer;
   
-    std::unique_ptr<JetCleaner> jetcleaner;
-    std::unique_ptr<JetLeptonCleaner> jetleptoncleaner;
-    std::unique_ptr<MuonCleaner> muoncleaner;
-    std::unique_ptr<MuonCleaner> muoncleaner_iso;
-    std::unique_ptr<ElectronCleaner> electroncleaner;
+    unique_ptr<JetCleaner> jetcleaner;
+    unique_ptr<JetLeptonCleaner> jetleptoncleaner;
+    unique_ptr<MuonCleaner> muoncleaner;
+    unique_ptr<MuonCleaner> muoncleaner_iso;
+    unique_ptr<ElectronCleaner> electroncleaner;
 
-    std::unique_ptr<AnalysisModule> syst_module, SF_muonID, SF_muonTrigger;
+    unique_ptr<AnalysisModule> syst_module, SF_muonID, SF_muonTrigger, SF_muonIso;
   
     // declare the Selections to use.
-    std::unique_ptr<Selection> njet_sel, nmuon_sel, ht_sel, lumi_sel, mu1_sel, trigger_sel, trigger_sel1, trigger_sel2, mttbargen_sel;
+    unique_ptr<Selection> njet_sel, nmuon_sel, ht_sel, lumi_sel, mu1_sel, trigger_sel, trigger_sel1, trigger_sel2, mttbargen_sel;
   
     // store the Hists collection as member variables. 
-    std::unique_ptr<Hists> h_nocuts, h_jets_nocuts, h_ele_nocuts, h_mu_nocuts, h_event_nocuts, h_topjets_nocuts, h_lumi_nocuts, 
+    unique_ptr<Hists> h_nocuts, h_jets_nocuts, h_ele_nocuts, h_mu_nocuts, h_event_nocuts, h_topjets_nocuts, h_lumi_nocuts, 
       h_trigger, h_jets_trigger, h_ele_trigger, h_mu_trigger, h_event_trigger, h_topjets_trigger, h_lumi_trigger, 
       h_lumi, h_jets_lumi, h_ele_lumi, h_mu_lumi, h_event_lumi, h_topjets_lumi, h_lumi_lumi, 
       h_cleaner, h_jets_cleaner, h_ele_cleaner, h_mu_cleaner, h_event_cleaner, h_topjets_cleaner, h_lumi_cleaner, 
@@ -61,16 +61,14 @@ namespace uhh2examples {
       h_2jets, h_jets_2jets, h_ele_2jets, h_mu_2jets, h_event_2jets, h_topjets_2jets, h_lumi_2jets,
       h_ht350, h_jets_ht350, h_ele_ht350, h_mu_ht350, h_event_ht350, h_topjets_ht350, h_lumi_ht350, 
       h_2mu, h_jets_2mu, h_ele_2mu, h_mu_2mu, h_event_2mu, h_topjets_2mu, h_lumi_2mu,
-      h_ht2d, h_eff_2jets, h_eff_cleaner, h_eff_ht350, h_eff_1mu;
 
-    //std::unique_ptr<Hists> h_scale_var;
+      h_ht2d, h_eff_2jets, h_eff_cleaner, h_eff_ht350, h_eff_1mu;
 
     MuonId MuId, MuLoose, MuMedium, MuTight;
     ElectronId EleId;
     JetId Btag_loose;
 
     bool is_mc, is_ttbar_inclusive;
-    bool do_scale_variation;
   };
 
 
@@ -78,7 +76,6 @@ namespace uhh2examples {
     
     cout << "Hello World from LQToTopMuPreselectionModule!" << endl;
 
-    do_scale_variation = false;
     EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium, PtEtaCut(30.0, 2.4));
     MuId = AndId<Muon>(MuonIDTight(), PtEtaCut(30.0, 2.4),MuonIso(0.12));
     MuLoose = MuonIDLoose();
@@ -90,11 +87,7 @@ namespace uhh2examples {
     is_ttbar_inclusive = ctx.get("dataset_version") == "TTbarInc";
 
     common.reset(new CommonModules());
-
-    //common->disable_mcpileupreweight();
-    //common->disable_metfilters();
-    //common->disable_pvfilter();
-    //common->disable_lumisel();    
+   
     common->switch_jetlepcleaner(true);
     common->set_electron_id(EleId);
     common->set_muon_id(MuId);
@@ -103,12 +96,12 @@ namespace uhh2examples {
     syst_module.reset(new MCScaleVariation(ctx));
     SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MuonID_Z_RunD_Reco74X_Nov20.root", "NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1", 1, "tightID", "nominal"));
     SF_muonTrigger.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/SingleMuonTrigger_Z_RunD_Reco74X_Nov20.root", "IsoMu20_OR_IsoTkMu20_HLTv4p3_PtEtaBins", 0.5, "trigger", "nominal"));
+    SF_muonIso.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MuonIso_Z_RunCD_Reco74X_Dec1.root", "NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1", 1, "iso", "nominal"));
 
 
     // 2. set up selections
 
     //Preselection
-    //trigger_sel.reset(new TriggerSelection("HLT_IsoMu27_v*"));
     trigger_sel1.reset(new TriggerSelection("HLT_IsoMu20_v*"));
     trigger_sel2.reset(new TriggerSelection("HLT_IsoTkMu20_v*"));
     njet_sel.reset(new NJetSelection(2, -1));
@@ -194,10 +187,6 @@ namespace uhh2examples {
       if(!mttbargen_sel->passes(event)) return false;
       }*/
 
-    if(do_scale_variation){
-      syst_module->process(event);
-    }
-
     h_nocuts->fill(event);
     h_jets_nocuts->fill(event);
     h_ele_nocuts->fill(event);
@@ -222,6 +211,7 @@ namespace uhh2examples {
     if(!pass_common) return false;
     jetcleaner->process(event);
     SF_muonID->process(event);
+    SF_muonIso->process(event);
 
     h_cleaner->fill(event);
     h_jets_cleaner->fill(event);

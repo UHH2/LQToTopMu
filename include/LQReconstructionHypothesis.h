@@ -33,7 +33,7 @@ public:
   Particle mu_had() const{return m_mu_had;}
   Particle mu_had1() const{return m_mu_had1;}
   Particle mu_had2() const{return m_mu_had2;}
-  LorentzVector LQlep_v4() const{return m_mu_lep_v4+m_toplep_v4;}
+  LorentzVector LQlep_v4() const{ return m_mu_lep_v4+m_toplep_v4;}
   LorentzVector LQhad_v4() const{return m_mu_had_v4+m_tophad_v4;}
   LorentzVector LQhad1_v4() const{return m_mu_had1_v4+m_tophad1_v4;}
   LorentzVector LQhad2_v4() const{return m_mu_had2_v4+m_tophad2_v4;}

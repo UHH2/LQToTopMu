@@ -1,7 +1,5 @@
 #include "UHH2/core/include/Hists.h"
 #include "UHH2/core/include/Event.h"
-//#include "UHH2/common/include/ReconstructionHypothesisDiscriminators.h"
-//#include "UHH2/common/include/ReconstructionHypothesis.h"
 #include "UHH2/common/include/TTbarGen.h"
 #include "UHH2/LQToTopMu/include/LQReconstructionHypothesisDiscriminators.h"
 #include "UHH2/LQToTopMu/include/LQReconstructionHypothesis.h"
@@ -21,8 +19,11 @@ public:
 protected:
     TH1F *Discriminator, *Discriminator_2, *Discriminator_3;
     TH1F *M_LQlep_rec, *M_LQhad_rec, *M_LQmax_rec, *M_LQmean_rec, *M_LQmean_rec_rebin, *M_LQ_rec_diff, *M_LQ_rec_diff_rel;
-    TH1F *M_ttbar_rec, *M_toplep_rec, *M_tophad_rec, *M_tophad_rec_1jet, *M_tophad_rec_2jet, *M_tophad_rec_3jet;
+    TH1F *M_ttbar_rec, *M_toplep_rec, *M_tophad_rec;
     TH1F *Pt_toplep_rec, *Pt_tophad_rec, *Pt_ttbar_rec;
+    TH1F *M_LQlep_rec_discriminator_cut, *M_LQhad_rec_discriminator_cut, *M_LQmax_rec_discriminator_cut, *M_LQmean_rec_discriminator_cut, *M_LQmean_rec_discriminator_cut_rebin, *M_LQ_rec_discriminator_cut_diff, *M_LQ_rec_discriminator_cut_diff_rel;
+    TH1F *M_ttbar_rec_discriminator_cut, *M_toplep_rec_discriminator_cut, *M_tophad_rec_discriminator_cut;
+    TH1F *Pt_toplep_rec_discriminator_cut, *Pt_tophad_rec_discriminator_cut, *Pt_ttbar_rec_discriminator_cut;
 
     uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_hyps;
     uhh2::Event::Handle<TTbarGen> h_ttbargen;

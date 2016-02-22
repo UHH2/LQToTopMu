@@ -3,7 +3,7 @@
 
 
 	  <!ENTITY TargetLumi      "2155">
-	  <!ENTITY SELdir          "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/Optimization/Final/&TargetLumi;fb_MuonAndBTagSF_Sys_PDF">
+	  <!ENTITY SELdir          "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/Optimization/Final/&TargetLumi;fb_MuonAndBTagSF_NicePlots">
 	  <!ENTITY b_Cacheable     "False">
 	  <!ENTITY NEVT            "-1">
 	  <!ENTITY PRESELdir       "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/Preselection/&TargetLumi;fb_MuonSF"> 
@@ -366,18 +366,19 @@
 	    <Item Name="pileup_directory_data_up" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden_up.root" />
 	    <Item Name="pileup_directory_data_down" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden_down.root" />
 	    
-	    <!-- obsolete
-	    <Item Name="pileup_directory_50ns" Value="/nfs/dust/cms/user/nowatsd/PUHistogram-25ns-v2/Pileup.MC.TTbar.root" />
-	    <Item Name="pileup_directory_25ns" Value="/nfs/dust/cms/user/nowatsd/PUHistogram-25ns-v2/Pileup.MC.TTbar.root" />
-	    -->
+
 
 	    <Item Name="MCBtagEfficiencies" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/BTagMCEfficiencyHists/2155fb_BTagMCEfficiencyHists.root" />
 	    <Item Name="BTagCalibration" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/CSVv2.csv" />
 
 	    <Item Name="ScaleVariationMuR" Value="none" />
 	    <Item Name="ScaleVariationMuF" Value="none" />
-
 	    <Item Name="b_PDFUncertainties" Value="true" />
+	    <Item Name="Systematic_MuonID" Value="nominal" />
+	    <Item Name="Systematic_MuonTrigger" Value="nominal" />
+	    <Item Name="Systematic_MuonIso" Value="nominal" />
+	    <Item Name="Systematic_BTag" Value="central" />
+	    <Item Name="Systematic_PU" Value="central" />
 
 
             
