@@ -77,6 +77,10 @@ namespace uhh2examples {
     
     cout << "Hello World from LQToTopMuSidebandPreselectionModule!" << endl;
 
+    for(auto & kv : ctx.get_all()){
+      cout << " " << kv.first << " = " << kv.second << endl;
+    }
+
     EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium, PtEtaCut(30.0, 2.4));
     MuId = AndId<Muon>(MuonIDLoose(),PtEtaCut(30.0, 2.4),MuonIso(0.15));
     MuLoose = MuonIDLoose();

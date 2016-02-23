@@ -4,8 +4,8 @@
 
 
 
-	  <!ENTITY TargetLumi      "2155">
-	  <!ENTITY PRESELdir       "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_25ns_v2/TTbarSideband/Preselection/&TargetLumi;fb_MuonSF">
+	  <!ENTITY TargetLumi      "2318">
+	  <!ENTITY PRESELdir       "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_74X_Thesis/TTbarSideband/Preselection/&TargetLumi;fb_MuonSF">
 	  <!ENTITY b_Cacheable     "False">
 	  <!ENTITY NEVT            "-1">
 	  <!ENTITY PROOFdir        "/nfs/dust/cms/user/reimersa/.proof2">
@@ -21,58 +21,58 @@
 
 
 
-<!ENTITY LQtoTMuM200 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM200.xml">
-<!ENTITY LQtoTMuM300 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM300.xml">
-<!ENTITY LQtoTMuM400 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM400.xml">
-<!ENTITY LQtoTMuM500 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM500.xml">
-<!ENTITY LQtoTMuM600 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM600.xml">
-<!ENTITY LQtoTMuM700 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM700.xml">
-<!ENTITY LQtoTMuM800 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM800.xml">
-<!ENTITY LQtoTMuM900 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM900.xml">
-<!ENTITY LQtoTMuM1000 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM1000.xml">
-<!ENTITY LQtoTMuM1200 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM1200.xml">
-<!ENTITY LQtoTMuM1400 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM1400.xml">
-<!ENTITY LQtoTMuM1700 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM1700.xml">
-<!ENTITY LQtoTMuM2000 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM2000.xml">
+<!ENTITY LQtoTMuM200 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM200.xml">
+<!ENTITY LQtoTMuM300 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM300.xml">
+<!ENTITY LQtoTMuM400 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM400.xml">
+<!ENTITY LQtoTMuM500 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM500.xml">
+<!ENTITY LQtoTMuM600 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM600.xml">
+<!ENTITY LQtoTMuM700 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM700.xml">
+<!ENTITY LQtoTMuM800 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM800.xml">
+<!ENTITY LQtoTMuM900 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM900.xml">
+<!ENTITY LQtoTMuM1000 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM1000.xml">
+<!ENTITY LQtoTMuM1200 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM1200.xml">
+<!ENTITY LQtoTMuM1400 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM1400.xml">
+<!ENTITY LQtoTMuM1700 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM1700.xml">
+<!ENTITY LQtoTMuM2000 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_LQToTopMuM2000.xml">
 
-<!ENTITY TTbar SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_TTbar.xml">
-<!ENTITY TTbarScaleUp SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_TTbarScaleUp.xml">
-<!ENTITY TTbarScaleDown SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_TTbarScaleDown.xml">
-<!ENTITY WJets SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WJetsToLNu.xml">
-<!ENTITY WJets_HT100to200 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WJets_LNu_HT100To200.xml">
-<!ENTITY WJets_HT200to400 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WJets_LNu_HT200To400.xml">
-<!ENTITY WJets_HT400to600 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WJets_LNu_HT400To600.xml">
-<!ENTITY WJets_HT600to800 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WJets_LNu_HT600To800.xml">
-<!ENTITY WJets_HT800to1200 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WJets_LNu_HT800To1200.xml">
-<!ENTITY WJets_HT1200to2500 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WJets_LNu_HT1200To2500.xml">
-<!ENTITY WJets_HT2500toInf SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WJets_LNu_HT2500ToInf.xml">
-<!ENTITY DYJetsM10to50 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_DYJetsToLL_M-10to50.xml">
-<!ENTITY DYJetsM50toInf SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_DYJetsToLL_M-50.xml">
-<!ENTITY DYJetsM50_HT100to200 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_DYJetsToLL_M50_HT0100to0200.xml">
-<!ENTITY DYJetsM50_HT200to400 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_DYJetsToLL_M50_HT0200to0400.xml">
-<!ENTITY DYJetsM50_HT400to600 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_DYJetsToLL_M50_HT0400to0600.xml">
-<!ENTITY DYJetsM50_HT600toInf SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_DYJetsToLL_M50_HT0600toINFT.xml">
-<!ENTITY SingleTop_TTbar_sch SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_ST_s-channel_4f_leptonDecays.xml">
-<!ENTITY SingleTop_TTbar_tch SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_ST_t-channel_4f_leptonDecays.xml">
-<!ENTITY SingleTop_T_tWch SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_STpos_tW_inc.xml">
-<!ENTITY SingleTop_Tbar_tWch SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_STneg_tW_inc.xml">
-<!ENTITY WW SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WW.xml">
-<!ENTITY WZ SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WZ.xml">
-<!ENTITY ZZ SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_ZZ.xml">
-<!ENTITY QCDPT15to20 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt15to20_MuEnrichedPt5.xml">
-<!ENTITY QCDPT20to30 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt20to30_MuEnrichedPt5.xml">
-<!ENTITY QCDPT30to50 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt30to50_MuEnrichedPt5.xml">
-<!ENTITY QCDPT50to80 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt50to80_MuEnrichedPt5.xml">
-<!ENTITY QCDPT80to120 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt80to120_MuEnrichedPt5.xml">
-<!ENTITY QCDPT120to170 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt120to170_MuEnrichedPt5.xml">
-<!ENTITY QCDPT170to300 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt170to300_MuEnrichedPt5.xml">
-<!ENTITY QCDPT300to470 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt300to470_MuEnrichedPt5.xml">
-<!ENTITY QCDPT470to600 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt470to600_MuEnrichedPt5.xml">
-<!ENTITY QCDPT600to800 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt600to800_MuEnrichedPt5.xml">
-<!ENTITY QCDPT800to1000 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt800to1000_MuEnrichedPt5.xml">
-<!ENTITY QCDPT1000toInf SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt1000toInf_MuEnrichedPt5.xml">
-<!ENTITY DATA1 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/SingleMuon_Run2015D-05Oct2015-v1.xml">
-<!ENTITY DATA2 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/SingleMuon_Run2015D-PromptReco-v4.xml">
+<!ENTITY TTbar SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_TTbar.xml">
+<!ENTITY TTbarScaleUp SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_TTbarScaleUp.xml">
+<!ENTITY TTbarScaleDown SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_TTbarScaleDown.xml">
+<!ENTITY WJets SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WJetsToLNu.xml">
+<!ENTITY WJets_HT100to200 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WJets_LNu_HT100To200.xml">
+<!ENTITY WJets_HT200to400 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WJets_LNu_HT200To400.xml">
+<!ENTITY WJets_HT400to600 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WJets_LNu_HT400To600.xml">
+<!ENTITY WJets_HT600to800 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WJets_LNu_HT600To800.xml">
+<!ENTITY WJets_HT800to1200 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WJets_LNu_HT800To1200.xml">
+<!ENTITY WJets_HT1200to2500 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WJets_LNu_HT1200To2500.xml">
+<!ENTITY WJets_HT2500toInf SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WJets_LNu_HT2500ToInf.xml">
+<!ENTITY DYJetsM10to50 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_DYJetsToLL_M-10to50.xml">
+<!ENTITY DYJetsM50toInf SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_DYJetsToLL_M-50.xml">
+<!ENTITY DYJetsM50_HT100to200 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_DYJetsToLL_M50_HT0100to0200.xml">
+<!ENTITY DYJetsM50_HT200to400 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_DYJetsToLL_M50_HT0200to0400.xml">
+<!ENTITY DYJetsM50_HT400to600 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_DYJetsToLL_M50_HT0400to0600.xml">
+<!ENTITY DYJetsM50_HT600toInf SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_DYJetsToLL_M50_HT0600toINFT.xml">
+<!ENTITY SingleTop_TTbar_sch SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_ST_s-channel_4f_leptonDecays.xml">
+<!ENTITY SingleTop_TTbar_tch SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_ST_t-channel_4f_leptonDecays.xml">
+<!ENTITY SingleTop_T_tWch SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_STpos_tW_inc.xml">
+<!ENTITY SingleTop_Tbar_tWch SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_STneg_tW_inc.xml">
+<!ENTITY WW SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WW.xml">
+<!ENTITY WZ SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_WZ.xml">
+<!ENTITY ZZ SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_ZZ.xml">
+<!ENTITY QCDPT15to20 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt15to20_MuEnrichedPt5.xml">
+<!ENTITY QCDPT20to30 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt20to30_MuEnrichedPt5.xml">
+<!ENTITY QCDPT30to50 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt30to50_MuEnrichedPt5.xml">
+<!ENTITY QCDPT50to80 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt50to80_MuEnrichedPt5.xml">
+<!ENTITY QCDPT80to120 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt80to120_MuEnrichedPt5.xml">
+<!ENTITY QCDPT120to170 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt120to170_MuEnrichedPt5.xml">
+<!ENTITY QCDPT170to300 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt170to300_MuEnrichedPt5.xml">
+<!ENTITY QCDPT300to470 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt300to470_MuEnrichedPt5.xml">
+<!ENTITY QCDPT470to600 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt470to600_MuEnrichedPt5.xml">
+<!ENTITY QCDPT600to800 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt600to800_MuEnrichedPt5.xml">
+<!ENTITY QCDPT800to1000 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt800to1000_MuEnrichedPt5.xml">
+<!ENTITY QCDPT1000toInf SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/MC_QCD_Pt1000toInf_MuEnrichedPt5.xml">
+<!ENTITY DATA1 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/SingleMuon_Run2015D-05Oct2015-v1.xml">
+<!ENTITY DATA2 SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/datasets/RunII_25ns_v2/SingleMuon_Run2015D-PromptReco-v4.xml">
 
 
 
@@ -375,8 +375,7 @@
 	    <Item Name="TopJetCollection" Value="patJetsCa15CHSJetsSoftDropPacked_daughters" /> 
 
 	    <Item Name="GenParticleCollection" Value="GenParticles" />
-            <Item Name="lumi_file" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/Latest_2015_Golden_JSON.root" />
-<!--            <Item Name="lumi_file" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_NoBadBSRuns.root" />-->
+            <Item Name="lumi_file" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/data/Latest_2015_Golden_JSON.root" />
             <Item Name="lumihists_lumi_per_bin" Value="50."/>
 	    <Item Name="GenInfoName" Value="genInfo" />
 
@@ -416,7 +415,7 @@
             
             <!-- configuration for MCPileupReweight (run as part of CommonModules): -->
             <Item Name="pileup_directory" Value="/nfs/dust/cms/user/nowatsd/PUHistogram-25ns-v2/Pileup.MC.TTbar.root" /> 
-	    <Item Name="pileup_directory_data" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden.root" />
+	    <Item Name="pileup_directory_data" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden.root" />
 
 
 	    <Item Name="ScaleVariationMuR" Value="none" />

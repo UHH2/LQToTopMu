@@ -68,13 +68,17 @@ namespace uhh2examples {
     ElectronId EleId;
     JetId Btag_loose;
 
-    bool is_mc, is_ttbar_inclusive;
+    bool is_mc;
   };
 
 
   LQToTopMuPreselectionModule::LQToTopMuPreselectionModule(Context & ctx){
     
     cout << "Hello World from LQToTopMuPreselectionModule!" << endl;
+
+    for(auto & kv : ctx.get_all()){
+      cout << " " << kv.first << " = " << kv.second << endl;
+    }
 
     EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium, PtEtaCut(30.0, 2.4));
     MuId = AndId<Muon>(MuonIDTight(), PtEtaCut(30.0, 2.4),MuonIso(0.15));
@@ -84,7 +88,6 @@ namespace uhh2examples {
     Btag_loose = CSVBTag(CSVBTag::WP_LOOSE);
 
     is_mc = ctx.get("dataset_type") == "MC";
-    is_ttbar_inclusive = ctx.get("dataset_version") == "TTbarInc";
 
     common.reset(new CommonModules());
    
@@ -183,9 +186,6 @@ namespace uhh2examples {
     if(!is_mc){
       if(!lumi_sel->passes(event)) return false;
     }
-    /*if(is_ttbar_inclusive){
-      if(!mttbargen_sel->passes(event)) return false;
-      }*/
 
     h_nocuts->fill(event);
     h_jets_nocuts->fill(event);
@@ -267,8 +267,7 @@ namespace uhh2examples {
     return true;
   }
   
-  // as we want to run the ExampleCycleNew directly with AnalysisModuleRunner,
-  // make sure the LQToTopMuPreselectionModule is found by class name. This is ensured by this macro:
+
   UHH2_REGISTER_ANALYSIS_MODULE(LQToTopMuPreselectionModule)
   
 }

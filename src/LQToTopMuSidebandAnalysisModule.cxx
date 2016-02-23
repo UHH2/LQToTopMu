@@ -90,6 +90,10 @@ namespace uhh2examples {
     
     cout << "Hello World from LQToTopMuSidebandAnalysisModule!" << endl;
 
+    for(auto & kv : ctx.get_all()){
+      cout << " " << kv.first << " = " << kv.second << endl;
+    }
+
     do_scale_variation = false;
     do_pdf_variations = ctx.get("b_PDFUncertainties") == "true";
     is_mc = ctx.get("dataset_type") == "MC";
