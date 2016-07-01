@@ -5,7 +5,7 @@
 
 
 	  <!ENTITY TargetLumi      "2318">
-	  <!ENTITY SELdir          "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_74X_Thesis/TTbarSideband/Final/&TargetLumi;fb_ForBTagSF">
+	  <!ENTITY SELdir          "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_74X_Thesis/TTbarSideband/&TargetLumi;fb_MuonAndBTagSF_NicePlots">
 	  <!ENTITY b_Cacheable     "False">
 	  <!ENTITY NEVT            "-1">
 	  <!ENTITY PRESELdir       "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_74X_Thesis/TTbarSideband/Preselection/&TargetLumi;fb_MuonSF"> 
@@ -174,7 +174,7 @@
     <InputTree Name="AnalysisTree" />
   </InputData>    
 
-<!--
+
   <InputData Lumi="11896.0" NEventsMax="-1" Type="MC" Version="TTbarScaleUp" Cacheable="&b_Cacheable;">
     <In FileName="&TTbarScaleUp;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
@@ -184,7 +184,7 @@
     <In FileName="&TTbarScaleDown;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
   </InputData> 
--->
+
 
   <InputData Lumi="60546636" NEventsMax="-1" Type="MC" Version="WJets" Cacheable="&b_Cacheable;">
     <In FileName="&WJets;" Lumi="0.0"/>
@@ -237,7 +237,7 @@
     <InputTree Name="AnalysisTree" />
   </InputData> 
 
-
+<!--
   <InputData Lumi="0.616799" NEventsMax="-1" Type="MC" Version="QCDPT15to20" Cacheable="&b_Cacheable;">
     <In FileName="&QCDPT15to20;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
@@ -252,7 +252,7 @@
     <In FileName="&QCDPT30to50;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
   </InputData> 
-
+-->
 
   <InputData Lumi="11.53085" NEventsMax="-1" Type="MC" Version="QCDPT50to80" Cacheable="&b_Cacheable;">
     <In FileName="&QCDPT50to80;" Lumi="0.0"/>
@@ -366,10 +366,10 @@
 	    <Item Name="pileup_directory_data_up" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden_up.root" />
 	    <Item Name="pileup_directory_data_down" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden_down.root" />
 
-	    <Item Name="MCBtagEfficiencies" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_74X_Thesis/BTagMCEfficiencyHists/2155fb_BTagMCEfficiencyHists_TTbarSideband.root" />
+	    <Item Name="MCBtagEfficiencies" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_74X_Thesis/BTagMCEfficiencyHists/2318fb_BTagMCEfficiencyHists_TTbarSideband.root" />
 	    <Item Name="BTagCalibration" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/data/CSVv2.csv" />
 
-	    <Item Name="filepath_alpha" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_74X_Thesis/TTbarSideband/Final/2155fb_MuonAndBTagSF/ForSideband_Inclusive.root" />
+	    <Item Name="filepath_alpha" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_74X_Thesis/TTbarSideband/2318fb_MuonAndBTagSF/ForSideband_Inclusive.root" />
 	    <Item Name="ScaleVariationMuR" Value="none" />
 	    <Item Name="ScaleVariationMuF" Value="none" />
 	    <Item Name="b_PDFUncertainties" Value="true" />

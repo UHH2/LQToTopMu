@@ -17,6 +17,7 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   // book all histograms here
   // jets
   book<TH1F>("N_jets", "N_{jets}", 20, 0, 20);  
+  book<TH1F>("eta_jets", "#eta^{jets}", 25, -2.5, 2.5);
   book<TH1F>("eta_jet1", "#eta^{jet 1}", 40, -2.5, 2.5);
   book<TH1F>("eta_jet2", "#eta^{jet 2}", 40, -2.5, 2.5);
   book<TH1F>("eta_jet3", "#eta^{jet 3}", 40, -2.5, 2.5);
@@ -25,14 +26,15 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("pt_jet1", "p_{T}^{jet 1} [GeV]", 50, 20, 1500);
   book<TH1F>("pt_jet2", "p_{T}^{jet 2} [GeV]", 50, 20, 1500);
   book<TH1F>("pt_jet3", "p_{T}^{jet 3} [GeV]", 50, 20, 1500);
-  book<TH1F>("N_bJets_loose", "#N_{Bjets}^{loose}", 10, 0, 10);
-  book<TH1F>("N_bJets_med", "#N_{Bjets}^{medium}", 10, 0, 10);
-  book<TH1F>("N_bJets_tight", "#N_{Bjets}^{tight}", 10, 0, 10);
+  book<TH1F>("N_bJets_loose", "N_{Bjets}^{loose}", 11, -0.5, 10.5);
+  book<TH1F>("N_bJets_med", "N_{Bjets}^{medium}", 11, -0.5, 10.5);
+  book<TH1F>("N_bJets_tight", "N_{Bjets}^{tight}", 11, -0.5, 10.5);
 
   // leptons
   book<TH1F>("N_mu", "N^{#mu}", 10, 0, 10);
   book<TH1F>("pt_mu", "p_{T}^{#mu} [GeV]", 50, 0, 1500);
-  book<TH1F>("eta_mu", "#eta^{#mu}", 40, -2.1, 2.1);
+  book<TH1F>("pt_mu_zoom", "p_{T}^{#mu} [GeV]", 34, 0, 1020);
+  book<TH1F>("eta_mu", "#eta^{#mu}", 25, -2.5, 2.5);
   book<TH1F>("reliso_mu", "#mu rel. Iso", 40, 0, 0.5);
   book<TH1F>("M_mumu", "M_(#mu#mu) [GeV^{2}]",50 , 0, 1000);
   book<TH1F>("Pt_mu_sum", "#Sum p_{T}^{#mu} [GeV]", 50, 0, 7000);
@@ -48,11 +50,13 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("Pt_mu1_NoEle", "p_{T}^{leading #mu}, no Ele [GeV]", 75, 0, 1500);
   book<TH1F>("Pt_mu1_NoEle_rebin", "P_{T}^{leading #mu}, no Ele [GeV]", 25, bins_pt_low);
 
-  book<TH1F>("pt_ele", "p_{T}^{ele} [GeV] [GeV]", 50, 0, 1500);
+  book<TH1F>("pt_ele", "p_{T}^{ele} [GeV]", 50, 0, 1500);
+  book<TH1F>("pt_ele_zoom", "p_{T}^{ele} [GeV]", 34, 0, 1020);
 
 
   // general
-  book<TH1F>("N_pv", "N_{PV}", 50, 0, 50);
+  book<TH1F>("N_pv", "number of primary vertices", 51, -0.50, 50.5);
+  book<TH1F>("N_pv_zoom", "number of primary vertices", 31, -0.50, 30.5);
   book<TH1F>("E_Tmiss", "missing E_{T} [GeV]", 75, 0, 1500);
   book<TH1F>("E_Tmiss_0Ele2Mu", "missing E_{T} [GeV] for N_{e}=0, N_{#mu}=2", 75, 0,1500);
   book<TH1F>("H_T", "H_{T} [GeV]", 50, 0, 7000);
@@ -68,6 +72,7 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("H_T_rebin3", "H_{T} [GeV]", 10,bins_low_NoEle2);
   book<TH1F>("H_T_jets", "H_{T}^{jets} [GeV]", 50, 0, 7000);
   book<TH1F>("H_T_lept", "H_{T}^{leptons} [GeV]", 50, 0, 7000);
+  book<TH1F>("H_T_lept_zoom", "H_{T}^{leptons} [GeV]", 40, 0, 4000);
   book<TH1F>("H_T_jets_rebin", "H_{T}^{jets} rebinned [GeV]", 5, bins_HTlept_low);
   book<TH1F>("H_T_lept_rebin", "H_{T}^{leptons} rebinned [GeV]", 5, bins_HTlept_low);
   book<TH1F>("H_T_comb_NoEle", "H_{T}, no Ele [GeV]", 50, 0, 7000);
@@ -95,6 +100,8 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("M_LQLQ", "M_{LQLQ} [GeV]", 100, 0, 5000);
   double bins_mlqlq_low[12] = {0,400,500,600,700,800,900,1000,1250,1500,2000,5000};
   book<TH1F>("M_LQLQ_rebin", "M_{LQLQ} [GeV]", 11, bins_mlqlq_low);
+  book<TH1F>("N_jets_had","number of jets in the hadronic top hypothesis",6,-0.5,5.5);
+  book<TH1F>("N_jets_lep","number of jets in the leptonic top hypothesis",6,-0.5,5.5);
 
   book<TH1F>("dR_toplep_mulep","#Delta R(t^{lep},#mu^{lep})",50,0,5);
   book<TH1F>("dR_tophad_muhad","#Delta R(t^{had},#mu^{had})",50,0,5);
@@ -139,6 +146,7 @@ void LQToTopMuHists::fill(const Event & event){
 
   for(unsigned int i=0; i<event.jets->size(); i++){
     hist("pt_jets")->Fill(jets->at(i).pt(),weight);
+    hist("eta_jets")->Fill(jets->at(i).eta(),weight);
   }
   
   if(Njets>=1){
@@ -195,6 +203,7 @@ void LQToTopMuHists::fill(const Event & event){
   double sum_mu_pt = 0;
   for (const Muon & thismu : *event.muons){
     hist("pt_mu")->Fill(thismu.pt(), weight);
+    hist("pt_mu_zoom")->Fill(thismu.pt(), weight);
     hist("eta_mu")->Fill(thismu.eta(), weight);
     hist("reliso_mu")->Fill(thismu.relIso(), weight);
     sum_mu_pt += thismu.pt();
@@ -249,11 +258,13 @@ void LQToTopMuHists::fill(const Event & event){
 
   for (const Electron & thisele : *event.electrons){
     hist("pt_ele")->Fill(thisele.pt(), weight);
+    hist("pt_ele_zoom")->Fill(thisele.pt(), weight);
 
   }
   
   int Npvs = event.pvs->size();
   hist("N_pv")->Fill(Npvs, weight);
+  hist("N_pv_zoom")->Fill(Npvs, weight);
 
   //HT
   auto met = event.met->pt();
@@ -275,6 +286,7 @@ void LQToTopMuHists::fill(const Event & event){
   ht = ht_lep + ht_jets + met;
   hist("H_T_jets")->Fill(ht_jets,weight);
   hist("H_T_lept")->Fill(ht_lep,weight);
+  hist("H_T_lept_zoom")->Fill(ht_lep,weight);
   hist("H_T_jets_rebin")->Fill(ht_jets,weight);
   hist("H_T_lept_rebin")->Fill(ht_lep,weight);
   hist("H_T")->Fill(ht, weight);
@@ -368,6 +380,8 @@ void LQToTopMuHists::fill(const Event & event){
     else {mLQhad_rec = sqrt( -(hyp->LQhad_v4()).mass2());}
     
 
+    
+
     mLQdiff = mLQhad_rec - mLQlep_rec;
     mLQmed_rec = (mLQhad_rec + mLQlep_rec) / 2;
     hist("M_LQ_comb")->Fill(mLQmed_rec, weight);
@@ -380,6 +394,19 @@ void LQToTopMuHists::fill(const Event & event){
     mLQLQ = (hyp->LQlep_v4()+hyp->LQhad_v4()).M();
     hist("M_LQLQ")->Fill(mLQLQ,weight);
     hist("M_LQLQ_rebin")->Fill(mLQLQ,weight);
+
+    /*if(mLQmed_rec <= 1200){
+      cout << "MLQ:        " << mLQmed_rec << endl;
+      cout << "Chi2 total: " << hyp->discriminator("Chi2") << endl;
+      cout << "Chi2 lep:   " << hyp->discriminator("Chi2_tlep") << endl;
+      cout << "Chi2 had:   " << hyp->discriminator("Chi2_thad") << endl;
+      cout << "Chi2 diff:  " << hyp->discriminator("Chi2_MLQdiff_rel") << endl << endl;
+    }*/
+
+    double n_jets_had = hyp->tophad_jets().size();
+    double n_jets_lep = hyp->toplep_jets().size();
+    hist("N_jets_had")->Fill(n_jets_had,weight);
+    hist("N_jets_lep")->Fill(n_jets_lep,weight);
     
     //deltaR between tops and associated muons
     double dR_lep = deltaR(hyp->toplep_v4(),hyp->mu_lep_v4());

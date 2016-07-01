@@ -23,7 +23,7 @@ is_mc = ctx.get("dataset_type") == "MC";
   m_discriminator_name ="Chi2";
 
   double bins_low_NoEle2[11] = {0,350,500,650,800,950,1100,1250,1450,1750,2050};
-  double bins_mlq_low2[6] = {100,200,300,500,800,2000};
+  double bins_mlq_low2[6] = {0,200,400,600,800,1000};
 
   for(int i=0; i<100; i++){
     stringstream ss_name;
@@ -65,7 +65,7 @@ is_mc = ctx.get("dataset_type") == "MC";
     histo_names4[i] = s_name4;
 
     book<TH1F>(char_name, char_title, 10,bins_low_NoEle2);
-    book<TH1F>(char_name2, char_title2, 80, 0,7000);
+    book<TH1F>(char_name2, char_title2, 48, 0,4200);
     book<TH1F>(char_name3, char_title3,5, bins_mlq_low2);
     book<TH1F>(char_name4, char_title4, 10,bins_low_NoEle2);
   }

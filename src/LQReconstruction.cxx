@@ -82,16 +82,19 @@ bool HighMassLQReconstruction::process(uhh2::Event & event) {
 	//hyp.set_electron(electron);
 	//hyp.set_electron_v4(electron_v4);
 	//hyp.set_neutrino_v4(neutrino_p4);
+	vector<Particle> had_jets, lep_jets;
 	for (unsigned int k=0; k<n_jets; k++) {
 	  if(num%3==0) {
 	    tophad_v4 = tophad_v4 + event.jets->at(k).v4();
-	    hyp.add_tophad_jet(event.jets->at(k));
+	    //hyp.add_tophad_jet(event.jets->at(k));
+	    had_jets.push_back(event.jets->at(k));
 	    hadjets++;
 	  }
 	  
 	  if(num%3==1) {
 	    toplep_v4 = toplep_v4 + event.jets->at(k).v4();
-	    hyp.add_toplep_jet(event.jets->at(k));
+	    //hyp.add_toplep_jet(event.jets->at(k));
+	    lep_jets.push_back(event.jets->at(k));
 	    lepjets++;
 	  }
 	  //in case num%3==2 do not take this jet at all
@@ -99,6 +102,9 @@ bool HighMassLQReconstruction::process(uhh2::Event & event) {
 	  num /= 3;
 	}
 	
+	hyp.set_tophad_jets(had_jets);
+	hyp.set_toplep_jets(lep_jets);
+
 	//search jet with highest pt assigned to leptonic top
 	int blep_idx(-1);
 	float maxpt(-1.);
@@ -147,6 +153,8 @@ bool HighMassLQReconstruction::process(uhh2::Event & event) {
 		hyp.set_electron(electron);
 		hyp.set_electron_v4(electron_v4);
 		hyp.set_neutrino_v4(neutrino_p4);
+		hyp.set_tophad_jets(had_jets);
+		hyp.set_toplep_jets(lep_jets);
 	      } // charge comparison
 	      else{
 		hyp.set_mu_had_v4(mu2_v4);
@@ -158,8 +166,11 @@ bool HighMassLQReconstruction::process(uhh2::Event & event) {
 		hyp.set_electron(electron);
 		hyp.set_electron_v4(electron_v4);
 		hyp.set_neutrino_v4(neutrino_p4);
+		hyp.set_tophad_jets(had_jets);
+		hyp.set_toplep_jets(lep_jets);
 	      } // charge comparison_2
 	      
+	      if(hyp.tophad_jets().size()==0) cout << "This is hypothesis no. " << n_final_hyps+1 << " and 0 jets are assinged to the hadronic hyp" << endl;
 	      recoHyps.emplace_back(move(hyp));
 	      n_final_hyps++;
 	

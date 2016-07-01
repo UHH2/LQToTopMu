@@ -3,7 +3,7 @@
 
 
 	  <!ENTITY TargetLumi      "2318">
-	  <!ENTITY SELdir          "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_74X_Thesis/Optimization/Final/&TargetLumi;fb_MuonAndBTagSF">
+	  <!ENTITY SELdir          "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_74X_Thesis/Optimization/&TargetLumi;fb_MuonAndBTagSF_1bJetMedium">
 	  <!ENTITY b_Cacheable     "False">
 	  <!ENTITY NEVT            "-1">
 	  <!ENTITY PRESELdir       "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_74X_Thesis/Preselection/&TargetLumi;fb_MuonSF"> 
@@ -160,7 +160,7 @@
 	    <Item Name="pileup_directory_data_up" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden_up.root" />
 	    <Item Name="pileup_directory_data_down" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden_down.root" />
 
-	    <Item Name="MCBtagEfficiencies" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_74X_Thesis/BTagMCEfficiencyHists/2155fb_BTagMCEfficiencyHists.root" />
+	    <Item Name="MCBtagEfficiencies" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_74X_Thesis/BTagMCEfficiencyHists/2318fb_BTagMCEfficiencyHists.root" />
 	    <Item Name="BTagCalibration" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/data/CSVv2.csv" />
 
 	    <Item Name="ScaleVariationMuR" Value="none" />

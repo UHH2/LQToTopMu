@@ -79,49 +79,7 @@ bool LQChi2Discriminator::process(uhh2::Event & event){
   return true;
 }
 
-/*LQHadronicChi2Discriminator::LQHadronicChi2Discriminator(Context & ctx, const std::string & rechyps_name, const cfg & config_): config(config_){
-    h_hyps = ctx.get_handle<vector<LQReconstructionHypothesis>>(rechyps_name);
-}
 
-
-bool LQHadronicChi2Discriminator::process(uhh2::Event & event){
-    auto & hyps = event.get(h_hyps);
-    const double mass_thad1 = 181;
-    const double mass_thad1_sigma = 15;
-    const double mass_LQ_diff = -12; // from Histo-sum: -12, from M500: -13, from M1300: -12
-    const double mass_LQ_diff_sigma = 46; // from Histo-sum: 46, from M500: 63, from M1300: 152
-    //const double mass_W = 80.3;
-    //const double mass_W_sigma = 2.1;
-    const double PTLQLQ = 0;
-    const double PTLQLQ_sigma = 150; //arbitrary number, just a guess
-
-    for(auto & hyp: hyps){
-        double mass_thad1_rec = inv_mass(hyp.tophad1_v4());
-        double mass_thad2_rec = inv_mass(hyp.tophad2_v4());
-	double mass_LQ_had1_rec = inv_mass(hyp.LQhad1_v4()); // added
-	double mass_LQ_had2_rec = inv_mass(hyp.LQhad2_v4()); // added
-	double PTLQLQ_rec = (hyp.LQhad1_v4()+hyp.LQhad2_v4()).Pt();
-	//double mass_whad1_rec = inv_mass(hyp.whad1_v4());
-	//double mass_whad2_rec = inv_mass(hyp.whad2_v4());
-
-        double chi2_thad1 = pow((mass_thad1_rec - mass_thad1) / mass_thad1_sigma, 2);
-        double chi2_thad2 = pow((mass_thad2_rec - mass_thad1) / mass_thad1_sigma, 2);
-	double chi2_MLQdiff = pow(((mass_LQ_had1_rec - mass_LQ_had2_rec) - mass_LQ_diff) / mass_LQ_diff_sigma, 2); // added
-	double chi2_PTLQLQ = pow((PTLQLQ_rec - PTLQLQ) / PTLQLQ_sigma,2);
-	//double chi2_whad1 = pow((mass_whad1_rec-mass_W) / mass_W_sigma,2);
-	//double chi2_whad2 = pow((mass_whad2_rec-mass_W) / mass_W_sigma,2);
-	double chi2 = chi2_thad1 + chi2_thad2 + chi2_MLQdiff + chi2_PTLQLQ ;
-
-        hyp.set_discriminator(config.discriminator_label, chi2); // modified
-        hyp.set_discriminator(config.discriminator_label + "_thad2", chi2_thad2);
-        hyp.set_discriminator(config.discriminator_label + "_thad1", chi2_thad1);
-        hyp.set_discriminator(config.discriminator_label + "_MLQdiff", chi2_MLQdiff);// added
-        hyp.set_discriminator(config.discriminator_label + "_PTLQLQ", chi2_PTLQLQ);// added
-        //hyp.set_discriminator(config.discriminator_label + "_whad1", chi2_whad1);// added
-        //hyp.set_discriminator(config.discriminator_label + "_whad2", chi2_whad2);// added
-  }
-  return true;
-}*/
 
 
 LQTopDRMCDiscriminator::LQTopDRMCDiscriminator(Context & ctx, const std::string & rechyps_name, const cfg & config_): config(config_){

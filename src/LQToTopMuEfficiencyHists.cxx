@@ -20,10 +20,10 @@ LQToTopMuEfficiencyHists::LQToTopMuEfficiencyHists(Context & ctx, const string &
   book<TH1D>("pt_1ele_fakerate_side", "p_{T}^{e} [GeV/c] (Sideband)", 100, 0, 1000);
   book<TH1D>("Eff_elemu_int", "Electrons    -1: unmatched   +1: matched", 3, -1.5, 1.5);
   book<TH1D>("Eff_1ele_pt", "e efficiency(p_{T}^{e}) (Siddeband)", 100, 0, 1000);
-  book<TH1D>("Eff_elemu_ht", "e efficiency(H_{T}^{event})", 80, 0, 7000);
+  book<TH1D>("Eff_elemu_ht", "e efficiency(H_{T}^{event})", 48, 0, 4200);
   book<TH1D>("Eff_elemu_int_fakerate", "Electrons    -1: unmatched   +1: matched, for fakes", 3, -1.5, 1.5);
   book<TH1D>("Eff_ele_pt_fakerate_side", "e efficiency(p_{T}^{e}), for fakes (Sideband)", 100, 0, 1000);
-  book<TH1D>("Eff_elemu_ht_fakerate", "e efficiency(H_{T}^{event}), for fakes", 80, 0, 7000);
+  book<TH1D>("Eff_elemu_ht_fakerate", "e efficiency(H_{T}^{event}), for fakes", 48, 0, 4200);
 
   book<TH1D>("N_mu", "N_{#mu}", 10, -0.5, 9.5); 
   book<TH1D>("h_N_gen_mu", "N_{#mu} generated", 10, -0.5, 9.5); 
@@ -34,21 +34,21 @@ LQToTopMuEfficiencyHists::LQToTopMuEfficiencyHists(Context & ctx, const string &
   book<TH1D>("Eff_mumu_int", "Muons    -1: unmatched   +1: matched", 3, -1.5, 1.5);
   book<TH1D>("Eff_1mu_pt", "#mu efficiency(p_{T}^{#mu}) (Sideband)", 100, 0, 1000);
   book<TH1D>("Eff_2mu_pt", "#mu efficiency(p_{T}^{#mu}) (Signal region)", 100, 0, 1000);
-  book<TH1D>("Eff_mumu_ht", "#mu efficiency(H_{T}^{event})", 80, 0, 7000);
+  book<TH1D>("Eff_mumu_ht", "#mu efficiency(H_{T}^{event})", 48, 0, 4200);
   book<TH1D>("Eff_mumu_int_fakerate", "Muons    -1: unmatched   +1: matched, for fakes", 3, -1.5, 1.5);
   book<TH1D>("Eff_mu_pt_fakerate_side", "#mu efficiency(p_{T}^{#mu}), for fakes (Sideband)", 100, 0, 1000);
   book<TH1D>("Eff_mu_pt_fakerate_sig", "#mu efficiency(p_{T}^{#mu}), for fakes (Signal region)", 100, 0, 1000);
-  book<TH1D>("Eff_mumu_ht_fakerate", "#mu efficiency(H_{T}^{event}), for fakes", 80, 0, 7000);
+  book<TH1D>("Eff_mumu_ht_fakerate", "#mu efficiency(H_{T}^{event}), for fakes", 48, 0, 4200);
 
 
   // general
-  book<TH1D>("H_T", "H_{T}", 80, 0, 7000);
-  //book<TH1D>("H_T_1Mu", "H_{T}, N_{#mu} #geq 1", 80, 0, 7000);
-  book<TH1D>("H_T_EleMu", "H_{T}, N_{#mu} = 1 and  N_{ele} = 1 (for sideband)", 80, 0, 7000);
-  book<TH1D>("H_T_MuMu", "H_{T}, N_{#mu} = 2 (no events with > 2) (for signal region)", 80, 0, 7000);
-  //book<TH1D>("H_T_1Ele", "H_{T}, N_{ele} #geq 1", 80, 0, 7000);
-  book<TH1D>("H_T_MuMu_fakerate", "H_{T}, N_{#mu} #geq 1, for fakes", 80, 0, 7000);
-  book<TH1D>("H_T_EleMu_fakerate", "H_{T}, N_{ele} #geq 1, for fakes", 80, 0, 7000);
+  book<TH1D>("H_T", "H_{T}", 48, 0, 4200);
+  //book<TH1D>("H_T_1Mu", "H_{T}, N_{#mu} #geq 1", 48, 0, 4200);
+  book<TH1D>("H_T_EleMu", "H_{T}, N_{#mu} = 1 and  N_{ele} = 1 (for sideband)", 48, 0, 4200);
+  book<TH1D>("H_T_MuMu", "H_{T}, N_{#mu} = 2 (no events with > 2) (for signal region)", 48, 0, 4200);
+  //book<TH1D>("H_T_1Ele", "H_{T}, N_{ele} #geq 1", 48, 0, 4200);
+  book<TH1D>("H_T_MuMu_fakerate", "H_{T}, N_{#mu} #geq 1, for fakes", 48, 0, 4200);
+  book<TH1D>("H_T_EleMu_fakerate", "H_{T}, N_{ele} #geq 1, for fakes", 48, 0, 4200);
 
   is_mc = ctx.get("dataset_type") == "MC";
 }

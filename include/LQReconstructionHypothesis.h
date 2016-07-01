@@ -73,6 +73,8 @@ public:
   void set_neutrino_v4(LorentzVector v4){m_neutrino_v4=v4;}
   void add_toplep_jet(const Particle & j){m_toplep_jets.push_back(j);}
   void add_tophad_jet(const Particle & j){m_tophad_jets.push_back(j);}
+  void set_toplep_jets(std::vector<Particle> j){m_toplep_jets = j;}
+  void set_tophad_jets(std::vector<Particle> j){m_tophad_jets = j;}
   void add_tophad1_jet(const Particle & j){m_tophad1_jets.push_back(j);}
   void add_tophad2_jet(const Particle & j){m_tophad2_jets.push_back(j);}
   void add_whad1_jet(const Particle & j){m_whad1_jets.push_back(j);}

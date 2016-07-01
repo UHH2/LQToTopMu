@@ -94,7 +94,7 @@ namespace uhh2examples {
       cout << " " << kv.first << " = " << kv.second << endl;
     }
 
-    do_scale_variation = false;
+    do_scale_variation = (ctx.get("ScaleVariationMuR") == "up" || ctx.get("ScaleVariationMuR") == "down") || (ctx.get("ScaleVariationMuF") == "up" || ctx.get("ScaleVariationMuF") == "down");
     do_pdf_variations = ctx.get("b_PDFUncertainties") == "true";
     is_mc = ctx.get("dataset_type") == "MC";
     filepath_alpha = ctx.get("filepath_alpha");
@@ -104,10 +104,12 @@ namespace uhh2examples {
     Sys_BTag = ctx.get("Systematic_BTag");
     Sys_PU = ctx.get("Systematic_PU");
     const char* c_filepath_alpha = filepath_alpha.c_str();
-
+    
     file_alpha_inclusive = new TFile(c_filepath_alpha,"READ");
     alpha_inclusive = (TGraphAsymmErrors*)file_alpha_inclusive->Get("Graph");
     norm_inclusive = (TH1D*)file_alpha_inclusive->Get("h_normalization");
+    if(!norm_inclusive) norm_inclusive = (TH1D*)file_alpha_inclusive->Get("h_normalization_syst_up");
+    if(!norm_inclusive) norm_inclusive = (TH1D*)file_alpha_inclusive->Get("h_normalization_syst_dn");
 
     // 1. setup other modules. CommonModules and the JetCleaner:
     Jet_printer.reset(new JetPrinter("Jet-Printer", 0));
@@ -216,7 +218,7 @@ namespace uhh2examples {
     if(is_mc){
       SF_muonTrigger->process(event);
       SF_muonID->process(event);
-      //SF_muonIso->process(event);
+      SF_muonIso->process(event);
     }
 
     if(do_scale_variation){
@@ -227,7 +229,7 @@ namespace uhh2examples {
     if(!pass_common) return false;
     jetcleaner->process(event);
 
-
+    
     //HT
     auto met = event.met->pt();
     double ht = 0.0;
@@ -243,6 +245,7 @@ namespace uhh2examples {
       ht_lep += muon.pt();
     }
     ht = ht_lep + ht_jets + met;
+
 
 
     //if(is_mc)GenParticles_printer->process(event);
@@ -317,7 +320,7 @@ namespace uhh2examples {
     h_Sideband_inclusive->fill(event);
     //restore weights
     event.weight = original_weight;
-
+    
     return true;
   }
   

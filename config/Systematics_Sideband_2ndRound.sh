@@ -1,0 +1,32 @@
+#sframe_main LQToTopMuSidebandAnalysis_Sys_PU_Up.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_PU_Down.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_MuonID_Down.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_MuonID_Up.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_MuonTrigger_Up.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_MuonTrigger_Down.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_MuonIso_Down.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_MuonIso_Up.xml
+##sframe_main LQToTopMuSidebandAnalysis_Sys_BTag_Up.xml
+##sframe_main LQToTopMuSidebandAnalysis_Sys_BTag_Down.xml
+sframe_main LQToTopMuSidebandAnalysis_Sys_BTag_bc_Up.xml
+sframe_main LQToTopMuSidebandAnalysis_Sys_BTag_bc_Down.xml
+sframe_main LQToTopMuSidebandAnalysis_Sys_BTag_udsg_Up.xml
+sframe_main LQToTopMuSidebandAnalysis_Sys_BTag_udsg_Down.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_PDF_Up.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_PDF_Down.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_ScaleVariation_DownDown.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_ScaleVariation_DownNone.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_ScaleVariation_NoneDown.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_ScaleVariation_NoneUp.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_ScaleVariation_UpNone.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_ScaleVariation_UpUp.xml
+#             JEC und JER
+#sframe_main LQToTopMuSidebandAnalysis_Sys_JEC_Down.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_JEC_Up.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_JER_Down.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_JER_Up.xml
+#             Alpha and c
+#sframe_main LQToTopMuSidebandAnalysis_Sys_Alpha_Down.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_Alpha_Up.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_Normalization_Down.xml
+#sframe_main LQToTopMuSidebandAnalysis_Sys_Normalization_Up.xml

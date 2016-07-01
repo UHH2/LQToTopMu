@@ -2,7 +2,7 @@
 <!DOCTYPE JobConfiguration PUBLIC "" "JobConfig.dtd"[
 
 	  <!ENTITY TargetLumi      "2318">
-	  <!ENTITY PRESELdir       "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_74X_Thesis/Preselection/&TargetLumi;fb_MuonSF">
+	  <!ENTITY PRESELdir       "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_74X_Thesis/Preselection/&TargetLumi;fb_MuonSF_Efficiencies">
 	  <!ENTITY b_Cacheable     "False">
 	  <!ENTITY NEVT            "-1">
 	  <!ENTITY PROOFdir        "/nfs/dust/cms/user/reimersa/.proof2">
@@ -74,7 +74,7 @@
 
 <!--
 <ConfigParse NEventsBreak="0" FileSplit="10" AutoResubmit="5"/>
-<ConfigSGE RAM ="4" DISK ="3" Mail="arne.reimers@desy.de" Notification="as" Workdir="workdir_2155fb_MuonSF"/>
+<ConfigSGE RAM ="4" DISK ="3" Mail="arne.reimers@desy.de" Notification="as" Workdir="workdir_2318fb_MuonSF_Eff"/>
 -->
 
 <!-- OutputLevel controls which messages are printed; set to VERBOSE or DEBUG for more verbosity, to WARNING or ERROR for less -->
@@ -86,7 +86,7 @@
 <!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="&PRESELdir;/" PostFix="" TargetLumi="&TargetLumi;" RunMode="PROOF" ProofServer="lite://" ProofWorkDir="&PROOFdir;/" ProofNodes="12">-->
   
  
-
+<!--
  <InputData Lumi="1" NEventsMax="&NEVT;" Type="DATA" Version="DATA1" Cacheable="&b_Cacheable;">
     &DATA1;
     <InputTree Name="AnalysisTree" />
@@ -179,7 +179,7 @@
     <InputTree Name="AnalysisTree" />
     <OutputTree Name="AnalysisTree" />
   </InputData> 
-
+-->
 
 
 
@@ -192,7 +192,7 @@
     <OutputTree Name="AnalysisTree" />
   </InputData>
 
-
+<!--
   <InputData Lumi="11896.0" NEventsMax="&NEVT;" Type="MC" Version="TTbarScaleUp" Cacheable="&b_Cacheable;">
     &TTbarScaleUp;
     <InputTree Name="AnalysisTree" />
@@ -342,7 +342,7 @@
     <InputTree Name="AnalysisTree" />
     <OutputTree Name="AnalysisTree" />
   </InputData> 
-
+-->
 
 
 

@@ -228,7 +228,6 @@ namespace uhh2examples {
 	m->process(event);
       }
     }
-
     h_nocuts->fill(event);
     h_jets_nocuts->fill(event);
     h_ele_nocuts->fill(event);
@@ -250,7 +249,6 @@ namespace uhh2examples {
     if(!nbtag_loose_sel->passes(event)) return false; 
     SF_btag->process(event);
     //LOESCHEMICH
-
     h_jets_1bJetLoose->fill(event);
     h_1bJetLoose->fill(event);
     h_ele_1bJetLoose->fill(event);
@@ -276,7 +274,6 @@ namespace uhh2examples {
     h_event_htlept200->fill(event);
     h_topjets_htlept200->fill(event);
     h_btageff_htlept200->fill(event);
-
 
     //Final Selection
     h_finalSelection->fill(event);
