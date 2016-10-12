@@ -61,6 +61,8 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("E_Tmiss_0Ele2Mu", "missing E_{T} [GeV] for N_{e}=0, N_{#mu}=2", 75, 0,1500);
   book<TH1F>("H_T", "H_{T} [GeV]", 50, 0, 7000);
   book<TH1F>("H_T_from350", "H_{T} [GeV]", 24, 0, 4200);
+  double bins_from350[21] = {0,175,350,525,700,875,1050,1225,1400,1575,1750,1925,2100,2275,2450,2625,2800,2975,3325,3675,4200}; //same binning as _from350 up to 2975, then two double-size and one triple-size bin
+  book<TH1F>("H_T_from350_all_filled", "H_{T} [GeV]", 20, bins_from350);
   book<TH1F>("H_T_from350_rebin", "H_{T} [GeV]", 48, 0, 4200);
   book<TH1F>("H_T_from350_rebin2", "H_{T} [GeV]", 12, 0, 4200);
   book<TH1F>("Parton_H_T", "H_{T} [GeV] on parton level", 80,0,7000);
@@ -291,6 +293,8 @@ void LQToTopMuHists::fill(const Event & event){
   hist("H_T_lept_rebin")->Fill(ht_lep,weight);
   hist("H_T")->Fill(ht, weight);
   hist("H_T_from350")->Fill(ht, weight);
+  if(ht <= 4000) hist("H_T_from350_all_filled")->Fill(ht, weight);
+  else hist("H_T_from350_all_filled")->Fill(4000, weight);
   hist("H_T_from350_rebin")->Fill(ht, weight);
   hist("H_T_from350_rebin2")->Fill(ht, weight);
   hist("H_T_rebin")->Fill(ht, weight);

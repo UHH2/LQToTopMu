@@ -49,7 +49,7 @@ bool LQGenModule::process(Event & event) {
     
   cout << "Decay channel is " << int(LQLQbargen.LQ().v4().M()) << endl;
 
-  //h_LQgenhists->fill(event);
+  h_LQgenhists->fill(event);
 
   return true;
 }

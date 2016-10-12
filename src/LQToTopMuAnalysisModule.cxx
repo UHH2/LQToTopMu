@@ -53,7 +53,7 @@ namespace uhh2examples {
     unique_ptr<JetCleaner> jetcleaner;
     
     // declare the Selections to use.
-    unique_ptr<Selection>  nele_sel, njet_sel, nbtag_loose_sel, nbtag_med_sel, nbtag_tight_sel, m_mumu_veto, htlept_sel, mttbar_gen_sel, m_muele_veto, ht_sel, dr_lepjet_sel, genlvl_TopDilepton_sel;
+    unique_ptr<Selection>  nele_sel, njet_sel, nbtag_loose_sel, m_mumu_veto, htlept_sel, mttbar_gen_sel, m_muele_veto, ht_sel, dr_lepjet_sel, genlvl_TopDilepton_sel;
     
     // store the Hists collection as member variables. 
     unique_ptr<Hists> h_nocuts, h_jets_nocuts, h_ele_nocuts, h_mu_nocuts, h_event_nocuts, h_topjets_nocuts, h_tau_nocuts;
@@ -124,9 +124,9 @@ namespace uhh2examples {
     common->set_muon_id(MuId);
     common->init(ctx,Sys_PU);
 
-    SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MuonID_Z_RunD_Reco74X_Nov20.root", "NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1", 1, "tightID", Sys_MuonID)); 
-    SF_muonTrigger.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/SingleMuonTrigger_Z_RunD_Reco74X_Nov20.root", "IsoMu20_OR_IsoTkMu20_HLTv4p3_PtEtaBins", 0.5, "trigger", Sys_MuonTrigger));
-    SF_muonIso.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MuonIso_Z_RunCD_Reco74X_Dec1.root", "NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1", 1, "iso", Sys_MuonIso));
+    //SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_8_LQ/CMSSW_8_0_8/src/UHH2/common/data/MuonID_Z_RunBCD_prompt80X_7p65.root", "NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1", 1, "tightID")); 
+    //SF_muonTrigger.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_8_LQ/CMSSW_8_0_8/src/UHH2/common/data/SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.root", "IsoMu22_OR_IsoTkMu22_PtEtaBins_Run274094_to_Run276097", 0.5, "trigger"));
+    //SF_muonIso.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_8_LQ/CMSSW_8_0_8/src/UHH2/common/data/MuonIso_Z_RunBCD_prompt80X_7p65.root", "NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1", 1, "iso"));
     SF_btag.reset(new MCBTagScaleFactor(ctx,wp_btag_loose,"jets",Sys_BTag));
 
     
@@ -136,8 +136,6 @@ namespace uhh2examples {
     // 2. set up selections
     //Selection
     nbtag_loose_sel.reset(new NJetSelection(1, -1, Btag_loose));  
-    nbtag_med_sel.reset(new NJetSelection(1, -1, Btag_medium));
-    nbtag_tight_sel.reset(new NJetSelection(2, -1, Btag_tight));
     m_mumu_veto.reset(new InvMass2MuVeto(71, 111));
     nele_sel.reset(new NElectronSelection(1, -1));
     htlept_sel.reset(new HTLeptSelection(200., -1));
@@ -205,11 +203,12 @@ namespace uhh2examples {
   
   
   bool LQToTopMuAnalysisModule::process(Event & event) {
+    //cout << endl << endl << "+++NEW EVENT+++" << endl;
 
     //apply muon SFs as in preselection
-    SF_muonTrigger->process(event);
-    SF_muonID->process(event);
-    SF_muonIso->process(event);
+    //SF_muonTrigger->process(event);
+    //SF_muonID->process(event);
+    //SF_muonIso->process(event);
 
     if(do_scale_variation){
       syst_module->process(event);    
@@ -221,20 +220,20 @@ namespace uhh2examples {
 
     /*ttgenprod->process(event);
       LQgenprod->process(event);*/
-
     // MLQ reco
     if(nele_sel->passes(event)){
       for(auto & m : recomodules){
 	m->process(event);
       }
     }
+
     h_nocuts->fill(event);
     h_jets_nocuts->fill(event);
     h_ele_nocuts->fill(event);
     h_mu_nocuts->fill(event);
     h_event_nocuts->fill(event);
     h_topjets_nocuts->fill(event);
- 
+
     //Nele
     //if(nele_sel->passes(event)) {
     h_1ele->fill(event);
@@ -255,7 +254,8 @@ namespace uhh2examples {
     h_mu_1bJetLoose->fill(event);
     h_event_1bJetLoose->fill(event);
     h_topjets_1bJetLoose->fill(event);
- 
+
+
     //InvMassVeto
     if(!m_mumu_veto->passes(event)) return false; 
     h_jets_InvMassVeto->fill(event);
@@ -264,6 +264,7 @@ namespace uhh2examples {
     h_mu_InvMassVeto->fill(event);
     h_event_InvMassVeto->fill(event);
     h_topjets_InvMassVeto->fill(event);
+
 
     //HT Lept
     if(!htlept_sel->passes(event)) return false;
@@ -275,6 +276,7 @@ namespace uhh2examples {
     h_topjets_htlept200->fill(event);
     h_btageff_htlept200->fill(event);
 
+
     //Final Selection
     h_finalSelection->fill(event);
     h_jets_finalSelection->fill(event);
@@ -283,6 +285,7 @@ namespace uhh2examples {
     h_event_finalSelection->fill(event);
     h_topjets_finalSelection->fill(event);
     h_ht_finalSelection->fill(event);
+
 
     h_PDF_variations->fill(event);
     h_Sideband->fill(event);

@@ -96,15 +96,15 @@ namespace uhh2examples {
     common->init(ctx);
     jetcleaner.reset(new JetCleaner(ctx,30.0, 2.5));
     syst_module.reset(new MCScaleVariation(ctx));
-    SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MuonID_Z_RunD_Reco74X_Nov20.root", "NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1", 1, "tightID", "nominal"));
-    SF_muonTrigger.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/SingleMuonTrigger_Z_RunD_Reco74X_Nov20.root", "IsoMu20_OR_IsoTkMu20_HLTv4p3_PtEtaBins", 0.5, "trigger", "nominal"));
-    SF_muonIso.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1/src/UHH2/common/data/MuonIso_Z_RunCD_Reco74X_Dec1.root", "NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1", 1, "iso", "nominal"));
+    //SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_8_LQ/CMSSW_8_0_8/src/UHH2/common/data/MuonID_Z_RunBCD_prompt80X_7p65.root", "NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1", 1, "tightID",true, Sys_MuonID)); 
+    //SF_muonTrigger.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_8_LQ/CMSSW_8_0_8/src/UHH2/common/data/SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.root", "IsoMu22_OR_IsoTkMu22_PtEtaBins_Run274094_to_Run276097", 0.5, "trigger",true, Sys_MuonTrigger));
+    //SF_muonIso.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_8_LQ/CMSSW_8_0_8/src/UHH2/common/data/MuonIso_Z_RunBCD_prompt80X_7p65.root", "NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1", 1, "iso",true, Sys_MuonIso));
 
     // 2. set up selections
 
     //Preselection
-    trigger_sel1.reset(new TriggerSelection("HLT_IsoMu20_v*"));
-    trigger_sel2.reset(new TriggerSelection("HLT_IsoTkMu20_v*"));
+    trigger_sel1.reset(new TriggerSelection("HLT_IsoMu22_v*"));
+    trigger_sel2.reset(new TriggerSelection("HLT_IsoTkMu22_v*"));
     njet_sel.reset(new NJetSelection(2, -1));
     mu1_sel.reset(new NMuonSelection(1, -1, MuTight));
     nmuon_sel.reset(new NMuonSelection(1, 1, MuTight)); 
@@ -202,7 +202,7 @@ namespace uhh2examples {
 
     // trigger
     if(!(trigger_sel1->passes(event) || trigger_sel2->passes(event))) return false;
-    SF_muonTrigger->process(event);
+    //SF_muonTrigger->process(event);
 
     h_trigger->fill(event);
     h_jets_trigger->fill(event);
@@ -216,8 +216,8 @@ namespace uhh2examples {
     bool pass_common = common->process(event);
     if(!pass_common) return false;
     jetcleaner->process(event);
-    SF_muonID->process(event);
-    SF_muonIso->process(event);
+    //SF_muonID->process(event);
+    //SF_muonIso->process(event);
 
     h_cleaner->fill(event);
     h_jets_cleaner->fill(event);

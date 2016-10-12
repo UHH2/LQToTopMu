@@ -1,2 +1,0 @@
-source Systematics.sh
-source Systematics_LQnorm.sh
