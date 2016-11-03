@@ -98,9 +98,9 @@ namespace uhh2examples {
     common->init(ctx);
     jetcleaner.reset(new JetCleaner(ctx,30.0, 2.5));
     syst_module.reset(new MCScaleVariation(ctx));
-    //SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_8_LQ/CMSSW_8_0_8/src/UHH2/common/data/MuonID_Z_RunBCD_prompt80X_7p65.root", "NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1", 1, "tightID")); 
-    //SF_muonTrigger.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_8_LQ/CMSSW_8_0_8/src/UHH2/common/data/SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.root", "IsoMu22_OR_IsoTkMu22_PtEtaBins_Run274094_to_Run276097", 0.5, "trigger"));
-    //SF_muonIso.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_8_LQ/CMSSW_8_0_8/src/UHH2/common/data/MuonIso_Z_RunBCD_prompt80X_7p65.root", "NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1", 1, "iso"));
+    //SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_20/src/UHH2/common/data/MuonID_Z_RunBCD_prompt80X_7p65.root", "NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1", 1, "tightID")); 
+    //SF_muonTrigger.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_20/src/UHH2/common/data/SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.root", "IsoMu22_OR_IsoTkMu22_PtEtaBins_Run274094_to_Run276097", 0.5, "trigger"));
+    //SF_muonIso.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_20/src/UHH2/common/data/MuonIso_Z_RunBCD_prompt80X_7p65.root", "NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1", 1, "iso"));
 
 
     // 2. set up selections
@@ -197,7 +197,7 @@ namespace uhh2examples {
     h_lumi_nocuts->fill(event);
 
     // trigger
-    if(!(trigger_sel1->passes(event) || trigger_sel2->passes(event))) return false;
+    if(!(trigger_sel1->passes(event)/* || trigger_sel2->passes(event)*/)) return false;
     //SF_muonTrigger->process(event);
 
     h_trigger->fill(event);
