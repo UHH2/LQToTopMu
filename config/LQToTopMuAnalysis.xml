@@ -395,7 +395,6 @@
             <Item Name="PrimaryVertexCollection" Value="offlineSlimmedPrimaryVertices" /> 
             <Item Name="ElectronCollection" Value="slimmedElectronsUSER" />
             <Item Name="MuonCollection" Value="slimmedMuonsUSER" /> 
-            <!--<Item Name="TauCollection" Value="slimmedTaus" />-->
             <Item Name="JetCollection" Value="slimmedJets" />
             <Item Name="METName" Value="slimmedMETs" />
             <Item Name="GenJetCollection" Value="slimmedGenJets" /> 
@@ -441,25 +440,15 @@
             <Item Name="use_sframe_weight" Value="false" />
             
             <!-- configuration for MCPileupReweight (run as part of CommonModules): -->
- 
             <Item Name="pileup_directory" Value="/nfs/dust/cms/user/reimersa/CMSSW_8_0_20/src/UHH2/common/data/MyMCPileupHistogram.root" /> 
 	    <Item Name="pileup_directory_data" Value="/nfs/dust/cms/user/reimersa/CMSSW_8_0_20/src/UHH2/common/data/MyDataPileupHistogram.root" />
-<!--
-	    <Item Name="pileup_directory_data_up" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden_up.root" />
-	    <Item Name="pileup_directory_data_down" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden_down.root" />
--->
 
 
 	    <Item Name="MCBtagEfficiencies" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v2/BTagMCEfficiencyHists/27200fb_BTagMCEfficiencyHists.root" />
 	    <Item Name="BTagCalibration" Value="/nfs/dust/cms/user/reimersa/CMSSW_8_0_20/src/UHH2/common/data/CSVv2_ichep.csv" />
 
 
-	    <Item Name="b_PDFUncertainties" Value="false" />
-	    <Item Name="ScaleVariationMuR" Value="none" />
-	    <Item Name="ScaleVariationMuF" Value="none" />
-	    <Item Name="Systematic_MuonID" Value="nominal" />
-	    <Item Name="Systematic_MuonTrigger" Value="nominal" />
-	    <Item Name="Systematic_MuonIso" Value="nominal" />
+
 	    <Item Name="Systematic_BTag" Value="central" />
 	    <Item Name="Systematic_PU" Value="central" />
 

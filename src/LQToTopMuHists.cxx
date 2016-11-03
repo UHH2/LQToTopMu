@@ -1,5 +1,4 @@
 #include "UHH2/LQToTopMu/include/LQToTopMuHists.h"
-#include "UHH2/LQToTopMu/include/HypothesisHistsOwn.h"
 #include "UHH2/core/include/Event.h"
 #include "UHH2/common/include/Utils.h"
 #include "UHH2/common/include/JetIds.h"

@@ -14,13 +14,7 @@ namespace uhh2examples {
  * The jets are assumed to be sorted in pt.
  */
 
-  class DijetSelection: public uhh2::Selection {
-  public:
-    DijetSelection(float dphi_min = 2.7f, float third_frac_max = 0.2f);
-    virtual bool passes(const uhh2::Event & event) override;
-  private:
-    float dphi_min, third_frac_max;
-  };
+
   
   class HtSelection: public uhh2::Selection {
   public:
@@ -30,6 +24,7 @@ namespace uhh2examples {
     double ht_min, ht_max;
   };
 
+
   class InvMass2MuVeto: public uhh2::Selection {
   public:
     explicit InvMass2MuVeto(double m_min = 81., double m_max = 101.);
@@ -38,89 +33,6 @@ namespace uhh2examples {
     double m_min, m_max;
   };
 
-  class InvMass2MuVetoInverted: public uhh2::Selection {
-  public:
-    explicit InvMass2MuVetoInverted(double m_min = 81., double m_max = 101.);
-    virtual bool passes(const uhh2::Event & event);
-  private:
-    double m_min, m_max;
-  };
-
-  class PtLeadingMuonSelection: public uhh2::Selection {
-  public:
-    explicit PtLeadingMuonSelection(double pt_min = 30., double m_max = -1);
-    virtual bool passes(const uhh2::Event & event);
-  private:
-    double pt_min, pt_max;
-  };
-
-  class Pt2ndMuonSelection: public uhh2::Selection {
-  public:
-    explicit Pt2ndMuonSelection(double pt_min = 30., double m_max = -1);
-    virtual bool passes(const uhh2::Event & event);
-  private:
-    double pt_min, pt_max;
-  };
-
-  class PtLeadingJetSelection: public uhh2::Selection {
-  public:
-    explicit PtLeadingJetSelection(double pt_min = 30., double m_max = -1);
-    virtual bool passes(const uhh2::Event & event);
-  private:
-    double pt_min, pt_max;
-  };
-
-  class Pt2ndJetSelection: public uhh2::Selection {
-  public:
-    explicit Pt2ndJetSelection(double pt_min = 30., double m_max = -1);
-    virtual bool passes(const uhh2::Event & event);
-  private:
-    double pt_min, pt_max;
-  };
-
-  class PtRelMuJetSelection : public uhh2::Selection{
-  public:
-    explicit PtRelMuJetSelection(double ptrel_min = 0, double ptrel_max = -1);
-    virtual bool passes(const uhh2::Event & event);
-  private:
-    double ptrel_min, ptrel_max;
-  };
-
-  class METSelection : public uhh2::Selection{
-  public:
-    explicit METSelection(double met_min = 0, double met_max = -1);
-    virtual bool passes(const uhh2::Event & event);
-  private:
-    double met_min, met_max;
-  };
-
-  class GenLvlZMuMuSelection : public uhh2::Selection{
-  public: 
-    explicit GenLvlZMuMuSelection();
-    virtual bool passes(const uhh2::Event & event);
-  };
-
-  class GenLvlTopDileptonSelection : public uhh2::Selection{
-  public: 
-    explicit GenLvlTopDileptonSelection();
-    virtual bool passes(const uhh2::Event & event);
-  };
-
-  class PtRelMu1JetSelection : public uhh2::Selection{
-  public:
-    explicit PtRelMu1JetSelection(double ptrel_min = 0., double ptrel_max = -1);
-    virtual bool passes(const uhh2::Event & event);
-  private:
-    double ptrel_min, ptrel_max;
-  };
-
-  class HTJetsSelection : public uhh2::Selection{
-  public:
-    explicit HTJetsSelection(double ht_min = 0., double ht_max = -1);
-    virtual bool passes(const uhh2::Event & event);
-  private:
-    double ht_min, ht_max;
-  };
 
   class HTLeptSelection : public uhh2::Selection{
   public:
@@ -130,28 +42,6 @@ namespace uhh2examples {
     double ht_min, ht_max;
   };
 
-  class EtaLeadingJetSelection : public uhh2::Selection{
-  public:
-    explicit EtaLeadingJetSelection(double eta_max = -1);
-    virtual bool passes(const uhh2::Event & event);
-  private:
-    double eta_max;
-  };
-
-  class InvMassMuEleVeto: public uhh2::Selection {
-  public:
-    explicit InvMassMuEleVeto(double m_min = 81., double m_max = 101.);
-    virtual bool passes(const uhh2::Event & event);
-  private:
-    double m_min, m_max;
-  };
-
-  class dRLeptonJetSelection : public uhh2::Selection{
-  public:
-    explicit dRLeptonJetSelection(double dRmin = 0., double dRmax = -1);
-    virtual bool passes(const uhh2::Event & event);
-  private:
-    double dRmin, dRmax;
-  };
+ 
 
 }
