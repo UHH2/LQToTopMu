@@ -27,15 +27,16 @@ is_mc = ctx.get("dataset_type") == "MC";
 
   for(int i=0; i<100; i++){
     stringstream ss_name;
-    ss_name << "H_T_rebin3_PDF_"  << i+1 ;
+    ss_name << "H_T_from350_rebin_PDF_"  << i+1 ;
     stringstream ss_name2;
-    ss_name2 << "H_T_from350_rebin_PDF_"  << i+1 ;
+    ss_name2 << "H_T_from350_all_filled_PDF_"  << i+1 ;
     stringstream ss_name3;
     ss_name3 << "M_LQ_comb_rebin2_PDF_"  << i+1 ;
     stringstream ss_name4;
     ss_name4 << "H_T_comb_NoEle_rebin2_PDF_"  << i+1 ;
+
     stringstream ss_title;
-    ss_title << "H_{T} [GeV] for PDF No. "  << i+1 << " out of 100" ;
+    ss_title << "H_{T} [GeV] in alpha-binning for PDF No. "  << i+1 << " out of 100" ;
     stringstream ss_title2;
     ss_title2 << "H_{T} [GeV] (from 350) for PDF No. "  << i+1 << " out of 100" ;
     stringstream ss_title3;
@@ -64,8 +65,9 @@ is_mc = ctx.get("dataset_type") == "MC";
     histo_names3[i] = s_name3;
     histo_names4[i] = s_name4;
 
-    book<TH1F>(char_name, char_title, 10,bins_low_NoEle2);
-    book<TH1F>(char_name2, char_title2, 48, 0,4200);
+    book<TH1F>(char_name, char_title, 48,0,4200);
+    double bins_from350[21] = {0,175,350,525,700,875,1050,1225,1400,1575,1750,1925,2100,2275,2450,2625,2800,2975,3325,3675,4200}; //same binning as _from350 up to 2975, then two double-size and one triple-size bin
+    book<TH1F>(char_name2, char_title2, 20,bins_from350);  
     book<TH1F>(char_name3, char_title3,5, bins_mlq_low2);
     book<TH1F>(char_name4, char_title4, 10,bins_low_NoEle2);
   }
@@ -92,7 +94,7 @@ void LQToTopMuPDFHists::fill(const Event & event){
     }
     
     ht = ht_lep + ht_jets + met;
-    
+
     if(event.genInfo->systweights().size()){
       for(int i=0; i<100; i++){
 	if(use_pdf_weights){
@@ -101,9 +103,12 @@ void LQToTopMuPDFHists::fill(const Event & event){
 	  const char* name = histo_names[i].c_str();
 	  const char* name2 = histo_names2[i].c_str();
 	  const char* name4 = histo_names4[i].c_str();
-	  if(ht <= 2000) hist(name)->Fill(ht,fillweight);
-	  else hist(name)->Fill(2000,fillweight);
-	  hist(name2)->Fill(ht,fillweight);
+
+	  hist(name)->Fill(ht,fillweight);
+
+	  if(ht <= 4000) hist(name2)->Fill(ht,fillweight);
+	  else hist(name2)->Fill(4000,fillweight);
+
 	  if(event.electrons->size() == 0){
 	    if(ht <= 2000) hist(name4)->Fill(ht,fillweight);
 	    else hist(name4)->Fill(2000,fillweight);

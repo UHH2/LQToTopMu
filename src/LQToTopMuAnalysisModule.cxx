@@ -267,14 +267,17 @@ namespace uhh2examples {
 
 
     //HT Lept
-    if(!htlept_sel->passes(event)) return false;
-    h_jets_htlept200->fill(event);
-    h_htlept200->fill(event);
-    h_ele_htlept200->fill(event);
-    h_mu_htlept200->fill(event);
-    h_event_htlept200->fill(event);
-    h_topjets_htlept200->fill(event);
-    h_btageff_htlept200->fill(event);
+    if(!htlept_sel->passes(event)){
+      h_jets_htlept200->fill(event);
+      h_htlept200->fill(event);
+      h_ele_htlept200->fill(event);
+      h_mu_htlept200->fill(event);
+      h_event_htlept200->fill(event);
+      h_topjets_htlept200->fill(event);
+      h_btageff_htlept200->fill(event);
+      return false;
+    }
+
 
 
     //Final Selection

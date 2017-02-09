@@ -53,7 +53,7 @@ namespace uhh2examples {
     std::unique_ptr<JetCleaner> jetcleaner;
     
     // declare the Selections to use.
-    std::unique_ptr<Selection>  nele_sel, njet_sel, nbtag_loose_sel, nbtag_med_sel, nbtag_tight_sel, htlept_sel, mttbar_gen_sel, m_muele_veto;
+    std::unique_ptr<Selection>  nele_sel, nbtag_loose_sel, nbtag_med_sel, nbtag_tight_sel, htlept_sel, mttbar_gen_sel, inv_mass_veto;
     
     // store the Hists collection as member variables. 
     std::unique_ptr<Hists> h_nocuts, h_jets_nocuts, h_ele_nocuts, h_mu_nocuts, h_event_nocuts, h_topjets_nocuts, h_tau_nocuts;
@@ -72,7 +72,7 @@ namespace uhh2examples {
     JetId Btag_loose, Btag_medium, Btag_tight;
     CSVBTag::wp wp_btag_loose;
 
-    bool do_scale_variation, is_mc, do_pdf_variations;
+    bool do_scale_variation, is_mc, do_pdf_variations, is_mu_e, is_e_e;
 
 
     TFile* file_alpha_inclusive;
@@ -96,7 +96,12 @@ namespace uhh2examples {
 
     do_scale_variation = (ctx.get("ScaleVariationMuR") == "up" || ctx.get("ScaleVariationMuR") == "down") || (ctx.get("ScaleVariationMuF") == "up" || ctx.get("ScaleVariationMuF") == "down");
     do_pdf_variations = ctx.get("b_PDFUncertainties") == "true";
+
     is_mc = ctx.get("dataset_type") == "MC";
+    is_mu_e = (ctx.get("channel") == "mu_e" || ctx.get("channel") == "e_mu");
+    is_e_e = ctx.get("channel") == "e_e";
+    if((!is_mu_e && !is_e_e)) throw runtime_error("In SidebandPreselectionModule: Invalid definition of 'channel' in config file, must be 'mu_e', 'e_mu', or 'e_e'.");
+
     filepath_alpha = ctx.get("filepath_alpha");
     Sys_MuonID = ctx.get("Systematic_MuonID");
     Sys_MuonTrigger = ctx.get("Systematic_MuonTrigger");
@@ -110,7 +115,7 @@ namespace uhh2examples {
     norm_inclusive = (TH1D*)file_alpha_inclusive->Get("h_normalization");
     if(!norm_inclusive) norm_inclusive = (TH1D*)file_alpha_inclusive->Get("h_normalization_syst_up");
     if(!norm_inclusive) norm_inclusive = (TH1D*)file_alpha_inclusive->Get("h_normalization_syst_dn");
-
+    
     // 1. setup other modules. CommonModules and the JetCleaner:
     Jet_printer.reset(new JetPrinter("Jet-Printer", 0));
     Electron_printer.reset(new ElectronPrinter("Electron-Printer"));
@@ -146,9 +151,10 @@ namespace uhh2examples {
     nbtag_loose_sel.reset(new NJetSelection(1, -1, Btag_loose));  
     nbtag_med_sel.reset(new NJetSelection(1, -1, Btag_medium));
     nbtag_tight_sel.reset(new NJetSelection(2, -1, Btag_tight));
-    nele_sel.reset(new NElectronSelection(1, 1));
+    //nele_sel.reset(new NElectronSelection(1, 1));
     htlept_sel.reset(new HTLeptSelection(200., -1));
-    m_muele_veto.reset(new InvMassMuEleVeto(71.,111.));
+    if(is_mu_e)inv_mass_veto.reset(new InvMassMuEleVeto(71.,111.));
+    else inv_mass_veto.reset(new InvMassEleEleVeto(71.,111.));
     
     //make reconstruction hypotheses
     recomodules.emplace_back(new LQPrimaryLepton(ctx));
@@ -229,7 +235,7 @@ namespace uhh2examples {
     if(!pass_common) return false;
     jetcleaner->process(event);
 
-    
+     
     //HT
     auto met = event.met->pt();
     double ht = 0.0;
@@ -257,6 +263,7 @@ namespace uhh2examples {
     h_event_nocuts->fill(event);
     h_topjets_nocuts->fill(event);
  
+    /*
     //Nele
     if(!nele_sel->passes(event)) return false;
     h_1ele->fill(event);
@@ -265,11 +272,11 @@ namespace uhh2examples {
     h_mu_1ele->fill(event);
     h_event_1ele->fill(event);
     h_topjets_1ele->fill(event);
-
+*/
 
     //1 bTag1 loose
     if(!nbtag_loose_sel->passes(event)) return false;
-    SF_btag->process(event);
+    //SF_btag->process(event);
 
     h_jets_1bJetLoose->fill(event);
     h_1bJetLoose->fill(event);
@@ -280,7 +287,7 @@ namespace uhh2examples {
  
 
     //InvMassVeto
-    if(!m_muele_veto->passes(event)) return false;
+    if(!inv_mass_veto->passes(event)) return false;
     h_jets_InvMassVeto->fill(event);
     h_InvMassVeto->fill(event);
     h_ele_InvMassVeto->fill(event);

@@ -74,7 +74,7 @@ namespace uhh2examples {
 
   LQToTopMuPreselectionModule::LQToTopMuPreselectionModule(Context & ctx){
     
-    cout << "Hello World from LQToTopMuPreselectionModule!" << endl;
+    cout << "Hello from LQToTopMuPreselectionModule!" << endl;
 
     for(auto & kv : ctx.get_all()){
       cout << " " << kv.first << " = " << kv.second << endl;
@@ -106,8 +106,8 @@ namespace uhh2examples {
     // 2. set up selections
 
     //Preselection
-    trigger_sel1.reset(new TriggerSelection("HLT_IsoMu22_v*"));
-    trigger_sel2.reset(new TriggerSelection("HLT_IsoTkMu22_v*"));
+    trigger_sel1.reset(new TriggerSelection("HLT_IsoMu27_v*")); //original: IsoMu22
+    trigger_sel2.reset(new TriggerSelection("HLT_IsoTkMu27_v*")); //original: IsoMu22
     njet_sel.reset(new NJetSelection(2, -1));
     mu1_sel.reset(new NMuonSelection(1, -1));
     nmuon_sel.reset(new NMuonSelection(2, -1)); 
@@ -197,7 +197,7 @@ namespace uhh2examples {
     h_lumi_nocuts->fill(event);
 
     // trigger
-    if(!(trigger_sel1->passes(event)/* || trigger_sel2->passes(event)*/)) return false;
+    if(!(trigger_sel1->passes(event) || trigger_sel2->passes(event))) return false;
     //SF_muonTrigger->process(event);
 
     h_trigger->fill(event);

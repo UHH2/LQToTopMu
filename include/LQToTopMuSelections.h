@@ -146,6 +146,14 @@ namespace uhh2examples {
     double m_min, m_max;
   };
 
+  class InvMassEleEleVeto: public uhh2::Selection {
+  public:
+    explicit InvMassEleEleVeto(double m_min = 81., double m_max = 101.);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double m_min, m_max;
+  };
+
   class dRLeptonJetSelection : public uhh2::Selection{
   public:
     explicit dRLeptonJetSelection(double dRmin = 0., double dRmax = -1);
