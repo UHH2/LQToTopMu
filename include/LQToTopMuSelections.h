@@ -34,6 +34,24 @@ namespace uhh2examples {
   };
 
 
+  class InvMass2MuVeto_Inverted: public uhh2::Selection {
+  public:
+    explicit InvMass2MuVeto_Inverted(double m_min = 81., double m_max = 101.);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double m_min, m_max;
+  };
+
+
+  class InvMass2EleVeto_Inverted: public uhh2::Selection {
+  public:
+    explicit InvMass2EleVeto_Inverted(double m_min = 81., double m_max = 101.);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double m_min, m_max;
+  };
+
+
   class HTLeptSelection : public uhh2::Selection{
   public:
     explicit HTLeptSelection(double ht_min = 0., double ht_max = -1);
@@ -42,6 +60,22 @@ namespace uhh2examples {
     double ht_min, ht_max;
   };
 
- 
+  
+  class METSelection : public uhh2::Selection{
+  public:
+    explicit METSelection(double MET_min = 0., double MET_max = -1);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double MET_min, MET_max;
+    };
+
+
+   class dRSelection : public uhh2::Selection{
+  public:
+    explicit dRSelection(double dR_min = 0., double dR_max = -1);
+    virtual bool passes(const uhh2::Event & event);
+  private:
+    double dR_min, dR_max;
+  };
 
 }

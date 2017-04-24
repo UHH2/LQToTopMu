@@ -39,12 +39,9 @@ namespace uhh2examples {
   
     unique_ptr<JetCleaner> jetcleaner;
     unique_ptr<JetLeptonCleaner> jetleptoncleaner;
-    unique_ptr<MuonCleaner> muoncleaner;
-    unique_ptr<MuonCleaner> muoncleaner_iso;
-    unique_ptr<ElectronCleaner> electroncleaner;
   
     // declare the Selections to use.
-    unique_ptr<Selection> njet_sel, nmuon_sel, ht_sel, lumi_sel, mu1_sel, trigger_sel, trigger_sel1, trigger_sel2;
+    unique_ptr<Selection> njet_sel, nmuon_sel, ht_sel, lumi_sel, mu1_sel, trigger_sel, trigger_sel1, trigger_sel2, nele_sel;
   
     // store the Hists collection as member variables. 
     unique_ptr<Hists> h_nocuts, h_jets_nocuts, h_ele_nocuts, h_mu_nocuts, h_event_nocuts, h_topjets_nocuts, h_lumi_nocuts, 
@@ -58,7 +55,6 @@ namespace uhh2examples {
 
     MuonId MuId;
     ElectronId EleId;
-    JetId Btag_loose;
 
     bool is_mc;
   };
@@ -72,15 +68,13 @@ namespace uhh2examples {
       cout << " " << kv.first << " = " << kv.second << endl;
     }
 
-    EleId = AndId<Electron>(ElectronID_Spring15_25ns_medium, PtEtaCut(30.0, 2.4));
+    EleId = AndId<Electron>(ElectronID_Spring15_25ns_loose, PtEtaCut(30.0, 2.4));
     MuId = AndId<Muon>(MuonIDTight(), PtEtaCut(30.0, 2.4),MuonIso(0.15));
-    Btag_loose = CSVBTag(CSVBTag::WP_LOOSE);
 
     is_mc = ctx.get("dataset_type") == "MC";
 
     common.reset(new CommonModules());
-   
-    common->switch_jetlepcleaner(true);
+    common->switch_jetlepcleaner(false);
     common->set_electron_id(EleId);
     common->set_muon_id(MuId);
     common->init(ctx);
@@ -91,11 +85,12 @@ namespace uhh2examples {
     // 2. set up selections
 
     //Preselection
-    trigger_sel1.reset(new TriggerSelection("HLT_IsoMu22_v*"));
-    trigger_sel2.reset(new TriggerSelection("HLT_IsoTkMu22_v*"));
+    trigger_sel1.reset(new TriggerSelection("HLT_IsoMu27_v*"));
+    trigger_sel2.reset(new TriggerSelection("HLT_IsoTkMu27_v*"));
     njet_sel.reset(new NJetSelection(2, -1));
-    mu1_sel.reset(new NMuonSelection(1, -1));
-    nmuon_sel.reset(new NMuonSelection(2, -1)); 
+    mu1_sel.reset(new NMuonSelection(0, 0));
+    nmuon_sel.reset(new NMuonSelection(0, 0)); 
+    nele_sel.reset(new NElectronSelection(2,-1));
     ht_sel.reset(new HtSelection(350)); 
     lumi_sel.reset(new LumiSelection(ctx));
 
@@ -176,7 +171,7 @@ namespace uhh2examples {
     h_lumi_nocuts->fill(event);
 
     // trigger
-    if(!(trigger_sel1->passes(event) || trigger_sel2->passes(event))) return false;
+    //if(!(trigger_sel1->passes(event) || trigger_sel2->passes(event))) return false;
 
     h_trigger->fill(event);
     h_jets_trigger->fill(event);
@@ -207,7 +202,7 @@ namespace uhh2examples {
     h_topjets_1mu->fill(event);
     h_lumi_1mu->fill(event);
   
-    if (!njet_sel->passes(event)) return false;
+    // if (!njet_sel->passes(event)) return false;
     h_2jets->fill(event);
     h_jets_2jets->fill(event);
     h_ele_2jets->fill(event);
@@ -217,7 +212,7 @@ namespace uhh2examples {
     h_lumi_2jets->fill(event);
 
 
-    if (!ht_sel->passes(event)) return false;
+    // if (!ht_sel->passes(event)) return false;
     h_ht350->fill(event);
     h_jets_ht350->fill(event);
     h_ele_ht350->fill(event);
@@ -227,7 +222,8 @@ namespace uhh2examples {
     h_lumi_ht350->fill(event);
 
 
-    if (!nmuon_sel->passes(event)) return false;
+    //if (!nmuon_sel->passes(event)) return false;
+    if(!nele_sel->passes(event)) return false;
     h_2mu->fill(event);
     h_jets_2mu->fill(event);
     h_ele_2mu->fill(event);
