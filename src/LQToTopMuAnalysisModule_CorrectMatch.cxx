@@ -135,14 +135,14 @@ namespace uhh2examples {
     recomodules.emplace_back(new LQCorrectMatchDiscriminator(ctx,"HighMassLQReconstruction"));
     
     // 3. Set up Hists classes:
-    h_nocuts.reset(new LQToTopMuHists(ctx, "NoCuts"));
+    h_nocuts.reset(new LQToTopMuHists(ctx, "NoCuts", true));
     h_jets_nocuts.reset(new JetHists(ctx, "Jets_NoCuts"));
     h_ele_nocuts.reset(new ElectronHists(ctx, "Ele_NoCuts"));
     h_mu_nocuts.reset(new MuonHists(ctx, "Mu_NoCuts"));
     h_event_nocuts.reset(new EventHists(ctx, "Event_NoCuts"));
     h_topjets_nocuts.reset(new TopJetHists(ctx, "TopJets_NoCuts"));
  
-    h_1ele.reset(new LQToTopMuHists(ctx, "1Ele"));
+    h_1ele.reset(new LQToTopMuHists(ctx, "1Ele", true));
     h_jets_1ele.reset(new JetHists(ctx, "Jets_1Ele"));
     h_ele_1ele.reset(new ElectronHists(ctx, "Ele_1Ele"));
     h_mu_1ele.reset(new MuonHists(ctx, "Mu_1Ele"));  
@@ -150,14 +150,14 @@ namespace uhh2examples {
     h_topjets_1ele.reset(new TopJetHists(ctx, "TopJets_1Ele"));
     h_hyphists.reset(new HypothesisHistsOwn(ctx, "CorrectMatch_Hists", "HighMassLQReconstruction", "CorrectMatch"));
 
-    h_1bJetLoose.reset(new LQToTopMuHists(ctx, "1bJetLoose"));
+    h_1bJetLoose.reset(new LQToTopMuHists(ctx, "1bJetLoose", true));
     h_jets_1bJetLoose.reset(new JetHists(ctx, "Jets_1bJetLoose"));
     h_ele_1bJetLoose.reset(new ElectronHists(ctx, "Ele_1bJetLoose"));
     h_mu_1bJetLoose.reset(new MuonHists(ctx, "Mu_1bJetLoose"));
     h_event_1bJetLoose.reset(new EventHists(ctx, "Event_1bJetLoose"));
     h_topjets_1bJetLoose.reset(new TopJetHists(ctx, "TopJets_1bJetLoose"));
 
-    h_InvMassVeto.reset(new LQToTopMuHists(ctx, "InvMassVeto"));
+    h_InvMassVeto.reset(new LQToTopMuHists(ctx, "InvMassVeto", true));
     h_jets_InvMassVeto.reset(new JetHists(ctx, "Jets_InvMassVeto"));
     h_ele_InvMassVeto.reset(new ElectronHists(ctx, "Ele_InvMassVeto"));
     h_mu_InvMassVeto.reset(new MuonHists(ctx, "Mu_InvMassVeto"));
@@ -165,7 +165,7 @@ namespace uhh2examples {
     h_topjets_InvMassVeto.reset(new TopJetHists(ctx, "TopJets_InvMassVeto"));
 
 
-    h_htlept200.reset(new LQToTopMuHists(ctx, "HTLept200"));
+    h_htlept200.reset(new LQToTopMuHists(ctx, "HTLept200", true));
     h_jets_htlept200.reset(new JetHists(ctx, "Jets_HTLept200"));
     h_ele_htlept200.reset(new ElectronHists(ctx, "Ele_HTLept200"));
     h_mu_htlept200.reset(new MuonHists(ctx, "Mu_HTLept200"));
@@ -173,7 +173,7 @@ namespace uhh2examples {
     h_event_htlept200.reset(new EventHists(ctx, "Event_HTLept200"));
 
 
-    h_finalSelection.reset(new LQToTopMuHists(ctx, "FinalSelection"));
+    h_finalSelection.reset(new LQToTopMuHists(ctx, "FinalSelection", true));
     h_jets_finalSelection.reset(new JetHists(ctx, "Jets_FinalSelection"));
     h_ele_finalSelection.reset(new ElectronHists(ctx, "Ele_FinalSelection"));
     h_mu_finalSelection.reset(new MuonHists(ctx, "Mu_FinalSelection"));
