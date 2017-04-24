@@ -5,7 +5,7 @@
 
 using namespace std;
 
-void SF_for_1_2_bJets_Diboson(){
+void SF_Diboson(){
   //Load data
   TFile *DY = new TFile("../../../../LQToTopMu/Run2_80X_v2/Optimization/27200fb_NoMuonSF_Diboson_newPre_0Jets_NoHT_deleteJets_with_SF_2bJet_btagSF/uhh2.AnalysisModuleRunner.MC.DYJets.root", "READ");
   TFile *Diboson = new TFile("../../../../LQToTopMu/Run2_80X_v2/Optimization/27200fb_NoMuonSF_Diboson_newPre_0Jets_NoHT_deleteJets_with_SF_2bJet_btagSF/uhh2.AnalysisModuleRunner.MC.Diboson.root", "READ");
@@ -19,7 +19,6 @@ void SF_for_1_2_bJets_Diboson(){
   //Get sum event weights
   TH1D* DY_bJet = (TH1D*)DY->Get("FinalSelection/N_bJets_loose");
   TH1D* Diboson_bJet = (TH1D*)Diboson->Get("FinalSelection/N_bJets_loose");
-  Diboson_bJet->Scale(1.12482);
   TH1D* QCD_bJet = (TH1D*)QCD->Get("FinalSelection/N_bJets_loose");
   TH1D* SingleTop_bJet = (TH1D*)SingleTop->Get("FinalSelection/N_bJets_loose");
   TH1D* TTbar_bJet = (TH1D*)TTbar->Get("FinalSelection/N_bJets_loose");
