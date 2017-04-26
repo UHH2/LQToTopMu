@@ -175,6 +175,23 @@ bool GenLvlZMuMuSelection::passes(const Event & event){
   return pass;
 }
 
+GenLvlZEESelection::GenLvlZEESelection(){}
+bool GenLvlZEESelection::passes(const Event & event){
+
+  bool pass = true;
+  for (const auto & genpart : *event.genparticles){
+    if (genpart.pdgId() == 23){
+      if(abs(genpart.daughter(event.genparticles, 1)->pdgId()) == 11){
+	pass = true;
+      }
+      else{
+	pass = false;
+      }
+    }
+  }
+  return pass;
+}
+
 GenLvlTopDileptonSelection::GenLvlTopDileptonSelection(){}
 bool GenLvlTopDileptonSelection::passes(const Event & event){
   
@@ -325,6 +342,28 @@ bool dRLeptonJetSelection::passes(const Event & event){
   }
   
   return pass;
+}
+
+NGenElectronSelection::NGenElectronSelection(int n_min_, int n_max_) : n_min(n_min_), n_max(n_max_){}
+bool NGenElectronSelection::passes(const Event & event){
+  
+  int n_ele = 0;
+  for(const auto & gp : *event.genparticles){
+    if(abs(gp.pdgId()) == 11) n_ele++;
+  }
+  
+  return (n_ele >= n_min && (n_ele <= n_max || n_max < 0));
+}
+
+NGenMuonSelection::NGenMuonSelection(int n_min_, int n_max_) : n_min(n_min_), n_max(n_max_){}
+bool NGenMuonSelection::passes(const Event & event){
+  
+  int n_mu = 0;
+  for(const auto & gp : *event.genparticles){
+    if(abs(gp.pdgId()) == 13) n_mu++;
+  }
+  
+  return (n_mu >= n_min && (n_mu <= n_max || n_max < 0) );
 }
 
 

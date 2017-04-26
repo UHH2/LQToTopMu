@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE JobConfiguration PUBLIC "" "JobConfig.dtd"[
+
+
+	  <!ENTITY TargetLumi      "36773">
+	  <!ENTITY SELdir          "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/TTbarSideband/EE_Channel/Optimization/&TargetLumi;fb_NoLep_ForEff">
+	  <!ENTITY b_Cacheable     "False">
+	  <!ENTITY NEVT            "-1">
+	  <!ENTITY PRESELdir       "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/TTbarSideband/EE_Channel/Preselection/&TargetLumi;fb_NoLep_ForEff"> 
+	  <!ENTITY PRESELfilename  "uhh2.AnalysisModuleRunner"> 
+	  <!ENTITY PROOFdir        "/nfs/dust/cms/user/reimersa/.proof2">
+	  <!ENTITY CHANNEL         "e_e">
+
+
+
+
+
+
+<!ENTITY TTbar_01   "&PRESELdir;/&PRESELfilename;.MC.TTbar_01.root">
+<!ENTITY TTbar_02   "&PRESELdir;/&PRESELfilename;.MC.TTbar_02.root">
+<!ENTITY TTbar_03   "&PRESELdir;/&PRESELfilename;.MC.TTbar_03.root">
+<!ENTITY TTbar_04   "&PRESELdir;/&PRESELfilename;.MC.TTbar_04.root">
+
+<!ENTITY DYJetsM50_HT70to100   "&PRESELdir;/&PRESELfilename;.MC.DYJetsM50_HT70to100.root">
+<!ENTITY DYJetsM50_HT100to200   "&PRESELdir;/&PRESELfilename;.MC.DYJetsM50_HT100to200.root">
+<!ENTITY DYJetsM50_HT200to400  "&PRESELdir;/&PRESELfilename;.MC.DYJetsM50_HT200to400.root">
+<!ENTITY DYJetsM50_HT400to600  "&PRESELdir;/&PRESELfilename;.MC.DYJetsM50_HT400to600.root">
+<!ENTITY DYJetsM50_HT600to800  "&PRESELdir;/&PRESELfilename;.MC.DYJetsM50_HT600to800.root">
+<!ENTITY DYJetsM50_HT800to1200  "&PRESELdir;/&PRESELfilename;.MC.DYJetsM50_HT800to1200.root">
+<!ENTITY DYJetsM50_HT1200to2500  "&PRESELdir;/&PRESELfilename;.MC.DYJetsM50_HT1200to2500.root">
+<!ENTITY DYJetsM50_HT2500toInf  "&PRESELdir;/&PRESELfilename;.MC.DYJetsM50_HT2500toInf.root">
+
+
+
+
+]>
+
+<!--
+<ConfigParse NEventsBreak="0" FileSplit="1" AutoResubmit="5"/>
+<ConfigSGE RAM ="4" DISK ="3" Mail="arne.reimers@desy.de" Notification="as" Workdir="workdir_36773fb_Sideband"/>
+-->
+
+<!-- OutputLevel controls which messages are printed; set to VERBOSE or DEBUG for more verbosity, to WARNING or ERROR for less -->
+<JobConfiguration JobName="ExampleCycleJob" OutputLevel="INFO">
+  <Library Name="libSUHH2LQToTopMu"/>
+  <Package Name="SUHH2LQToTopMu.par" />
+
+
+<!-- **************************** 
+     *                          *
+     *       All Samples        *
+     *                          *
+     ****************************
+-->
+
+
+<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="&SELdir;/"  PostFix="" TargetLumi="&TargetLumi;">
+<!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="&SELdir;/" PostFix="" TargetLumi="&TargetLumi;" RunMode="PROOF" ProofServer="lite://" ProofWorkDir="&PROOFdir;/" ProofNodes="12">-->
+
+
+
+
+  <InputData Lumi="186543.350" NEventsMax="-1" Type="MC" Version="TTbar_01" Cacheable="&b_Cacheable;">
+    <In FileName="&TTbar_01;" Lumi="0.0"/>
+    <InputTree Name="AnalysisTree" />
+  </InputData>    
+
+  <InputData Lumi="186543.350" NEventsMax="-1" Type="MC" Version="TTbar_02" Cacheable="&b_Cacheable;">
+    <In FileName="&TTbar_02;" Lumi="0.0"/>
+    <InputTree Name="AnalysisTree" />
+  </InputData>    
+
+  <InputData Lumi="186543.350" NEventsMax="-1" Type="MC" Version="TTbar_03" Cacheable="&b_Cacheable;">
+    <In FileName="&TTbar_03;" Lumi="0.0"/>
+    <InputTree Name="AnalysisTree" />
+  </InputData>    
+
+  <InputData Lumi="186543.350" NEventsMax="-1" Type="MC" Version="TTbar_04" Cacheable="&b_Cacheable;">
+    <In FileName="&TTbar_04;" Lumi="0.0"/>
+    <InputTree Name="AnalysisTree" />
+  </InputData>    
+
+
+
+ <InputData Lumi="44562.43652" NEventsMax="&NEVT;" Type="MC" Version="DYJetsM50_HT70to100" Cacheable="&b_Cacheable;">
+    <In FileName="&DYJetsM50_HT70to100;" Lumi="0.0"/>
+    <InputTree Name="AnalysisTree" />
+  </InputData>
+
+  <InputData Lumi="58504.18639" NEventsMax="&NEVT;" Type="MC" Version="DYJetsM50_HT100to200" Cacheable="&b_Cacheable;">
+    <In FileName="&DYJetsM50_HT100to200;" Lumi="0.0"/>
+    <InputTree Name="AnalysisTree" />
+  </InputData>
+
+  <InputData Lumi="191321.857" NEventsMax="&NEVT;" Type="MC" Version="DYJetsM50_HT200to400" Cacheable="&b_Cacheable;">
+    <In FileName="&DYJetsM50_HT200to400;" Lumi="0.0"/>
+    <InputTree Name="AnalysisTree" />
+  </InputData>
+
+  <InputData Lumi="1433022.191" NEventsMax="&NEVT;" Type="MC" Version="DYJetsM50_HT400to600" Cacheable="&b_Cacheable;">
+    <In FileName="&DYJetsM50_HT400to600;" Lumi="0.0"/>
+    <InputTree Name="AnalysisTree" />
+  </InputData>
+
+  <InputData Lumi="4931670.443" NEventsMax="&NEVT;" Type="MC" Version="DYJetsM50_HT600to800" Cacheable="&b_Cacheable;">
+    <In FileName="&DYJetsM50_HT600to800;" Lumi="0.0"/>
+    <InputTree Name="AnalysisTree" />
+  </InputData>
+
+  <InputData Lumi="3441241.333" NEventsMax="&NEVT;" Type="MC" Version="DYJetsM50_HT800to1200" Cacheable="&b_Cacheable;">
+    <In FileName="&DYJetsM50_HT800to1200;" Lumi="0.0"/>
+    <InputTree Name="AnalysisTree" />
+  </InputData>
+
+  <InputData Lumi="3199976.372" NEventsMax="&NEVT;" Type="MC" Version="DYJetsM50_HT1200to2500" Cacheable="&b_Cacheable;">
+    <In FileName="&DYJetsM50_HT1200to2500;" Lumi="0.0"/>
+    <InputTree Name="AnalysisTree" />
+  </InputData>
+
+  <InputData Lumi="91026579.55" NEventsMax="&NEVT;" Type="MC" Version="DYJetsM50_HT2500toInf" Cacheable="&b_Cacheable;">
+    <In FileName="&DYJetsM50_HT2500toInf;" Lumi="0.0"/>
+    <InputTree Name="AnalysisTree" />
+  </InputData>
+
+
+
+
+
+
+
+               
+
+
+
+ 
+      <UserConfig>
+            <!-- define which collections to read from the input. Only specify what you need to save I/O time -->
+            <Item Name="PrimaryVertexCollection" Value="offlineSlimmedPrimaryVertices" /> 
+            <Item Name="ElectronCollection" Value="slimmedElectronsUSER" />
+            <Item Name="MuonCollection" Value="slimmedMuonsUSER" /> 
+            <!--<Item Name="TauCollection" Value="slimmedTaus" />-->
+            <Item Name="JetCollection" Value="slimmedJets" />
+            <Item Name="METName" Value="slimmedMETs" />
+            <Item Name="GenJetCollection" Value="slimmedGenJets" /> 
+	    <Item Name="TopJetCollection" Value="patJetsAk8CHSJetsSoftDropPacked_daughters" />
+	    <Item Name="GenParticleCollection" Value="GenParticles" />
+            <Item Name="lumi_file" Value="/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root" />
+
+            <Item Name="lumihists_lumi_per_bin" Value="1000."/>
+	    <Item Name="GenInfoName" Value="genInfo" />
+
+            
+            <!-- The list of available collections to read in corresponds to the pointer members in event. The 'Name's to use here in the configuration are:
+            
+                 PrimaryVertexCollection
+                 ElectronCollection
+                 MuonCollection
+                 TauCollection
+                 PhotonCollection
+                 JetCollection
+                 TopJetCollection
+                 METName
+                 
+                 GenInfoName
+                 GenJetCollection
+                 GenTopJetCollection
+                 GenParticleCollection
+                 
+                 Note that the last four are only read in for MC (InputData Type="MC"), so it is save to specify
+                 them for real data, although those branches do not exist.
+                 
+                 As 'Value', always use the branch name (if in doubt, open the input file in ROOT).
+                 
+                 By default, triggers are read. To explicitly disable reading triggers, use:
+                 <Item Name="readTrigger" Value="false" />
+            -->
+            
+            <!-- the class name of the AnalysisModule subclasses to run: -->
+            <Item Name="AnalysisModule" Value="LQToTopMuSidebandAnalysisModule" /> 
+            
+            <!-- tell AnalysisModuleRunner NOT to use the MC event weight from SFrame; rather let
+                 MCLumiWeight (called via CommonModules) calculate the MC event weight. The MC
+                 event weight assigned by MCLumiWeight is InputData.Lumi / Cycle.TargetLumi. -->
+            <Item Name="use_sframe_weight" Value="false" />
+            
+            <!-- configuration for MCPileupReweight (run as part of CommonModules): -->
+            <Item Name="pileup_directory" Value="/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/MyMCPileupHistogram.root" /> 
+	    <Item Name="pileup_directory_data" Value="/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/MyDataPileupHistogram.root" />
+<!--
+	    <Item Name="pileup_directory_data_up" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden_up.root" />
+	    <Item Name="pileup_directory_data_down" Value="/nfs/dust/cms/user/reimersa/CMSSW_7_4_15_patch1_Thesis/CMSSW_7_4_15_patch1/src/UHH2/common/data/MyDataPileupHistogram_JSON_Golden_down.root" />
+-->
+	    <Item Name="MCBtagEfficiencies" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/BTagMCEfficiencyHists/36773fb_BTagMCEfficiencyHists_TTbarSideband_EE.root" />
+	    <Item Name="BTagCalibration" Value="/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/CSVv2_Moriond17_B_H.csv" />
+
+	    <Item Name="channel" Value="&CHANNEL;"/>
+
+
+	    <Item Name="filepath_alpha" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/TTbarSideband/EE_Channel/Optimization/&TargetLumi;fb/ForSideband_Inclusive.root" />
+	    <Item Name="ScaleVariationMuR" Value="none" />
+	    <Item Name="ScaleVariationMuF" Value="none" />
+	    <Item Name="b_PDFUncertainties" Value="true" />
+	    <Item Name="Systematic_MuonID" Value="nominal" />
+	    <Item Name="Systematic_MuonTrigger" Value="nominal" />
+	    <Item Name="Systematic_MuonIso" Value="nominal" />
+	    <Item Name="Systematic_BTag" Value="central" />
+	    <Item Name="Systematic_PU" Value="central" />
+
+            
+            <!-- Some test configuration; see LQToTopMuModule.cxx for how to access it: -->
+            <Item Name="TestKey" Value="TestKeyValue" />
+        </UserConfig>
+    </Cycle>
+</JobConfiguration>

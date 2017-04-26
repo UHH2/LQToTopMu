@@ -1,5 +1,5 @@
-#include "UHH2/LQToTopMu/include/LQToTopMuHists.h"
-#include "UHH2/LQToTopMu/include/HypothesisHistsOwn.h"
+#include "../include/LQToTopMuHists.h"
+#include "../include/HypothesisHistsOwn.h"
 #include "UHH2/core/include/Event.h"
 #include "UHH2/common/include/Utils.h"
 #include "UHH2/common/include/JetIds.h"
@@ -36,7 +36,8 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("pt_mu_zoom", "p_{T}^{#mu} [GeV]", 34, 0, 1020);
   book<TH1F>("eta_mu", "#eta^{#mu}", 25, -2.5, 2.5);
   book<TH1F>("reliso_mu", "#mu rel. Iso", 40, 0, 0.5);
-  book<TH1F>("M_mumu", "M_(#mu#mu) [GeV^{2}]",50 , 0, 1000);
+  book<TH1F>("M_mumu", "M_#mu#mu [GeV^{2}]",50 , 0, 1000);
+  book<TH1F>("M_ee", "M_{ee} [GeV^{2}]",50 , 0, 1000);
   book<TH1F>("Pt_mu_sum", "#Sum p_{T}^{#mu} [GeV]", 50, 0, 7000);
   double bins_HTlept_low[6] = {0, 300, 600, 900, 1200, 7000};
   book<TH1F>("Pt_mu_sum_rebin", "#Sum p_{T}^{#mu} [GeV]", 5, bins_HTlept_low);
@@ -63,6 +64,8 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("H_T_from350", "H_{T} [GeV]", 24, 0, 4200);
   double bins_from350[21] = {0,175,350,525,700,875,1050,1225,1400,1575,1750,1925,2100,2275,2450,2625,2800,2975,3325,3675,4200}; //same binning as _from350 up to 2975, then two double-size and one triple-size bin
   book<TH1F>("H_T_from350_all_filled", "H_{T} [GeV]", 20, bins_from350);
+  double bins_from350_allfilled[16] = {0,175,350,525,700,875,1050,1225,1400,1575,1750,1925,2100,2450,2800,3000}; //same binning as _from350 up to 2975, then two double-size and one triple-size bin
+  book<TH1F>("H_T_from350_all_filled_rebin", "H_{T} [GeV]", 15, bins_from350_allfilled);
   book<TH1F>("H_T_from350_rebin", "H_{T} [GeV]", 48, 0, 4200);
   book<TH1F>("H_T_from350_rebin2", "H_{T} [GeV]", 12, 0, 4200);
   book<TH1F>("Parton_H_T", "H_{T} [GeV] on parton level", 80,0,7000);
@@ -112,9 +115,16 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("dR_tophad_muX", "1: t^{had} closer to #mu^{had}, -1: closer to #mu^{lep}", 3,-1.5, 1.5);
   //book<TH1F>("dummy","dummy",50,0,5);
 
+  book<TH2F>("dR_ee_HT","#Delta R(e,e) vs. H_{T};H_{T};#Delta R(e,e)",20,bins_from350,50,0,5);
+  book<TH2F>("dR_mumu_HT","#Delta R(#mu,#mu) vs. H_{T};H_{T};#Delta R(#mu,#mu)",20,bins_from350,50,0,5);
+
  
   //electron fakes
   book<TH1F>("ele_type", "0 real ele, 1 fake ele", 2,-0.5,1.5);
+  book<TH1F>("mu_type", "0 real #mu, 1 fake #mu", 2,-0.5,1.5);
+
+  book<TH1F>("jets_faking_ele_pt", "p_{T} of jets faking an electron [GeV]", 50, 20, 1500);
+  book<TH1F>("jets_faking_mu_pt", "p_{T} of jets faking a muon [GeV]", 50, 20, 1500);
 
   //event weights: sum
   book<TH1F>("sum_event_weights", "BinContent = sum(eventweights)", 1, 0.5, 1.5);
@@ -141,7 +151,7 @@ void LQToTopMuHists::fill(const Event & event){
   // Don't forget to always use the weight when filling.
 
   double weight = event.weight;
-  
+
   std::vector<Jet>* jets = event.jets;
   int Njets = jets->size();
   hist("N_jets")->Fill(Njets, weight);
@@ -212,27 +222,34 @@ void LQToTopMuHists::fill(const Event & event){
   }
   hist("Pt_mu_sum")->Fill(sum_mu_pt,weight);
   hist("Pt_mu_sum_rebin")->Fill(sum_mu_pt,weight);
-  hist("Pt_mu1")->Fill(event.muons->at(0).pt(), weight);
-  hist("Pt_mu1_rebin")->Fill(event.muons->at(0).pt(), weight);
-
+  if(Nmuons>0){
+    hist("Pt_mu1")->Fill(event.muons->at(0).pt(), weight);
+    hist("Pt_mu1_rebin")->Fill(event.muons->at(0).pt(), weight);
+  }
 
   double pt_lept1 = 0, pt_lept2 = 0;
   if(event.electrons->size() > 1){
-    if(event.muons->at(0).pt()>event.electrons->at(0).pt()){
-      pt_lept1 = event.muons->at(0).pt();
-      if(event.muons->size() > 1){
-	if(event.muons->at(1).pt()>event.electrons->at(0).pt()) pt_lept2 = event.muons->at(1).pt();
+    if(event.muons->size() > 0){
+      if(event.muons->at(0).pt()>event.electrons->at(0).pt()) {
+	pt_lept1 = event.muons->at(0).pt();
+	if(event.muons->size() > 1){
+	  if(event.muons->at(1).pt()>event.electrons->at(0).pt()) pt_lept2 = event.muons->at(1).pt();
+	  else pt_lept2 = event.electrons->at(0).pt();
+	}
 	else pt_lept2 = event.electrons->at(0).pt();
       }
-      else pt_lept2 = event.electrons->at(0).pt();
+      else{
+	pt_lept1 = event.electrons->at(0).pt();
+	if(event.electrons->at(1).pt()>=event.muons->at(0).pt()) pt_lept2 = event.electrons->at(1).pt();
+	else pt_lept2 = event.muons->at(0).pt();
+      }
     }
-    else{
+    else {
       pt_lept1 = event.electrons->at(0).pt();
-      if(event.electrons->at(1).pt()>=event.muons->at(0).pt()) pt_lept2 = event.electrons->at(1).pt();
-      else pt_lept2 = event.muons->at(0).pt();
+      pt_lept2 = event.electrons->at(1).pt();
     }
   }
- if(event.electrons->size() == 1){
+  if(event.electrons->size() == 1 && event.muons->size() > 0){
     if(event.muons->at(0).pt()>event.electrons->at(0).pt()){
       pt_lept1 = event.muons->at(0).pt();
       if(event.muons->size() > 1){
@@ -246,15 +263,21 @@ void LQToTopMuHists::fill(const Event & event){
       pt_lept2 = event.muons->at(0).pt();
     }
   }
-  if(event.electrons->size() == 0){
-   pt_lept1 = event.muons->at(0).pt();
-   if(event.muons->size() > 1) pt_lept2 = event.muons->at(1).pt();
+  else if(event.electrons->size() == 1 && event.muons->size() == 0){
+    pt_lept1 = event.electrons->at(0).pt();
+    pt_lept2 = 0;
+  }
+  else if(event.electrons->size() == 0){
+    if(event.muons->size() > 0){
+      pt_lept1 = event.muons->at(0).pt();
+      if(event.muons->size() > 1) pt_lept2 = event.muons->at(1).pt();
+    }
   }
 
 
 
   hist("Pt_lept1")->Fill(pt_lept1,weight);
-  if(event.electrons->size()+event.muons->size() > 1)hist("Pt_lept2")->Fill(pt_lept2,weight);
+  if(event.electrons->size()+event.muons->size() > 1) hist("Pt_lept2")->Fill(pt_lept2,weight);
   hist("Pt_lept12")->Fill(pt_lept1+pt_lept2,weight);
   hist("Pt_lept12_rebin")->Fill(pt_lept1+pt_lept2,weight);
 
@@ -263,7 +286,7 @@ void LQToTopMuHists::fill(const Event & event){
     hist("pt_ele_zoom")->Fill(thisele.pt(), weight);
 
   }
-  
+
   int Npvs = event.pvs->size();
   hist("N_pv")->Fill(Npvs, weight);
   hist("N_pv_zoom")->Fill(Npvs, weight);
@@ -295,6 +318,8 @@ void LQToTopMuHists::fill(const Event & event){
   hist("H_T_from350")->Fill(ht, weight);
   if(ht <= 4000) hist("H_T_from350_all_filled")->Fill(ht, weight);
   else hist("H_T_from350_all_filled")->Fill(4000, weight);
+  if(ht <= 2900) hist("H_T_from350_all_filled_rebin")->Fill(ht, weight);
+  else hist("H_T_from350_all_filled_rebin")->Fill(2900, weight);
   hist("H_T_from350_rebin")->Fill(ht, weight);
   hist("H_T_from350_rebin2")->Fill(ht, weight);
   hist("H_T_rebin")->Fill(ht, weight);
@@ -335,11 +360,48 @@ void LQToTopMuHists::fill(const Event & event){
     }
   }
 
+  //M_ee
+  double M_ee;
+  const int Nele = event.electrons->size();
+  LorentzVector electrons[Nele];
+  for(int i=0; i<Nele; i++){
+    electrons[i] = event.electrons->at(i).v4();
+  }
+  for(int i=0; i<Nele; i++){
+    for(int j=0; j<Nele; j++){
+      if(j > i){
+	M_ee = (electrons[i] + electrons[j]).M();
+	hist("M_ee")->Fill(M_ee, weight);	
+      }
+    }
+  }
+
+  if(event.electrons->size() >= 2){
+    for(unsigned int i=0; i<event.electrons->size(); i++){
+      for(unsigned int j=0; j<event.electrons->size(); j++){
+	if(j<=i) continue;
+
+	double dr_ee = deltaR(event.electrons->at(i),event.electrons->at(j));
+	((TH2F*)hist("dR_ee_HT"))->Fill(ht,dr_ee,weight);
+      }
+    }
+  }
+
+  if(event.muons->size() >= 2){
+    for(unsigned int i=0; i<event.muons->size(); i++){
+      for(unsigned int j=0; j<event.muons->size(); j++){
+	if(j<=i) continue;
+
+	double dr_mumu = deltaR(event.muons->at(i),event.muons->at(j));
+	((TH2F*)hist("dR_mumu_HT"))->Fill(ht,dr_mumu,weight);
+      }
+    }
+  }
+
 
 
   //Fill HT, if Nele = 0, else
   //reconstruct MLQ and fill MLQmean
-  int Nele = event.electrons->size();
   if(Nele == 0){
     hist("H_T_comb_NoEle")->Fill(ht, weight);
     hist("H_T_comb_NoEle_from350")->Fill(ht, weight);
@@ -348,8 +410,10 @@ void LQToTopMuHists::fill(const Event & event){
     hist("H_T_comb_NoEle_rebin")->Fill(ht, weight);
     if(ht <= 2000) hist("H_T_comb_NoEle_rebin2")->Fill(ht, weight);
     else hist("H_T_comb_NoEle_rebin2")->Fill(2000., weight);
-    hist("Pt_mu1_NoEle")->Fill(event.muons->at(0).pt(), weight);
-    hist("Pt_mu1_NoEle_rebin")->Fill(event.muons->at(0).pt(), weight);
+    if(Nmuons>0){
+      hist("Pt_mu1_NoEle")->Fill(event.muons->at(0).pt(), weight);
+      hist("Pt_mu1_NoEle_rebin")->Fill(event.muons->at(0).pt(), weight);
+    }
     hist("Integral_NoEle")->Fill(1,weight);
   }
   
@@ -364,8 +428,6 @@ void LQToTopMuHists::fill(const Event & event){
       }
     }
   }
-  //if(charge_opposite) cout << "opposite charges detected" << endl;
-  //else cout << "NO opposite charges detected!!" << endl;
 
   if(Nele >= 1 && event.muons->size() >= 2 && charge_opposite){   
     std::vector<LQReconstructionHypothesis> hyps = event.get(h_hyps); 
@@ -442,9 +504,78 @@ void LQToTopMuHists::fill(const Event & event){
  
  
 
-
-
     hist("sum_event_weights")->Fill(1, weight);
+    if(is_mc){
+      for(const auto & ele : *event.electrons){
+	double type = -1;
+	double dr_min = 9999999;
+	for(const auto & gp : *event.genparticles){
+	  if(fabs(gp.pdgId()) == 11){
+	    double dr = deltaR(gp,ele);
+	    if(dr < dr_min){
+	      dr_min = dr;
+	    }
+	  }
+	}
+	if(dr_min <= 0.1) type = 0;
+	else type = 1;
+	hist("ele_type")->Fill(type,weight);
+
+	//consider only fake leptons
+	if(type == 1){
+	  //search for jets within 0.4
+	  int idx_matching_jet = -1;
+	  for(unsigned int i=0; i<event.jets->size(); i++){
+	    double dr = deltaR(ele,event.jets->at(i));
+	    if(dr < 0.4){
+	      idx_matching_jet = i;
+	    }
+	  }
+
+	  //-1 is filled in case no jet could be matched to the fake lepton
+	  double faking_pt = -1;
+	  if(idx_matching_jet > -1) faking_pt = event.jets->at(idx_matching_jet).pt();
+	  hist("jets_faking_ele_pt")->Fill(faking_pt,weight);
+	}
+      }
+
+      for(const auto & mu : *event.muons){
+	double type = -1;
+	double dr_min = 9999999;
+	for(const auto & gp : *event.genparticles){
+	  if(fabs(gp.pdgId()) == 13){
+	    double dr = deltaR(gp,mu);
+	    if(dr < dr_min){
+	      dr_min = dr;
+	    }
+	  }
+	}
+	if(dr_min <= 0.1) type = 0;
+	else type = 1;
+	hist("mu_type")->Fill(type,weight);
+
+	//consider only fake leptons
+	if(type == 1){
+	  //search for jets within 0.4
+	  int idx_matching_jet = -1;
+	  for(unsigned int i=0; i<event.jets->size(); i++){
+	    double dr = deltaR(mu,event.jets->at(i));
+	    if(dr < 0.4){
+	      idx_matching_jet = i;
+	    }
+	  }
+
+	  //-1 is filled in case no jet could be matched to the fake lepton
+	  double faking_pt = -1;
+	  if(idx_matching_jet > -1) faking_pt = event.jets->at(idx_matching_jet).pt();
+	  hist("jets_faking_mu_pt")->Fill(faking_pt,weight);
+	}
+      }
+
+
+
+    }
+
 
 } //Methode
 

@@ -25,6 +25,7 @@ public:
 
   private:
     bool is_mc = false;
+    double bins_from350[21] = {0,175,350,525,700,875,1050,1225,1400,1575,1750,1925,2100,2275,2450,2625,2800,2975,3325,3675,4200}; //same binning as _from350 up to 2975, then two double-size and one triple-size bin
 
 };
 

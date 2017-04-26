@@ -41,8 +41,9 @@ bool LQPrimaryLepton::process(uhh2::Event & event) {
 LQPrimaryLepton::~LQPrimaryLepton() {}
 
 HighMassLQReconstruction::HighMassLQReconstruction(Context & ctx, const NeutrinoReconstructionMethod & neutrinofunction, const string & label): m_neutrinofunction(neutrinofunction) {
-    h_recohyps = ctx.declare_event_output<vector<LQReconstructionHypothesis>>(label);
-    h_primlep = ctx.get_handle<FlavorParticle>("LQPrimaryLepton");
+  //h_recohyps = ctx.declare_event_output<vector<LQReconstructionHypothesis>>(label);
+  h_recohyps = ctx.get_handle<vector<LQReconstructionHypothesis>>(label);
+  h_primlep = ctx.get_handle<FlavorParticle>("LQPrimaryLepton");
 }
 
 HighMassLQReconstruction::~HighMassLQReconstruction() {}
@@ -173,7 +174,6 @@ bool HighMassLQReconstruction::process(uhh2::Event & event) {
 	      if(hyp.tophad_jets().size()==0) cout << "This is hypothesis no. " << n_final_hyps+1 << " and 0 jets are assinged to the hadronic hyp" << endl;
 	      recoHyps.emplace_back(move(hyp));
 	      n_final_hyps++;
-	
 
 	    } // 1 muon per top
 	  } // muon combs for-loop

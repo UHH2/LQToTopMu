@@ -9,12 +9,6 @@ sys.path.append('/nfs/dust/cms/user/tholenhe/installs/varial-stable/Varial')
 
 sys_uncerts = {
     # 'name' : {'item name': 'item value', ...},
-     'SCALE_upup'            : {'ScaleVariationMuR':'up','ScaleVariationMuF':'up'},
-     'SCALE_upnone'          : {'ScaleVariationMuR':'up','ScaleVariationMuF':'none'},
-     'SCALE_noneup'          : {'ScaleVariationMuR':'none','ScaleVariationMuF':'up'},
-     'SCALE_nonedown'        : {'ScaleVariationMuR':'none','ScaleVariationMuF':'down'},
-     'SCALE_downnone'        : {'ScaleVariationMuR':'down','ScaleVariationMuF':'none'},
-     'SCALE_downdown'        : {'ScaleVariationMuR':'down','ScaleVariationMuF':'down'},
      'PU_up'                 : {'Systematic_PU':'up'},
      'PU_down'               : {'Systematic_PU':'down'},
      'MUID_up'               : {'Systematic_MuonID':'up'},
