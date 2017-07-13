@@ -71,6 +71,10 @@ namespace uhh2examples {
     ElectronId EleId, EleLoose, EleTight;
 
     bool is_mc, is_mu_e, is_e_e;
+    TString Sys_EleFakeRate, path_EleFakeRate, Sys_MuFakeRate, path_MuFakeRate;
+
+    uhh2::Event::Handle<vector<Jet>> h_raw_jets_ele, h_raw_jets_mu;   
+    uhh2::Event::Handle<vector<Particle>> h_raw_genjets_ele, h_raw_genjets_mu;
   };
 
 

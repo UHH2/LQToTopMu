@@ -6,6 +6,7 @@
 #include "UHH2/LQToTopMu/include/LQReconstructionHypothesisDiscriminators.h"
 #include "UHH2/LQToTopMu/include/LQReconstructionHypothesis.h"
 #include "UHH2/LQToTopMu/include/LQGen.h"
+#include "UHH2/common/include/PDFWeights.h" 
 
 
 namespace uhh2examples {
@@ -20,7 +21,7 @@ namespace uhh2examples {
 class LQToTopMuPDFHists: public uhh2::Hists {
 public:
     // use the same constructor arguments as Hists for forwarding:
-    LQToTopMuPDFHists(uhh2::Context & ctx, const std::string & dirname, bool use_pdf_weights_ = false);
+    LQToTopMuPDFHists(uhh2::Context & ctx, const std::string & dirname, bool use_ntupleweights_, bool use_pdf_weights_ = false);
 
     virtual void fill(const uhh2::Event & ev) override;
     std::string histo_names[100];
@@ -30,9 +31,12 @@ public:
 
   protected:
     uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_hyps;
+    uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_muonic_hyps;
     std::string m_discriminator_name;
-    bool use_pdf_weights;
-    bool is_mc;
+    bool use_ntupleweights, use_pdf_weights;
+    bool is_mc, is_LO, take_ntupleweights;
+    TString m_oname;
+    std::unique_ptr<PDFWeights> m_pdfweights;
 
 
     virtual ~LQToTopMuPDFHists();

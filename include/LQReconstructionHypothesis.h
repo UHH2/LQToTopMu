@@ -24,7 +24,9 @@ public:
   LorentzVector whad2_v4() const{return m_whad2_v4;}
   LorentzVector neutrino_v4() const{return m_neutrino_v4;} 
   Particle electron() const{return m_electron;}
+  Particle muon() const{return m_muon;}
   LorentzVector electron_v4() const{return m_electron_v4;}
+  LorentzVector muon_v4() const{return m_muon_v4;}
   LorentzVector mu_lep_v4() const{return m_mu_lep_v4;}
   LorentzVector mu_had_v4() const{return m_mu_had_v4;}
   LorentzVector mu_had1_v4() const{return m_mu_had1_v4;}
@@ -80,12 +82,14 @@ public:
   void add_whad1_jet(const Particle & j){m_whad1_jets.push_back(j);}
   void add_whad2_jet(const Particle & j){m_whad2_jets.push_back(j);}
   void set_electron(const Particle & l){m_electron = l;}
+  void set_muon(const Particle & l){m_muon = l;}
   void set_mu_lep(const Particle & l){m_mu_lep = l;}
   void set_mu_had(const Particle & l){m_mu_had = l;}
   void set_mu_had1(const Particle & l){m_mu_had1 = l;}
   void set_mu_had2(const Particle & l){m_mu_had2 = l;}
 
   void set_electron_v4(LorentzVector v4){m_electron_v4=v4;}
+  void set_muon_v4(LorentzVector v4){m_muon_v4=v4;}
   void set_mu_lep_v4(LorentzVector v4){m_mu_lep_v4=v4;}
   void set_mu_had_v4(LorentzVector v4){m_mu_had_v4=v4;}
   void set_mu_had1_v4(LorentzVector v4){m_mu_had1_v4=v4;}
@@ -106,6 +110,7 @@ private:
   LorentzVector m_neutrino_v4;
 
   LorentzVector m_electron_v4;
+  LorentzVector m_muon_v4;
   LorentzVector m_mu_lep_v4;
   LorentzVector m_mu_had_v4;
   LorentzVector m_mu_had1_v4;
@@ -122,6 +127,7 @@ private:
   std::vector<Particle> m_whad2_jets;
   std::vector<Particle> m_toplep_jets;
   Particle m_electron;
+  Particle m_muon;
   Particle m_mu_lep;
   Particle m_mu_had;
   Particle m_mu_had1;

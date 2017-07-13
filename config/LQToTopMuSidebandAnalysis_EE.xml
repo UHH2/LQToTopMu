@@ -3,14 +3,15 @@
 
 
 	  <!ENTITY TargetLumi      "35867">
-	  <!ENTITY SELdir          "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/TTbarSideband/EE_Channel/Optimization/&TargetLumi;fb_Iso27_NonIso115">
+	  <!ENTITY SELdir          "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/TTbarSideband/EE_Channel/Optimization/&TargetLumi;fb_AllWeights">
 	  <!ENTITY b_Cacheable     "False">
 	  <!ENTITY NEVT            "-1">
-	  <!ENTITY PRESELdir       "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/TTbarSideband/EE_Channel/Preselection/&TargetLumi;fb_TriggerComb"> 
+	  <!ENTITY PRESELdir       "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/TTbarSideband/EE_Channel/Preselection/&TargetLumi;fb_Iso27_NonIso115"> 
 	  <!ENTITY PRESELfilename  "uhh2.AnalysisModuleRunner"> 
 	  <!ENTITY PROOFdir        "/nfs/dust/cms/user/reimersa/.proof2">
 	  <!ENTITY CHANNEL         "e_e">
-	  <!ENTITY WEIGHT_PATH     "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/TTbarSideband/EE_Channel/Optimization/&TargetLumi;fb_Iso27_NonIso115/ExtrapolationFunction_TTbarDY.root">
+	  <!ENTITY WEIGHT_PATH     "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/TTbarSideband/EE_Channel/Optimization/&TargetLumi;fb_AllWeights/NOMINAL/ExtrapolationFunction_TTbarDY.root">
+	  <!ENTITY APPLY_ALPHA     "true">
 
 
 
@@ -55,6 +56,9 @@
 <!ENTITY WW   "&PRESELdir;/&PRESELfilename;.MC.Diboson_WW.root">
 <!ENTITY WZ   "&PRESELdir;/&PRESELfilename;.MC.Diboson_WZ.root">
 <!ENTITY ZZ   "&PRESELdir;/&PRESELfilename;.MC.Diboson_ZZ.root">
+
+<!ENTITY TTW   "&PRESELdir;/&PRESELfilename;.MC.TTV_W.root">
+<!ENTITY TTZ   "&PRESELdir;/&PRESELfilename;.MC.TTV_Z.root">
  
 <!ENTITY QCD_EM_PT20to30    "&PRESELdir;/&PRESELfilename;.MC.QCD_EM_PT20to30.root">
 <!ENTITY QCD_EM_PT30to50    "&PRESELdir;/&PRESELfilename;.MC.QCD_EM_PT30to50.root">
@@ -84,7 +88,7 @@
 ]>
 
 <!--
-<ConfigParse NEventsBreak="30000" FileSplit="0" AutoResubmit="5"/>
+<ConfigParse NEventsBreak="20000" FileSplit="0" AutoResubmit="5"/>
 <ConfigSGE RAM ="4" DISK ="3" Mail="arne.reimers@desy.de" Notification="as" Workdir="workdir_CR"/>
 -->
 
@@ -105,7 +109,7 @@
 <Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="&SELdir;/"  PostFix="" TargetLumi="&TargetLumi;">
 <!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="&SELdir;/" PostFix="" TargetLumi="&TargetLumi;" RunMode="PROOF" ProofServer="lite://" ProofWorkDir="&PROOFdir;/" ProofNodes="12">-->
 
-
+<!--
   <InputData Lumi="1" NEventsMax="-1" Type="DATA" Version="DATA_B" Cacheable="&b_Cacheable;">
     <In FileName="&DATA_B;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
@@ -157,14 +161,14 @@
     <In FileName="&LQtoTMuM400;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
   </InputData>
-
+-->
 <!-- 
   <InputData Lumi="151116.9" NEventsMax="&NEVT;" Type="MC" Version="LQtoTMuM500" Cacheable="&b_Cacheable;">
     <In FileName="&LQtoTMuM500;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" /> 
   </InputData> 
 -->
-
+<!--
   <InputData Lumi="442508.9" NEventsMax="&NEVT;" Type="MC" Version="LQtoTMuM600" Cacheable="&b_Cacheable;">
     <In FileName="&LQtoTMuM600;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
@@ -215,7 +219,7 @@
   
 
 
-
+-->
   <InputData Lumi="186543.350" NEventsMax="-1" Type="MC" Version="TTbar" Cacheable="&b_Cacheable;">
     <In FileName="&TTbar;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
@@ -311,7 +315,7 @@
   </InputData>
 
 
-
+<!--
   <InputData Lumi="8374.195" NEventsMax="&NEVT;" Type="MC" Version="Diboson_WW" Cacheable="&b_Cacheable;">
     <In FileName="&WW;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
@@ -326,8 +330,20 @@
     <In FileName="&ZZ;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
   </InputData>
- 
+-->
 
+
+  <InputData Lumi="8643416.5" NEventsMax="&NEVT;" Type="MC" Version="TTV_W" Cacheable="&b_Cacheable;">
+    <In FileName="&TTW;" Lumi="0.0"/>
+    <InputTree Name="AnalysisTree" />
+  </InputData> 
+
+  <InputData Lumi="13875840.3" NEventsMax="&NEVT;" Type="MC" Version="TTV_Z" Cacheable="&b_Cacheable;">
+    <In FileName="&TTZ;" Lumi="0.0"/>
+    <InputTree Name="AnalysisTree" />
+  </InputData> 
+ 
+<!--
   <InputData Lumi="457.7" NEventsMax="&NEVT;" Type="MC" Version="QCD_EM_PT120to170" Cacheable="&b_Cacheable;">
     <In FileName="&QCD_EM_PT120to170;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
@@ -353,7 +369,7 @@
     <In FileName="&QCD_bcE_PT170to250;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
   </InputData>
-
+-->
 <!--
   <InputData Lumi="1.772" NEventsMax="&NEVT;" Type="MC" Version="QCD_EM_PT20to30" Cacheable="&b_Cacheable;">
     <In FileName="&QCD_EM_PT20to30;" Lumi="0.0"/>
@@ -460,21 +476,32 @@
 	    <Item Name="MCBtagEfficiencies" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/BTagMCEfficiencyHists/&TargetLumi;fb_BTagMCEfficiencyHists_TTbarSideband_EE_Iso27_NonIso115.root" />
 	    <Item Name="BTagCalibration" Value="/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/CSVv2_Moriond17_B_H.csv" />
 
+	    <Item Name="PDFWeightPath" Value="/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/PDFWeights/" />
+
 	    <Item Name="channel" Value="&CHANNEL;"/>
 
 
 	    <Item Name="filepath_alpha"         Value="&WEIGHT_PATH;" />
+	    <Item Name="Apply_Alpha"            Value="&APPLY_ALPHA;" />
 	    <Item Name="ScaleVariationMuR"      Value="none" />
 	    <Item Name="ScaleVariationMuF"      Value="none" />
 	    <Item Name="b_PDFUncertainties"     Value="true" />
 	    <Item Name="Systematic_MuonID"      Value="nominal" />
-	    <Item Name="Systematic_MuonTrigger" Value="nominal" />
 	    <Item Name="Systematic_MuonIso"     Value="nominal" />
+	    <Item Name="Systematic_MuonTrigger" Value="nominal" />
+	    <Item Name="Systematic_MuonTrk"     Value="nominal" />
 	    <Item Name="Systematic_EleID"       Value="nominal" />
 	    <Item Name="Systematic_EleReco"     Value="nominal" />
 	    <Item Name="Systematic_EleTrigger"  Value="nominal" />
 	    <Item Name="Systematic_BTag"        Value="central" />
 	    <Item Name="Systematic_PU"          Value="central" />
+	    <Item Name="Systematic_TTbar"       Value="nominal" />
+	    <Item Name="Systematic_DY"          Value="nominal" />
+	    <Item Name="Systematic_ST"          Value="nominal" />
+	    <Item Name="Systematic_WJ"          Value="nominal" />
+	    <Item Name="Systematic_DB"          Value="nominal" />
+	    <Item Name="Systematic_QCD"         Value="nominal" />
+	    <Item Name="Systematic_TTV"         Value="nominal" />
 
             
             <!-- Some test configuration; see LQToTopMuModule.cxx for how to access it: -->

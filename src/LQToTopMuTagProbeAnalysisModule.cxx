@@ -71,7 +71,8 @@ namespace uhh2examples {
       h_isotrigger, h_jets_isotrigger, h_ele_isotrigger, h_mu_isotrigger, h_event_isotrigger,h_topjets_isotrigger, h_eff_isotrigger, h_tagprobe_isotrigger,
       h_nonisotrigger, h_jets_nonisotrigger, h_ele_nonisotrigger, h_mu_nonisotrigger, h_event_nonisotrigger, h_topjets_nonisotrigger, h_eff_nonisotrigger, h_tagprobe_nonisotrigger,
       h_isotrigger_plateau, h_jets_isotrigger_plateau, h_ele_isotrigger_plateau, h_mu_isotrigger_plateau, h_event_isotrigger_plateau,h_topjets_isotrigger_plateau, h_eff_isotrigger_plateau, h_tagprobe_isotrigger_plateau,
-      h_nonisotrigger_plateau, h_jets_nonisotrigger_plateau, h_ele_nonisotrigger_plateau, h_mu_nonisotrigger_plateau, h_event_nonisotrigger_plateau, h_topjets_nonisotrigger_plateau, h_eff_nonisotrigger_plateau, h_tagprobe_nonisotrigger_plateau,
+      h_nonisotrigger_plateau, h_jets_nonisotrigger_plateau, h_ele_nonisotrigger_plateau, h_mu_nonisotrigger_plateau, h_event_nonisotrigger_plateau, h_topjets_nonisotrigger_plateau, h_eff_nonisotrigger_plateau, h_tagprobe_nonisotrigger_plateau,     
+      h_30plateau, h_jets_30plateau, h_ele_30plateau, h_mu_30plateau, h_event_30plateau, h_topjets_30plateau, h_eff_30plateau, h_tagprobe_30plateau,
       h_30to110plateau, h_jets_30to110plateau, h_ele_30to110plateau, h_mu_30to110plateau, h_event_30to110plateau, h_topjets_30to110plateau, h_eff_30to110plateau, h_tagprobe_30to110plateau,
       h_110plateau, h_jets_110plateau, h_ele_110plateau, h_mu_110plateau, h_event_110plateau, h_topjets_110plateau, h_eff_110plateau, h_tagprobe_110plateau,
       h_plateau, h_jets_plateau, h_ele_plateau, h_mu_plateau, h_event_plateau, h_topjets_plateau, h_eff_plateau, h_tagprobe_plateau;
@@ -113,8 +114,8 @@ namespace uhh2examples {
     // 1. setup other modules. CommonModules and the JetCleaner:
     MuId = AndId<Muon>(MuonIDTight(),PtEtaCut(30.0, 2.4),MuonIso(0.15));
     EleId = AndId<Electron>(ElectronID_Spring16_tight,PtEtaCut(10.0, 2.4));
-    EleId_trig1 = AndId<Electron>(ElectronID_Spring16_tight,PtEtaCut(30.0, 2.4));
-    EleId_trig2 = AndId<Electron>(ElectronID_Spring16_tight,PtEtaCut(120.0, 2.4)); //110
+    EleId_trig1 = AndId<Electron>(ElectronID_Spring16_tight,PtEtaCut(30.0, 2.4)); //30
+    EleId_trig2 = AndId<Electron>(ElectronID_Spring16_tight,PtEtaCut(120.0, 2.4)); 
     jetcleaner.reset(new JetCleaner(ctx,30.0, 2.5));
 
 
@@ -132,7 +133,7 @@ namespace uhh2examples {
 
     SF_eleReco.reset(new MCElecScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/egammaEffi.txt_EGM2D_RecEff_Moriond17.root", 1, "", Sys_EleReco));
     SF_eleID.reset(new MCElecScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/egammaEffi.txt_EGM2D_CutBased_Loose_ID.root", 1, "", Sys_EleID));
-    SF_eleTrigger.reset(new ElectronTriggerWeights(ctx, "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/TagProbe/Optimization/35867fb_Iso27_NonIso115/ElectronTriggerSF.root", Sys_EleTrigger));
+    SF_eleTrigger.reset(new ElectronTriggerWeights(ctx, "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/TagProbe/Optimization/35867fb_Iso27_NonIso115/ElectronEfficiencies.root", Sys_EleTrigger));
     
     h_hyps = ctx.get_handle<vector<LQReconstructionHypothesis>>("HighMassLQReconstruction");
 
@@ -247,7 +248,16 @@ namespace uhh2examples {
     h_event_nonisotrigger_plateau.reset(new EventHists(ctx, "Event_NonIsoTrigger_Plateau"));
     h_topjets_nonisotrigger_plateau.reset(new TopJetHists(ctx, "TopJets_NonIsoTrigger_Plateau"));
     h_eff_nonisotrigger_plateau.reset(new LQToTopMuEfficiencyHists(ctx, "Eff_NonIsoTrigger_Plateau"));    
-    h_tagprobe_nonisotrigger_plateau.reset(new LQToTopMuTagProbeHists(ctx, "TagProbe_NonIsoTrigger_Plateau"));  
+    h_tagprobe_nonisotrigger_plateau.reset(new LQToTopMuTagProbeHists(ctx, "TagProbe_NonIsoTrigger_Plateau")); 
+ 
+    h_30plateau.reset(new LQToTopMuHists(ctx, "30Plateau"));
+    h_jets_30plateau.reset(new JetHists(ctx, "Jets_30Plateau"));
+    h_ele_30plateau.reset(new ElectronHists(ctx, "Ele_30Plateau"));
+    h_mu_30plateau.reset(new MuonHists(ctx, "Mu_30Plateau"));
+    h_event_30plateau.reset(new EventHists(ctx, "Event_30Plateau"));
+    h_topjets_30plateau.reset(new TopJetHists(ctx, "TopJets_30Plateau"));
+    h_eff_30plateau.reset(new LQToTopMuEfficiencyHists(ctx, "Eff_30Plateau"));    
+    h_tagprobe_30plateau.reset(new LQToTopMuTagProbeHists(ctx, "TagProbe_30Plateau"));  
 
     h_30to110plateau.reset(new LQToTopMuHists(ctx, "30to110Plateau"));
     h_jets_30to110plateau.reset(new JetHists(ctx, "Jets_30to110Plateau"));
@@ -379,7 +389,7 @@ namespace uhh2examples {
       SF_eleTrigger->process(event);
     }
 
-
+    if(event.electrons->at(0).pt() < 30) cout << "Hello, this ele has pt < 30" << endl;
 
 
 
@@ -434,6 +444,17 @@ namespace uhh2examples {
       h_topjets_nonisotrigger_plateau->fill(event);
       h_eff_nonisotrigger_plateau->fill(event);
       h_tagprobe_nonisotrigger_plateau->fill(event);
+    }
+
+    if(nele_sel_trig1->passes(event)){
+      h_30plateau->fill(event);
+      h_jets_30plateau->fill(event);
+      h_ele_30plateau->fill(event);
+      h_mu_30plateau->fill(event);
+      h_event_30plateau->fill(event);
+      h_topjets_30plateau->fill(event);
+      h_eff_30plateau->fill(event);
+      h_tagprobe_30plateau->fill(event);
     }
 
     if(nele_sel_trig1->passes(event) && !nele_sel_trig2->passes(event)){

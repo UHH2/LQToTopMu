@@ -48,6 +48,8 @@ namespace uhh2examples {
     unique_ptr<ElectronCleaner> electroncleaner;
 
     unique_ptr<AnalysisModule> syst_module, SF_muonID, SF_muonTrigger, SF_muonIso;
+    unique_ptr<ElectronFakeRateWeights> SF_eleFakeRate;
+    unique_ptr<MuonFakeRateWeights> SF_muFakeRate;
   
     // declare the Selections to use.
     unique_ptr<Selection> njet_sel, nmuon_sel, n_gen_muon_sel, nele_sel, n_gen_ele_sel, ht_sel, lumi_sel, mu1_sel, trigger_sel, trigger_sel1, trigger_sel2, mttbargen_sel;
@@ -66,9 +68,21 @@ namespace uhh2examples {
 
     MuonId MuId;
     ElectronId EleId;
-    JetId Btag_loose;
+    JetId Btag_loose, Jet_ID;
 
     bool is_mc, is_foreff;
+    TString Sys_EleFakeRate, path_EleFakeRate, Sys_MuFakeRate, path_MuFakeRate;
+
+    uhh2::Event::Handle<vector<Jet>> h_raw_jets_ele, h_raw_jets_mu;   
+    uhh2::Event::Handle<vector<Particle>> h_raw_genjets_ele, h_raw_genjets_mu;
+
+
+    uhh2::Event::Handle<double> FakeRateWeightEle;
+    uhh2::Event::Handle<double> FakeRateWeightEleUp;
+    uhh2::Event::Handle<double> FakeRateWeightEleDown;
+    uhh2::Event::Handle<double> FakeRateWeightMu;
+    uhh2::Event::Handle<double> FakeRateWeightMuUp;
+    uhh2::Event::Handle<double> FakeRateWeightMuDown;
   };
 
 
@@ -85,9 +99,12 @@ namespace uhh2examples {
     if(!is_foreff)EleId = AndId<Electron>(ElectronID_Spring16_loose, PtEtaCut(30.0, 2.4));
     else          EleId = AndId<Electron>(ElectronID_Spring16_tight, PtEtaCut(30.0, 2.4));
     MuId = AndId<Muon>(MuonIDTight(), PtEtaCut(30.0, 2.4),MuonIso(0.15));
+    Jet_ID = AndId<Jet>(JetPFID(JetPFID::WP_LOOSE), PtEtaCut(30.0, 2.5));
     Btag_loose = CSVBTag(CSVBTag::WP_LOOSE);
 
     is_mc = ctx.get("dataset_type") == "MC";
+    Sys_EleFakeRate = ctx.get("Systematic_EleFakeRate");
+    Sys_MuFakeRate = ctx.get("Systematic_MuFakeRate");
 
     common.reset(new CommonModules());
    
@@ -95,12 +112,28 @@ namespace uhh2examples {
     common->set_electron_id(EleId);
     common->set_muon_id(MuId);
     common->init(ctx);
-    jetcleaner.reset(new JetCleaner(ctx,30.0, 2.5));
+    jetcleaner.reset(new JetCleaner(ctx,Jet_ID));
+    electroncleaner.reset(new ElectronCleaner(EleId));
+    muoncleaner.reset(new MuonCleaner(MuId));
     syst_module.reset(new MCScaleVariation(ctx));
     //SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_20/src/UHH2/common/data/MuonID_Z_RunBCD_prompt80X_7p65.root", "NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1", 1, "tightID")); 
     //SF_muonTrigger.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_20/src/UHH2/common/data/SingleMuonTrigger_Z_RunBCD_prompt80X_7p65.root", "IsoMu22_OR_IsoTkMu22_PtEtaBins_Run274094_to_Run276097", 0.5, "trigger"));
     //SF_muonIso.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_20/src/UHH2/common/data/MuonIso_Z_RunBCD_prompt80X_7p65.root", "NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1", 1, "iso"));
 
+
+
+
+
+    h_raw_jets_ele = ctx.get_handle<vector<Jet>>("RawJetsEle");
+    h_raw_genjets_ele = ctx.get_handle<vector<Particle>>("RawGenJetsEle");
+    h_raw_jets_mu = ctx.get_handle<vector<Jet>>("RawJetsMu");
+    h_raw_genjets_mu = ctx.get_handle<vector<Particle>>("RawGenJetsMu");
+
+
+    path_EleFakeRate = "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/ElectronFakeRate/Optimization/35867fb_Final/ElectronFakeRateSF_TTV.root";
+    SF_eleFakeRate.reset(new ElectronFakeRateWeights(ctx, JERFiles::Summer16_23Sep2016_V4_L123_AK4PFchs_MC, path_EleFakeRate, Sys_EleFakeRate, "RawJetsEle", "RawGenJetsEle"));    
+    path_MuFakeRate = "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/ElectronFakeRate/Optimization/35867fb_Final_Muon/MuonFakeRateSF_TTV.root";
+    SF_muFakeRate.reset(new MuonFakeRateWeights(ctx, path_MuFakeRate, Sys_MuFakeRate));
 
     // 2. set up selections
 
@@ -113,7 +146,7 @@ namespace uhh2examples {
     n_gen_muon_sel.reset(new NGenMuonSelection(2, -1)); 
     nele_sel.reset(new NElectronSelection(2, -1)); 
     n_gen_ele_sel.reset(new NGenElectronSelection(2, -1)); 
-    ht_sel.reset(new HtSelection(350)); 
+    ht_sel.reset(new HtSelection(350));  //350
     lumi_sel.reset(new LumiSelection(ctx));
     mttbargen_sel.reset(new MttbarGenSelection(0,700));
 
@@ -180,6 +213,14 @@ namespace uhh2examples {
     h_lumi_2mu.reset(new LuminosityHists(ctx, "Lumi_2Mu"));
 
 
+
+    FakeRateWeightEle = ctx.declare_event_output<double>("FakeRateWeightEle");
+    FakeRateWeightEleUp = ctx.declare_event_output<double>("FakeRateWeightEleUp");
+    FakeRateWeightEleDown = ctx.declare_event_output<double>("FakeRateWeightEleDown");
+    FakeRateWeightMu = ctx.declare_event_output<double>("FakeRateWeightMu");
+    FakeRateWeightMuUp = ctx.declare_event_output<double>("FakeRateWeightMuUp");
+    FakeRateWeightMuDown = ctx.declare_event_output<double>("FakeRateWeightMuDown");
+
   }
 
 
@@ -210,11 +251,46 @@ namespace uhh2examples {
     h_topjets_trigger->fill(event);
     h_lumi_trigger->fill(event);
 
+    // apply fake rate weights for electrons and muons
+    if(is_mc){
+
+      //electrons
+      vector<Jet> raw_jets;
+      for(unsigned int i=0; i<event.jets->size(); i++){
+	Jet jet = event.jets->at(i);
+	raw_jets.push_back(jet);
+      }
+      event.set(h_raw_jets_ele,move(raw_jets));
+
+      vector<Particle> gen_jets;
+      for(unsigned int i=0; i<event.genjets->size(); i++){
+	Particle jet = event.genjets->at(i);
+	gen_jets.push_back(jet);
+      }
+      event.set(h_raw_genjets_ele,move(gen_jets));
+
+      electroncleaner->process(event);
+      SF_eleFakeRate->process(event);
+
+      //muons
+      muoncleaner->process(event);
+      SF_muFakeRate->process(event);
+    }
+    else{
+      event.set(FakeRateWeightEle,1.);
+      event.set(FakeRateWeightEleUp,1.);
+      event.set(FakeRateWeightEleDown,1.);
+      event.set(FakeRateWeightMu,1.);
+      event.set(FakeRateWeightMuUp,1.);
+      event.set(FakeRateWeightMuDown,1.);
+    }
+
+
+
+
     bool pass_common = common->process(event);
     if(!pass_common) return false;
     jetcleaner->process(event);
-    //SF_muonID->process(event);
-    //SF_muonIso->process(event);
 
     h_cleaner->fill(event);
     h_jets_cleaner->fill(event);
@@ -271,7 +347,6 @@ namespace uhh2examples {
     h_event_2mu->fill(event);
     h_topjets_2mu->fill(event);
     h_lumi_2mu->fill(event);
-
     return true;
   }
   

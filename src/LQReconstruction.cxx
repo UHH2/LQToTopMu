@@ -187,6 +187,203 @@ bool HighMassLQReconstruction::process(uhh2::Event & event) {
 
 
 
+HighMassMuonicLQReconstruction::HighMassMuonicLQReconstruction(Context & ctx, const NeutrinoReconstructionMethod & neutrinofunction, const string & label): m_neutrinofunction(neutrinofunction) {
+  h_recohyps = ctx.get_handle<vector<LQReconstructionHypothesis>>(label);
+}
+
+HighMassMuonicLQReconstruction::~HighMassMuonicLQReconstruction() {}
+
+bool HighMassMuonicLQReconstruction::process(uhh2::Event & event) {
+    assert(event.jets);
+    assert(event.met);
+    int n_final_hyps = 0;
+
+    //requirements: ==3 muons, 1 pair with opposite charges
+
+    //find primary charged lepton, in this case it is a muon!
+    //take one muon out of exactly 3, in that case, there are only two possible choices, as the remaining muons have to have opposite charges
+    if(event.muons->size() != 3) throw runtime_error("In MuonicLQReconstruction: There are != 3 muons in the event, this is forbidden for this reco-method.");
+
+    //sum should be either +1 or -1, if there is a pair with opposite charges as required by the reco
+    double sum_charges = 0;
+    for(const auto & mu : *event.muons){
+      sum_charges += mu.charge();
+    }
+    if(fabs(sum_charges) != 1) throw runtime_error("In MuonicLQReconstruction: All muons have the same charge. Should not be the case.");
+
+    //find muons with same charges, one of these must come from W if our assumption is correct. Must be ==2 candidates
+    vector<Particle> muon_candidates;
+    vector<bool> used_as_candidate;
+    int inx=0;
+    for(const auto & mu : *event.muons){
+      bool used = false;
+      if(sum_charges > 0){
+	if(mu.charge() > 0){
+	  muon_candidates.push_back(mu);
+	  used = true;
+	}
+      }
+      else{
+	if(mu.charge() < 0){
+	  muon_candidates.push_back(mu);
+	  used = true;
+	}
+      }
+      used_as_candidate.push_back(used);
+      inx++;
+    }
+    if(muon_candidates.size() != 2) throw runtime_error("In MuonicLQReconstruction: Not ==2 muon candidates. Should have been prohibited by earlier runtime_error-conditions...");
+
+    std::vector<LQReconstructionHypothesis> recoHyps;
+
+    //loop over possible muon candidates
+    for(int m=0; m<2; m++){
+
+      unsigned int current_muon = 99;
+      const Particle muon = muon_candidates.at(m);
+      LorentzVector muon_v4 = muon.v4();
+      if(m == 0){
+	if(used_as_candidate[0]) current_muon = 0;
+	else if(used_as_candidate[1]) current_muon = 1;
+	else throw runtime_error("In MuonicLQReconstruction: Neither the first nor the second entry of used_as_candidate is 'true'. There are 2 candidates out of 3 muons, two entries should be true, which is not possible anymore.");
+      }
+      else if(m==1){
+	if(used_as_candidate[0] && used_as_candidate[1]) current_muon = 1;
+	else if(used_as_candidate[0] && !used_as_candidate[1] && used_as_candidate[2]) current_muon = 2;
+	else if(!used_as_candidate[0] && used_as_candidate[1] && used_as_candidate[2]) current_muon = 2;
+	else throw runtime_error("In MuonicLQReconstruction: Couldn't find second muon-candidate.");
+      }
+
+      //reconstruct neutrino
+      std::vector<LorentzVector> neutrinos = m_neutrinofunction( muon.v4(), event.met->v4());
+
+      unsigned int n_muons = event.muons->size();
+      unsigned int n_jets = event.jets->size();
+      if(n_jets>7) n_jets=7; //avoid crashes in events with many jets
+      // idea: loop over 3^Njet possibilities and write the current loop
+      // index j in the 3-base system. The Njets digits represent whether
+      // to assign each jet to the hadronic side (0), leptonic side (1),
+      // or none of them (2).
+      const unsigned int max_j = pow(3, n_jets); 
+
+      //loop over neutrino solutions and jet assignments to fill hyotheses
+      for(const auto & neutrino_p4 : neutrinos) {
+	const LorentzVector wlep_v4 = muon.v4() + neutrino_p4;
+	for (unsigned int j=0; j < max_j; j++) {
+	  LorentzVector tophad_v4;
+	  LorentzVector toplep_v4 = wlep_v4;
+	  int hadjets=0;
+	  int lepjets=0;
+	  int num = j;
+	  LQReconstructionHypothesis hyp;
+	  //hyp.set_muon(muon);
+	  //hyp.set_muon_v4(muon_v4);
+	  //hyp.set_neutrino_v4(neutrino_p4);
+	  vector<Particle> had_jets, lep_jets;
+	  for (unsigned int k=0; k<n_jets; k++) {
+	    if(num%3==0) {
+	      tophad_v4 = tophad_v4 + event.jets->at(k).v4();
+	      //hyp.add_tophad_jet(event.jets->at(k));
+	      had_jets.push_back(event.jets->at(k));
+	      hadjets++;
+	    }
+	  
+	    if(num%3==1) {
+	      toplep_v4 = toplep_v4 + event.jets->at(k).v4();
+	      //hyp.add_toplep_jet(event.jets->at(k));
+	      lep_jets.push_back(event.jets->at(k));
+	      lepjets++;
+	    }
+	    //in case num%3==2 do not take this jet at all
+	    //shift the trigits of num to the right:
+	    num /= 3;
+	  }
+	
+	  hyp.set_tophad_jets(had_jets);
+	  hyp.set_toplep_jets(lep_jets);
+
+	  //search jet with highest pt assigned to leptonic top
+	  int blep_idx(-1);
+	  float maxpt(-1.);
+	  for(unsigned int i=0; i<hyp.toplep_jets().size(); ++i){
+	    if(maxpt< hyp.toplep_jets().at(i).pt()){
+	      maxpt = hyp.toplep_jets().at(i).pt();
+	      blep_idx = i;
+	    }
+	  }
+	  if(blep_idx != -1) hyp.set_blep_v4(hyp.toplep_jets().at(blep_idx).v4());
+	
+	  //fill only hypotheses with at least one jet assigned to each top quark
+	  if(hadjets>0 && lepjets>0) {
+	    int max_i = pow(3,n_muons-1); // analogous to jet combinations
+	    for(int i=0; i<max_i; i++){ // for each jet comb loop over all possible muon combs
+	      LorentzVector mu1_v4;
+	      LorentzVector mu2_v4;
+	      int hadmu=0;
+	      int lepmu=0;
+	      int num = i;
+	      for(unsigned int k=0; k<n_muons; k++){
+		if(k == current_muon) continue;
+		if(num%3==0){
+		  mu1_v4 = event.muons->at(k).v4();
+		  hyp.set_mu_had(event.muons->at(k)); // had is only a hypothesis not having considered the charge!!!
+		  hadmu++;
+		}
+		if(num%3==1){
+		  mu2_v4 = event.muons->at(k).v4();
+		  hyp.set_mu_lep(event.muons->at(k)); // lep is only a hypothesis not having considered the charge!!!
+		  lepmu++;
+		}
+		//for num%3==2 do nothing
+		num /= 3;
+	      }
+	    
+	      Particle mu_2 = hyp.mu_lep();
+	      Particle mu_1 = hyp.mu_had();
+	      if(hadmu==1 && lepmu==1 && (mu_1.charge()!=mu_2.charge())){ //require exactly 1 muon assigned to each top, opposite charges
+		if(mu_2.charge() != muon.charge()){ //muon and leptonic mu must have opposite charges
+		  hyp.set_mu_had_v4(mu1_v4);
+		  hyp.set_mu_lep_v4(mu2_v4); // mu2 really is the leptonic one.
+		  hyp.set_mu_had(hyp.mu_had());
+		  hyp.set_mu_lep(hyp.mu_lep());
+		  hyp.set_tophad_v4(tophad_v4);
+		  hyp.set_toplep_v4(toplep_v4);
+		  hyp.set_muon(muon);
+		  hyp.set_muon_v4(muon_v4);
+		  hyp.set_neutrino_v4(neutrino_p4);
+		  hyp.set_tophad_jets(had_jets);
+		  hyp.set_toplep_jets(lep_jets);
+		} // charge comparison
+		else{
+		  hyp.set_mu_had_v4(mu2_v4);
+		  hyp.set_mu_lep_v4(mu1_v4); // mu1 really is the leptonic one, the original hypothesis was wrong.
+		  hyp.set_mu_had(hyp.mu_lep());
+		  hyp.set_mu_lep(hyp.mu_had());
+		  hyp.set_tophad_v4(tophad_v4);
+		  hyp.set_toplep_v4(toplep_v4);
+		  hyp.set_muon(muon);
+		  hyp.set_muon_v4(muon_v4);
+		  hyp.set_neutrino_v4(neutrino_p4);
+		  hyp.set_tophad_jets(had_jets);
+		  hyp.set_toplep_jets(lep_jets);
+		} // charge comparison_2
+	      
+		if(hyp.tophad_jets().size()==0) cout << "This is hypothesis no. " << n_final_hyps+1 << " and 0 jets are assinged to the hadronic hyp" << endl;
+		recoHyps.emplace_back(move(hyp));
+		n_final_hyps++;
+
+	      } // 1 muon per top
+	    } // muon combs for-loop
+	  } // if at least 1 jet is assigned to each top quark
+	} // 3^n_jets jet combinations * n_muon muon combinations
+      } // neutrinos
+    } //muon candidates
+    event.set(h_recohyps, move(recoHyps));
+    return true;
+}
+
+
+
 
 LQTopTagReconstruction::LQTopTagReconstruction(Context & ctx, const NeutrinoReconstructionMethod & neutrinofunction, const string & label, TopJetId tjetid, float minDR_tj_j):
   m_neutrinofunction(neutrinofunction), topjetID_(tjetid), minDR_topjet_jet_(minDR_tj_j) {

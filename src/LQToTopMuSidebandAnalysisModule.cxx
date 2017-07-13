@@ -54,6 +54,7 @@ namespace uhh2examples {
     std::unique_ptr<CommonModules> common;
     std::unique_ptr<AnalysisModule> Muon_printer, Electron_printer, Jet_printer, GenParticles_printer, syst_module, SF_muonID, SF_muonTrigger, SF_muonIso, SF_btag, SF_eleReco, SF_eleID;
     std::unique_ptr<ElectronTriggerWeights> SF_eleTrigger;
+    unique_ptr<MuonTrkWeights> SF_muonTrk;
     
     std::unique_ptr<JetCleaner> jetcleaner;
     
@@ -77,14 +78,15 @@ namespace uhh2examples {
     JetId Btag_loose;
     CSVBTag::wp wp_btag_loose;
 
-    bool do_scale_variation, is_mc, do_pdf_variations, is_mu_e, is_e_e, apply_EleTriggerSF;
+    bool do_scale_variation, is_mc, do_pdf_variations, is_mu_e, is_e_e, apply_EleTriggerSF, apply_alpha;
 
 
     std::unique_ptr<TFile> file_alpha;
     std::unique_ptr<TGraphAsymmErrors> alpha;
     std::unique_ptr<TH1D> norm;
     double EleTriggerSF;
-    string filepath_alpha, Sys_MuonID, Sys_BTag, Sys_MuonTrigger, Sys_MuonIso, Sys_PU, Sys_EleID, Sys_EleReco, Sys_EleTrigger;
+    string filepath_alpha, Sys_MuonID, Sys_MuonTrk, Sys_BTag, Sys_MuonTrigger, Sys_MuonIso, Sys_PU, Sys_EleID, Sys_EleReco, Sys_EleTrigger, Sys_TTbar, Sys_DY, Sys_ST, Sys_DB, Sys_QCD, Sys_WJ, Sys_TTV;
+    TString dataset_version;
 
     std::vector<std::unique_ptr<AnalysisModule>> recomodules;
     uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_hyps;
@@ -102,6 +104,7 @@ namespace uhh2examples {
 
     do_scale_variation = (ctx.get("ScaleVariationMuR") == "up" || ctx.get("ScaleVariationMuR") == "down") || (ctx.get("ScaleVariationMuF") == "up" || ctx.get("ScaleVariationMuF") == "down");
     do_pdf_variations = ctx.get("b_PDFUncertainties") == "true";
+    dataset_version = ctx.get("dataset_version");
 
     is_mc = ctx.get("dataset_type") == "MC";
     is_mu_e = (ctx.get("channel") == "mu_e" || ctx.get("channel") == "e_mu");
@@ -110,22 +113,32 @@ namespace uhh2examples {
     apply_EleTriggerSF = (is_mc && is_e_e);
 
     filepath_alpha = ctx.get("filepath_alpha");
+    apply_alpha = ctx.get("Apply_Alpha") == "true";
     Sys_MuonID = ctx.get("Systematic_MuonID");
     Sys_MuonTrigger = ctx.get("Systematic_MuonTrigger");
     Sys_MuonIso = ctx.get("Systematic_MuonIso");
+    Sys_MuonTrk = ctx.get("Systematic_MuonTrk");
     Sys_EleID = ctx.get("Systematic_EleID");
     Sys_EleReco = ctx.get("Systematic_EleReco");
     Sys_EleTrigger = ctx.get("Systematic_EleTrigger");
     Sys_BTag = ctx.get("Systematic_BTag");
     Sys_PU = ctx.get("Systematic_PU");
+    Sys_TTbar = ctx.get("Systematic_TTbar");
+    Sys_DY = ctx.get("Systematic_DY");
+    Sys_ST = ctx.get("Systematic_ST");
+    Sys_DB = ctx.get("Systematic_DB");
+    Sys_WJ = ctx.get("Systematic_WJ");
+    Sys_QCD = ctx.get("Systematic_QCD");
+    Sys_TTV = ctx.get("Systematic_TTV");
     const char* c_filepath_alpha = filepath_alpha.c_str();
     
-    file_alpha.reset(new TFile(c_filepath_alpha,"READ"));
-    alpha.reset((TGraphAsymmErrors*)file_alpha->Get("Graph"));
-    norm.reset((TH1D*)file_alpha->Get("h_normalization"));
-    if(!norm) norm.reset((TH1D*)file_alpha->Get("h_normalization_syst_up"));
-    if(!norm) norm.reset((TH1D*)file_alpha->Get("h_normalization_syst_dn"));
-    
+    if(apply_alpha){
+      file_alpha.reset(new TFile(c_filepath_alpha,"READ"));
+      alpha.reset((TGraphAsymmErrors*)file_alpha->Get("Graph"));
+      norm.reset((TH1D*)file_alpha->Get("h_normalization"));
+      if(!norm) norm.reset((TH1D*)file_alpha->Get("h_normalization_syst_up"));
+      if(!norm) norm.reset((TH1D*)file_alpha->Get("h_normalization_syst_dn"));
+    }
     
     // 1. setup other modules. CommonModules and the JetCleaner:
     Jet_printer.reset(new JetPrinter("Jet-Printer", 0));
@@ -153,11 +166,12 @@ namespace uhh2examples {
       SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/MuonID_EfficienciesAndSF_average_RunBtoH.root", "MC_NUM_TightID_DEN_genTracks_PAR_pt_eta", 1., "tightID", true, "nominal"));
       SF_muonTrigger.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/MuonTrigger_EfficienciesAndSF_average_RunBtoH.root", "IsoMu24_OR_IsoTkMu24_PtEtaBins", 0.5, "trigger", true, "nominal"));
       SF_muonIso.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/MuonIso_EfficienciesAndSF_average_RunBtoH.root", "TightISO_TightID_pt_eta", 1., "iso", true, "nominal"));
+      SF_muonTrk.reset(new MuonTrkWeights(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/Tracking_EfficienciesAndSF_BCDEFGH.root", Sys_MuonTrk));
     }
 
     SF_eleReco.reset(new MCElecScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/egammaEffi.txt_EGM2D_RecEff_Moriond17.root", 1, "", Sys_EleReco));
     SF_eleID.reset(new MCElecScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/egammaEffi.txt_EGM2D_CutBased_Tight_ID.root", 1, "", Sys_EleID));
-    if(is_e_e) SF_eleTrigger.reset(new ElectronTriggerWeights(ctx, "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/TagProbe/Optimization/35867fb_Iso27_NonIso115/ElectronTriggerSF.root", Sys_EleTrigger));
+    if(is_e_e) SF_eleTrigger.reset(new ElectronTriggerWeights(ctx, "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/TagProbe/Optimization/35867fb_Iso27_NonIso115/ElectronEfficiencies.root", Sys_EleTrigger));
 
     SF_btag.reset(new MCBTagScaleFactor(ctx,wp_btag_loose,"jets",Sys_BTag));
 
@@ -241,7 +255,7 @@ namespace uhh2examples {
     h_eff_finalSelection.reset(new LQToTopMuEfficiencyHists(ctx, "Eff_FinalSelection")); 
     h_lumi_finalSelection.reset(new LuminosityHists(ctx, "Lumi_FinalSelection")); 
     h_ht_finalSelection.reset(new HT2dHists(ctx, "HT2d_FinalSelection"));
-    h_PDF_variations.reset(new LQToTopMuPDFHists(ctx, "PDF_variations", do_pdf_variations));
+    h_PDF_variations.reset(new LQToTopMuPDFHists(ctx, "PDF_variations", true, do_pdf_variations));
     h_Sideband.reset(new LQToTopMuHists(ctx, "Sideband_weights_applied"));
 
     
@@ -249,21 +263,39 @@ namespace uhh2examples {
   
   
   bool LQToTopMuSidebandAnalysisModule::process(Event & event) {
-    
-    /*
-    //apply kinematic cut on electrons in those events, that were only recorded by non-iso trigger -- this was forgotten in the pre-selection
-    if(is_e_e){
-      if(ele_trigger_sel2->passes(event) && !ele_trigger_sel1->passes(event)){
-	if(!n_ele_sel->passes(event)) return false;
+
+    if(is_mc){
+      double factor_xsec = -1;
+      int control = (dataset_version.Contains("TTbar") && Sys_TTbar != "nominal") + (dataset_version.Contains("DYJets") && Sys_DY != "nominal") + (dataset_version.Contains("SingleTop") && Sys_ST != "nominal") + (dataset_version.Contains("WJets") && Sys_WJ != "nominal") + (dataset_version.Contains("Diboson") && Sys_DB != "nominal") + (dataset_version.Contains("QCD") && Sys_QCD != "nominal")+ (dataset_version.Contains("TTV") && Sys_TTV != "nominal");
+      if(!(control == 0 || control == 1)) throw runtime_error("In LQToTopMuSidebandAnalysisModule.cxx: More than one rate systematic is set to something different than 'nominal'");
+
+      if(control == 0) factor_xsec = 0;
+      else if(control == 1){
+	if(dataset_version.Contains("TTbar") && Sys_TTbar != "nominal")       factor_xsec = 0.056;
+	else if(dataset_version.Contains("DYJets") && Sys_DY != "nominal")    factor_xsec = 0.1;
+	else if(dataset_version.Contains("SingleTop") && Sys_ST != "nominal") factor_xsec = 0.1;
+	else if(dataset_version.Contains("WJets") && Sys_WJ != "nominal")     factor_xsec = 0.1;
+	else if(dataset_version.Contains("Diboson") && Sys_DB != "nominal")   factor_xsec = 0.2;
+	else if(dataset_version.Contains("QCD") && Sys_QCD != "nominal")      factor_xsec = 1;
+	else if(dataset_version.Contains("TTV") && Sys_TTV != "nominal")      factor_xsec = 0.05;
+	else if(dataset_version.Contains("LQ"))                               factor_xsec = 0;
       }
+      double sf_xsec = 1;
+      if(Sys_TTbar == "up" || Sys_DY == "up"|| Sys_ST == "up"|| Sys_DB == "up"|| Sys_WJ == "up"|| Sys_QCD == "up"|| Sys_TTV == "up") sf_xsec += factor_xsec;
+      else if(Sys_TTbar == "down" || Sys_DY == "down"|| Sys_ST == "down"|| Sys_DB == "down"|| Sys_WJ == "down"|| Sys_QCD == "down"|| Sys_TTV == "down") sf_xsec -= factor_xsec;
+      else if(control != 0) throw runtime_error("In LQToTopMuAnalysisModule.cxx: Invalid direction for 'Sys_Rate_YYY' specified.");
+
+      event.weight *= sf_xsec;
     }
- */
+
+
     
     //apply muon & electron SFs as in preselection
     if(is_mu_e){
       SF_muonTrigger->process(event);
       SF_muonID->process(event);
       SF_muonIso->process(event);
+      SF_muonTrk->process(event);
     }
     SF_eleReco->process(event);
     SF_eleID->process(event);
@@ -294,7 +326,7 @@ namespace uhh2examples {
       ht_lep += muon.pt();
     }
     ht = ht_lep + ht_jets + met;
-
+    if(false)cout << ht << endl;
 
     //if(is_mc)GenParticles_printer->process(event);
 
@@ -372,14 +404,16 @@ namespace uhh2examples {
 
     h_PDF_variations->fill(event);
 
-    
+
     double original_weight = event.weight;
-    double d_alpha = alpha->Eval(ht);
-    double d_norm = norm->GetBinContent(1);
-    double sideband_weight = d_alpha * d_norm;
+    if(apply_alpha){
+      double d_alpha = alpha->Eval(ht);
+      double d_norm = norm->GetBinContent(1);
+      double sideband_weight = d_alpha * d_norm;
     
-    //change weights
-    event.weight *= sideband_weight;
+      //change weights
+      event.weight *= sideband_weight;
+    }
     h_Sideband->fill(event);
     //restore weights
     event.weight = original_weight;

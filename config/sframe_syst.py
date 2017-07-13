@@ -9,6 +9,13 @@ sys.path.append('/nfs/dust/cms/user/tholenhe/installs/varial-stable/Varial')
 
 sys_uncerts = {
     # 'name' : {'item name': 'item value', ...},
+     'NOMINAL'               : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
+     'ALPHA_up'              : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
+     'ALPHA_down'            : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
+     'NORMALIZATION_up'      : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
+     'NORMALIZATION_down'    : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
+     'PDF_up'                : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
+     'PDF_down'              : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
      'SCALE_upup'            : {'ScaleVariationMuR':'up','ScaleVariationMuF':'up'},
      'SCALE_upnone'          : {'ScaleVariationMuR':'up','ScaleVariationMuF':'none'},
      'SCALE_noneup'          : {'ScaleVariationMuR':'none','ScaleVariationMuF':'up'},
@@ -27,10 +34,32 @@ sys_uncerts = {
      'BTAG_udsg_down'        : {'Systematic_BTag':'down_udsg'},
      'MUISO_up'              : {'Systematic_MuonIso':'up'},
      'MUISO_down'            : {'Systematic_MuonIso':'down'},
+     'MUTRK_up'              : {'Systematic_MuonTrk':'up'},
+     'MUTRK_down'            : {'Systematic_MuonTrk':'down'},
      'ELEID_up'              : {'Systematic_EleID':'up'},
      'ELEID_down'            : {'Systematic_EleID':'down'},
      'ELEREC_up'             : {'Systematic_EleReco':'up'},
-     'ELEREC_down'           : {'Systematic_EleReco':'down'},
+     'ELEREC_down'           : {'Systematic_EleReco':'down'},     
+     'ELETR_up'              : {'Systematic_TTbar':'nominal'}, #dummy
+     'ELETR_down'            : {'Systematic_TTbar':'nominal'}, #dummy
+     'ELEFAKE_up'            : {'Systematic_EleFake':'up'},
+     'ELEFAKE_down'          : {'Systematic_EleFake':'down'},
+     'MUFAKE_up'             : {'Systematic_MuFake':'up'},
+     'MUFAKE_down'           : {'Systematic_MuFake':'down'},
+     'RATE_ttbar_up'         : {'Systematic_TTbar':'up'},
+     'RATE_ttbar_down'       : {'Systematic_TTbar':'down'},
+     'RATE_dy_up'            : {'Systematic_DY':'up'},
+     'RATE_dy_down'          : {'Systematic_DY':'down'},
+     'RATE_st_up'            : {'Systematic_ST':'up'},
+     'RATE_st_down'          : {'Systematic_ST':'down'},
+     'RATE_wj_up'            : {'Systematic_WJ':'up'},
+     'RATE_wj_down'          : {'Systematic_WJ':'down'},
+     'RATE_db_up'            : {'Systematic_DB':'up'},
+     'RATE_db_down'          : {'Systematic_DB':'down'},
+     'RATE_qcd_up'           : {'Systematic_QCD':'up'},
+     'RATE_qcd_down'         : {'Systematic_QCD':'down'},
+     'RATE_ttv_up'           : {'Systematic_TTV':'up'},
+     'RATE_ttv_down'         : {'Systematic_TTV':'down'},
      #'JEC_up'               : {'jecsmear_direction':'up'},
      #'JEC_down'             : {'jecsmear_direction':'down'},
      #'JER_up'               : {'jersmear_direction':'up'},
@@ -91,7 +120,7 @@ class MySFrameBatch(SFrame):
 
 
 sframe_tools = ToolChain(
-    'SFrameUncerts',
+    'SFrameUncertsSR',
     list(
         SFrame(
             cfg_filename=sys.argv[1],

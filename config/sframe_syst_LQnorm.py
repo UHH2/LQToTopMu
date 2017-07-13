@@ -9,12 +9,15 @@ sys.path.append('/nfs/dust/cms/user/tholenhe/installs/varial-stable/Varial')
 
 sys_uncerts = {
     # 'name' : {'item name': 'item value', ...},
+     #'NOMINAL'               : {'Systematic_TTbar':'nominal'},
      'PU_up'                 : {'Systematic_PU':'up'},
      'PU_down'               : {'Systematic_PU':'down'},
      'MUID_up'               : {'Systematic_MuonID':'up'},
      'MUID_down'             : {'Systematic_MuonID':'down'},
      'MUTR_up'               : {'Systematic_MuonTrigger':'up'},
      'MUTR_down'             : {'Systematic_MuonTrigger':'down'},
+     'MUTRK_up'              : {'Systematic_MuonTrk':'up'},
+     'MUTRK_down'            : {'Systematic_MuonTrk':'down'},
      'BTAG_bc_up'            : {'Systematic_BTag':'up_bc'},
      'BTAG_bc_down'          : {'Systematic_BTag':'down_bc'},
      'BTAG_udsg_up'          : {'Systematic_BTag':'up_udsg'},
@@ -25,10 +28,10 @@ sys_uncerts = {
      'ELEID_down'            : {'Systematic_EleID':'down'},
      'ELEREC_up'             : {'Systematic_EleReco':'up'},
      'ELEREC_down'           : {'Systematic_EleReco':'down'},
-     #'JEC_up'               : {'jecsmear_direction':'up'},
-     #'JEC_down'             : {'jecsmear_direction':'down'},
-     #'JER_up'               : {'jersmear_direction':'up'},
-     #'JER_down'             : {'jersmear_direction':'down'},
+     'ELEFAKE_up'            : {'Systematic_EleFake':'up'},
+     'ELEFAKE_down'          : {'Systematic_EleFake':'down'},
+     'MUFAKE_up'             : {'Systematic_MuFake':'up'},
+     'MUFAKE_down'           : {'Systematic_MuFake':'down'},
 }
 start_all_parallel = True
 

@@ -62,6 +62,20 @@ private:
     uhh2::Event::Handle<FlavorParticle> h_primlep;
 };
 
+class HighMassMuonicLQReconstruction: public uhh2::AnalysisModule {
+public:
+
+    explicit HighMassMuonicLQReconstruction(uhh2::Context & ctx, const NeutrinoReconstructionMethod & neutrinofunction, const std::string & label="HighMassMuonicLQReconstruction");
+
+    virtual bool process(uhh2::Event & event) override;
+
+    virtual ~HighMassMuonicLQReconstruction();
+
+private:
+    NeutrinoReconstructionMethod m_neutrinofunction;
+    uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_recohyps;
+};
+
 
 
 /*class HighMassHadronicLQReconstruction: public uhh2::AnalysisModule {

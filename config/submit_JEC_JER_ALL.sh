@@ -1,0 +1,12 @@
+#sframe_batch.py -a LQToTopMuAnalysis_JEC_up.xml
+#sframe_batch.py -a LQToTopMuAnalysis_JEC_down.xml
+#sframe_batch.py -a LQToTopMuAnalysis_JER_up.xml
+#sframe_batch.py -a LQToTopMuAnalysis_JER_down.xml
+sframe_batch.py -f LQToTopMuSidebandAnalysis_EE_JEC_up.xml
+sframe_batch.py -f LQToTopMuSidebandAnalysis_EE_JEC_down.xml
+sframe_batch.py -f LQToTopMuSidebandAnalysis_EE_JER_up.xml
+sframe_batch.py -f LQToTopMuSidebandAnalysis_EE_JER_down.xml
+#sframe_batch.py -a LQToTopMuLQnorm_JEC_up.xml
+#sframe_batch.py -a LQToTopMuLQnorm_JEC_down.xml
+#sframe_batch.py -a LQToTopMuLQnorm_JER_up.xml
+#sframe_batch.py -a LQToTopMuLQnorm_JER_down.xml
