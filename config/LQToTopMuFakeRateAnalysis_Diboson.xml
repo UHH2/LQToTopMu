@@ -3,7 +3,7 @@
 
 
 	  <!ENTITY TargetLumi      "35867">
-	  <!ENTITY SELdir          "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/ElectronFakeRate/Optimization/&TargetLumi;fb_CorrMET_Diboson_Pt30">
+	  <!ENTITY SELdir          "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/ElectronFakeRate/Optimization/&TargetLumi;fb_RightTriggerSF">
 	  <!ENTITY b_Cacheable     "False">
 	  <!ENTITY NEVT            "-1">
 	  <!ENTITY PRESELdir       "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/ElectronFakeRate/Preselection/&TargetLumi;fb_CorrMET_Pt10"> 
@@ -108,7 +108,7 @@
 <!--<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="&SELdir;/" PostFix="" TargetLumi="&TargetLumi;" RunMode="PROOF" ProofServer="lite://" ProofWorkDir="&PROOFdir;/" ProofNodes="12">-->
     
 
-<!--
+
   <InputData Lumi="1" NEventsMax="&NEVT;" Type="DATA" Version="DATA_B" Cacheable="&b_Cacheable;">
     <In FileName="&DATA_B;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
@@ -328,7 +328,7 @@
     <In FileName="&ZZ;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
   </InputData> 
--->
+
 
 
   <InputData Lumi="8643416.5" NEventsMax="&NEVT;" Type="MC" Version="TTV_W" Cacheable="&b_Cacheable;">
@@ -342,7 +342,7 @@
   </InputData> 
 
  
-  <!--
+  
   <InputData Lumi="0.476" NEventsMax="&NEVT;" Type="MC" Version="QCD_EM_PT30to50" Cacheable="&b_Cacheable;">
     <In FileName="&QCD_EM_PT30to50;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
@@ -397,7 +397,7 @@
     <In FileName="&QCD_bcE_PT250toInf;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
   </InputData> 
--->
+
 
 
 <!--

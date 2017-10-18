@@ -12,8 +12,8 @@ sys_uncerts = {
      'NOMINAL'               : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
      'ALPHA_up'              : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
      'ALPHA_down'            : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
-     'NORMALIZATION_up'      : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
-     'NORMALIZATION_down'    : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
+     #'NORMALIZATION_up'      : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
+     #'NORMALIZATION_down'    : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
      'PDF_up'                : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
      'PDF_down'              : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
      'SCALE_upup'            : {'ScaleVariationMuR':'up','ScaleVariationMuF':'up'},

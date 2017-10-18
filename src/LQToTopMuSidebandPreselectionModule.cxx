@@ -48,7 +48,7 @@ namespace uhh2examples {
     std::unique_ptr<MuonCleaner> muoncleaner_tight;
     std::unique_ptr<ElectronCleaner> electroncleaner;
 
-    std::unique_ptr<AnalysisModule> SF_muonID, SF_muonTrigger, SF_muonIso, SF_eleReco, SF_eleID;
+    std::unique_ptr<AnalysisModule> SF_muonID;
 
   
     // declare the Selections to use.
@@ -103,16 +103,7 @@ namespace uhh2examples {
     common->set_electron_id(EleId);
     common->set_muon_id(MuId);
     common->init(ctx);
-    jetcleaner.reset(new JetCleaner(ctx,30.0, 2.5));
-
-    if(is_mu_e){
-      //SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/MuonID_EfficienciesAndSF_average_RunBtoH.root", "MC_NUM_TightID_DEN_genTracks_PAR_pt_eta", 1., "tightID", true, "nominal"));
-      //SF_muonTrigger.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/MuonTrigger_EfficienciesAndSF_average_RunBtoH.root", "IsoMu24_OR_IsoTkMu24_PtEtaBins", 0.5, "trigger", true, "nominal"));
-      //SF_muonIso.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/MuonIso_EfficienciesAndSF_average_RunBtoH.root", "TightISO_TightID_pt_eta", 1., "iso", true, "nominal"));
-    }
-    
-    //SF_eleReco.reset(new MCElecScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/egammaEffi.txt_EGM2D_RecEff_Moriond17.root", 1));
-    //SF_eleID.reset(new MCElecScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/egammaEffi.txt_EGM2D_CutBased_Tight_ID.root", 1));
+    jetcleaner.reset(new JetCleaner(ctx,30.0, 2.4));
 
 
     // Muon triggers for mu_e sideband
@@ -236,7 +227,6 @@ namespace uhh2examples {
     // trigger
     if(is_mu_e){
       if(!(mu_trigger_sel1->passes(event) || mu_trigger_sel2->passes(event))) return false;
-      //SF_muonTrigger->process(event);
     }
     else{
       if(!(ele_trigger_sel1->passes(event) || ele_trigger_sel2->passes(event))) return false;
@@ -255,16 +245,6 @@ namespace uhh2examples {
     bool pass_common = common->process(event);
     if(!pass_common) return false;
     jetcleaner->process(event);
-
-    
-    if(is_mu_e){
-      //SF_muonID->process(event);
-      //SF_muonIso->process(event);
-    }
-    else{
-      //SF_eleID->process(event);
-      //SF_eleReco->process(event);
-    }
     
 
     h_cleaner->fill(event);
@@ -310,7 +290,7 @@ namespace uhh2examples {
     h_eff_ht350->fill(event);
     h_ht2d->fill(event);
 
-    // ==1 ele (e_mu) OR >2 ele (e_e)
+    // ==1 ele (e_mu) / >2 ele (e_e)
     if(!lep2_sel->passes(event)) return false;
     h_2lep->fill(event);
     h_jets_2lep->fill(event);

@@ -76,9 +76,13 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("H_T_rebin2", "H_{T} [GeV]", 100, 0, 7000);
   book<TH1F>("H_T_rebin3", "H_{T} [GeV]", 10,bins_low_NoEle2);
   book<TH1F>("H_T_jets", "H_{T}^{jets} [GeV]", 50, 0, 7000);
-  book<TH1F>("H_T_lept", "H_{T}^{leptons} [GeV]", 50, 0, 7000);
-  book<TH1F>("H_T_lept_zoom", "H_{T}^{leptons} [GeV]", 40, 0, 4000);
+  book<TH1F>("H_T_jets_from350_rebin", "H_{T}^{jets} [GeV]", 48, 0, 4200);
+  book<TH1F>("H_T_jets_from350_all_filled_rebin", "H_{T}^{jets} [GeV]", 15, bins_from350_allfilled);
   book<TH1F>("H_T_jets_rebin", "H_{T}^{jets} rebinned [GeV]", 5, bins_HTlept_low);
+  book<TH1F>("H_T_lept", "H_{T}^{leptons} [GeV]", 50, 0, 7000);
+  book<TH1F>("H_T_lept_from350_rebin", "H_{T}^{leptons} [GeV]", 48, 0, 4200);
+  book<TH1F>("H_T_lept_from350_all_filled_rebin", "H_{T}^{leptons} [GeV]", 15, bins_from350_allfilled);
+  book<TH1F>("H_T_lept_zoom", "H_{T}^{leptons} [GeV]", 40, 0, 4000);
   book<TH1F>("H_T_lept_rebin", "H_{T}^{leptons} rebinned [GeV]", 5, bins_HTlept_low);
   book<TH1F>("H_T_comb_NoEle", "H_{T}, no Ele [GeV]", 50, 0, 7000);
   book<TH1F>("H_T_comb_NoEle_from350", "H_{T}, no Ele [GeV]", 24, 0, 4200);
@@ -135,6 +139,9 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("M_LQ_MuEle_comb_rebin2", "M_{LQ,mean} [GeV]", 5, bins_mlq_low2);
   book<TH1F>("M_LQ_MuEle_comb_all_filled", "M_{LQ,mean} [GeV]", 6, bins_mlq_low3);
   book<TH1F>("chi2_MuEle", "#chi^{2}", 100, 0,200);
+  book<TH1F>("chi2_MuEle_rebin", "#chi^{2}", 40, 0,200);
+  book<TH1F>("chi2_MuEle_rebin2", "#chi^{2}", 20, 0,200);
+  book<TH1F>("chi2_MuEle_rebin3", "#chi^{2}", 10, 0,200);
   book<TH1F>("M_LQ_MuEle_diff", "M_{LQ}^{had} - M_{LQ}^{lep} [GeV]", 50, -500, 500);
   book<TH1F>("M_LQ_MuEle_diff_rel", "(M_{LQ}^{had} - M_{LQ}^{lep})/M_{LQ,mean} [GeV]", 50, -0.5, 0.5);
   book<TH1F>("M_LQLQ_MuEle", "M_{LQLQ} [GeV]", 100, 0, 5000);
@@ -146,6 +153,7 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
   book<TH1F>("H_T_comb_NoMLQ", "H_{T}, no MLQ [GeV]", 50, 0, 7000);
   book<TH1F>("H_T_comb_NoMLQ_from350", "H_{T}, no MLQ [GeV]", 24, 0, 4200);
   book<TH1F>("H_T_comb_NoMLQ_from350_rebin", "H_{T}, no MLQ [GeV]", 48, 0, 4200);
+  book<TH1F>("H_T_comb_NoMLQ_from350_rebin_noweights", "H_{T}, no MLQ [GeV]", 48, 0, 4200);
   book<TH1F>("H_T_comb_NoMLQ_from350_rebin2", "H_{T}, no MLQ [GeV]", 12, 0, 4200);
   book<TH1F>("H_T_comb_NoMLQ_from350_all_filled_rebin", "H_{T}, no MLQ [GeV]", 15, bins_from350_allfilled);
   book<TH1F>("H_T_comb_NoMLQ_rebin", "H_{T}, no MLQ [GeV]", 22, bins_low_NoEle);
@@ -367,7 +375,13 @@ void LQToTopMuHists::fill(const Event & event){
 
   ht = ht_lep + ht_jets + met;
   hist("H_T_jets")->Fill(ht_jets,weight);
+  hist("H_T_jets_from350_rebin")->Fill(ht_jets,weight);
+  if(ht_jets <= 2900) hist("H_T_jets_from350_all_filled_rebin")->Fill(ht_jets,weight);
+  else                hist("H_T_jets_from350_all_filled_rebin")->Fill(2900,weight);
   hist("H_T_lept")->Fill(ht_lep,weight);
+  hist("H_T_lept_from350_rebin")->Fill(ht_lep,weight);
+  if(ht_lep <= 2900) hist("H_T_lept_from350_all_filled_rebin")->Fill(ht_lep,weight);
+  else               hist("H_T_lept_from350_all_filled_rebin")->Fill(2900,weight);
   hist("H_T_lept_zoom")->Fill(ht_lep,weight);
   hist("H_T_jets_rebin")->Fill(ht_jets,weight);
   hist("H_T_lept_rebin")->Fill(ht_lep,weight);
@@ -478,6 +492,10 @@ void LQToTopMuHists::fill(const Event & event){
     const LQReconstructionHypothesis* hyp = get_best_hypothesis( hyps, m_discriminator_name );
     double chi2 = hyp->discriminator(m_discriminator_name);
     hist("chi2")->Fill(chi2,weight);
+    hist("chi2_MuEle")->Fill(chi2,weight);
+    hist("chi2_MuEle_rebin")->Fill(chi2,weight);
+    hist("chi2_MuEle_rebin2")->Fill(chi2,weight);
+    hist("chi2_MuEle_rebin3")->Fill(chi2,weight);
 
     double mLQlep_rec = 0;
     double mLQhad_rec = 0;
@@ -592,6 +610,10 @@ void LQToTopMuHists::fill(const Event & event){
     const LQReconstructionHypothesis* hyp = get_best_hypothesis( muonic_hyps, m_discriminator_name );
     double chi2 = hyp->discriminator(m_discriminator_name);
     hist("chi2_Muonic")->Fill(chi2,weight);
+    hist("chi2_MuEle")->Fill(chi2,weight);
+    hist("chi2_MuEle_rebin")->Fill(chi2,weight);
+    hist("chi2_MuEle_rebin2")->Fill(chi2,weight);
+    hist("chi2_MuEle_rebin3")->Fill(chi2,weight);
 
     double mLQlep_rec = 0;
     double mLQhad_rec = 0;
@@ -650,6 +672,7 @@ void LQToTopMuHists::fill(const Event & event){
     hist("H_T_comb_NoMLQ")->Fill(ht, weight);
     hist("H_T_comb_NoMLQ_from350")->Fill(ht, weight);
     hist("H_T_comb_NoMLQ_from350_rebin")->Fill(ht, weight);
+    hist("H_T_comb_NoMLQ_from350_rebin_noweights")->Fill(ht);
     hist("H_T_comb_NoMLQ_from350_rebin2")->Fill(ht, weight);
     hist("H_T_comb_NoMLQ_rebin")->Fill(ht, weight);
     if(ht <= 2000) hist("H_T_comb_NoMLQ_rebin2")->Fill(ht, weight);

@@ -13,7 +13,7 @@ using namespace std;
 using namespace uhh2;
 using namespace uhh2examples;
 
-LQToTopMuFakeRateHists::LQToTopMuFakeRateHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
+LQToTopMuFakeRateHists::LQToTopMuFakeRateHists(Context & ctx, const string & dirname, bool is_ele_): Hists(ctx, dirname), is_ele(is_ele_){
   // book all histograms here
   // jets
 
@@ -138,53 +138,57 @@ void LQToTopMuFakeRateHists::fill(const Event & event){
       }
     }
 
-    //make sure to have a max. of 3 electrons in the event. Otherwise this part will not work as intended.
-    //find the ele that is not in the best pair
+
     int idx_matched_jet = -1;
     int idx_matched_jet_fake_ele = -1;
     int idx_matched_jet_real_ele = -1;
-    double dr_min = 999;
-    for(unsigned int i=0; i<event.electrons->size(); i++){
-      if(is_best_ele[i]) continue;
+    int idx_matched_jet_mu = -1;
+    int idx_matched_jet_fake_mu = -1;
+    int idx_matched_jet_real_mu = -1;
+    if(is_ele){
+      //make sure to have a max. of 3 electrons in the event. Otherwise this part will not work as intended.
+      //find the ele that is not in the best pair
+      double dr_min = 999;
+      for(unsigned int i=0; i<event.electrons->size(); i++){
+	if(is_best_ele[i]) continue;
       
-      //find jet matching this ele within 0.4. If ambiguous, choose closest jet.
-      for(unsigned int j=0; j<event.jets->size(); j++){
-	double dr = deltaR(event.electrons->at(i), event.jets->at(j));
-	if(dr <= 0.4){
-	  if(event.electrons->size() > 3) throw runtime_error("In LQToTopMuFakeRateHists.cxx: More than 3 electrons in the event when identifying THE ONE faking jet. In case of >1 fake electrons, there should also be >1 faking jet. Modifiy the procedure or cut on Nele <= 3.");
-	  if(dr < dr_min){
-	    idx_matched_jet = j;
-	    dr_min = dr;
+	//find jet matching this ele within 0.4. If ambiguous, choose closest jet.
+	for(unsigned int j=0; j<event.jets->size(); j++){
+	  double dr = deltaR(event.electrons->at(i), event.jets->at(j));
+	  if(dr <= 0.4){
+	    if(event.electrons->size() > 3) throw runtime_error("In LQToTopMuFakeRateHists.cxx: More than 3 electrons in the event when identifying THE ONE faking jet. In case of >1 fake electrons, there should also be >1 faking jet. Modifiy the procedure or cut on Nele <= 3.");
+	    if(dr < dr_min){
+	      idx_matched_jet = j;
+	      dr_min = dr;
 	    
-	    //if that ele is truly a fake (on gen-lvl), fill separate histogram to subtract from data later on (MC only)
-	    if(!is_real_ele[i] && is_mc)     idx_matched_jet_fake_ele = j;
-	    else if(is_real_ele[i] && is_mc) idx_matched_jet_real_ele = j;
+	      //if that ele is truly a fake (on gen-lvl), fill separate histogram to subtract from data later on (MC only)
+	      if(!is_real_ele[i] && is_mc)     idx_matched_jet_fake_ele = j;
+	      else if(is_real_ele[i] && is_mc) idx_matched_jet_real_ele = j;
+	    }
 	  }
 	}
       }
     }
-
-    //make sure to have a max of 1 muon in the event, otherwise this part will not work as intended
-    //same for muons
-    if(event.muons->size() >= 1){
-      int idx_matched_jet_mu = -1;
-      int idx_matched_jet_fake_mu = -1;
-      int idx_matched_jet_real_mu = -1;
-      double dr_min_mu = 999;
-      for(unsigned int i=0; i<event.muons->size(); i++){
+    else{
+      //make sure to have a max of 1 muon in the event, otherwise this part will not work as intended
+      //same for muons
+      if(event.muons->size() >= 1){
+	double dr_min_mu = 999;
+	for(unsigned int i=0; i<event.muons->size(); i++){
       
-	//find jet matching this ele within 0.4. If ambiguous, choose closest jet.
-	for(unsigned int j=0; j<event.jets->size(); j++){
-	  double dr = deltaR(event.muons->at(i), event.jets->at(j));
-	  if(dr <= 0.4){
-	    if(event.muons->size() > 1) throw runtime_error("In LQToTopMuFakeRateHists.cxx: More than 1 muon in the event when identifying THE ONE faking jet. Procedure only works in cases of == 1 muon.");
-	    if(dr < dr_min_mu){
-	      idx_matched_jet_mu = j;
-	      dr_min_mu = dr;
+	  //find jet matching this ele within 0.4. If ambiguous, choose closest jet.
+	  for(unsigned int j=0; j<event.jets->size(); j++){
+	    double dr = deltaR(event.muons->at(i), event.jets->at(j));
+	    if(dr <= 0.4){
+	      if(event.muons->size() > 1) throw runtime_error("In LQToTopMuFakeRateHists.cxx: More than 1 muon in the event when identifying THE ONE faking jet. Procedure only works in cases of == 1 muon.");
+	      if(dr < dr_min_mu){
+		idx_matched_jet_mu = j;
+		dr_min_mu = dr;
 	    
-	      //if that mu is truly a fake (on gen-lvl), fill separate histogram to subtract from data later on (MC only)
-	      if(!is_real_muon[i] && is_mc)     idx_matched_jet_fake_mu = j;
-	      else if(is_real_muon[i] && is_mc) idx_matched_jet_real_mu = j;
+		//if that mu is truly a fake (on gen-lvl), fill separate histogram to subtract from data later on (MC only)
+		if(!is_real_muon[i] && is_mc)     idx_matched_jet_fake_mu = j;
+		else if(is_real_muon[i] && is_mc) idx_matched_jet_real_mu = j;
+	      }
 	    }
 	  }
 	}
@@ -238,21 +242,23 @@ void LQToTopMuFakeRateHists::fill(const Event & event){
       hist("Int_alljets")->Fill(0.,weight);
     }
 
-    hist("Int_events_denom")->Fill(0.,weight);
-    if(event.muons->size() == 1) hist("Int_events_1mu")->Fill(0.,weight);
-    else if(event.muons->size() != 0) throw runtime_error("In LQToTopMuFakeRateHists.cxx: There is more than 1 muon in the event. Fix this.");
-    //check if muon can be matched to mu or tau on gen-lvl
-    if(is_mc){
-      if(event.muons->size() > 0){
-	bool is_fake = true;
-	for(const auto & gp : *event.genparticles){
-	  if(fabs(gp.pdgId()) != 13 && fabs(gp.pdgId()) != 15) continue;
-	  if(deltaR(event.muons->at(0),gp) < 0.1) is_fake = false;
-	}
+    if(!is_ele){
+      hist("Int_events_denom")->Fill(0.,weight);
+      if(event.muons->size() == 1) hist("Int_events_1mu")->Fill(0.,weight);
+      else if(event.muons->size() != 0) throw runtime_error("In LQToTopMuFakeRateHists.cxx: There is more than 1 muon in the event. Fix this.");
+      //check if muon can be matched to mu or tau on gen-lvl
+      if(is_mc){
+	if(event.muons->size() > 0){
+	  bool is_fake = true;
+	  for(const auto & gp : *event.genparticles){
+	    if(fabs(gp.pdgId()) != 13 && fabs(gp.pdgId()) != 15) continue;
+	    if(deltaR(event.muons->at(0),gp) < 0.1) is_fake = false;
+	  }
     
-	if(is_fake) hist("Int_events_1mu_fake")->Fill(0.,weight);
-	else hist("Int_events_1mu_real")->Fill(0.,weight);
+	  if(is_fake) hist("Int_events_1mu_fake")->Fill(0.,weight);
+	  else hist("Int_events_1mu_real")->Fill(0.,weight);
 	
+	}
       }
     }
 

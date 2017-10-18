@@ -52,7 +52,8 @@ namespace uhh2examples {
   private:
     
     unique_ptr<CommonModules> common;
-    unique_ptr<AnalysisModule> Muon_printer, Electron_printer, Jet_printer, GenParticles_printer, syst_module, SF_muonID, SF_muonTrigger, SF_muonIso, SF_btag, SF_eleReco, SF_eleID;
+    unique_ptr<AnalysisModule> Muon_printer, Electron_printer, Jet_printer, GenParticles_printer, syst_module, SF_muonID, SF_muonIso, SF_btag, SF_eleReco, SF_eleID;
+    unique_ptr<MCMuonScaleFactor> SF_muonTrigger;
     unique_ptr<ElectronFakeRateWeights> SF_eleFakeRate;
     unique_ptr<MuonTrkWeights> SF_muonTrk;
 
@@ -77,6 +78,7 @@ namespace uhh2examples {
     ElectronId EleId;
     JetId Btag_loose, Btag_medium, Btag_tight;
     CSVBTag::wp wp_btag_loose;
+    int n_misid;
 
 
     bool do_scale_variation, is_mc, do_pdf_variations, is_foreff;
@@ -100,6 +102,7 @@ namespace uhh2examples {
       cout << " " << kv.first << " = " << kv.second << endl;
     }
 
+    n_misid = 0;
     do_scale_variation = (ctx.get("ScaleVariationMuR") == "up" || ctx.get("ScaleVariationMuR") == "down") || (ctx.get("ScaleVariationMuF") == "up" || ctx.get("ScaleVariationMuF") == "down");
     do_pdf_variations = ctx.get("b_PDFUncertainties") == "true";
     dataset_version = ctx.get("dataset_version");
@@ -134,7 +137,7 @@ namespace uhh2examples {
 
     Btag_loose = CSVBTag(CSVBTag::WP_LOOSE);
     wp_btag_loose = CSVBTag::WP_LOOSE;
-    jetcleaner.reset(new JetCleaner(ctx,30.0, 2.5));
+    jetcleaner.reset(new JetCleaner(ctx,30.0, 2.4));  // 2.5!!!
 
 
     common.reset(new CommonModules());
@@ -171,7 +174,7 @@ namespace uhh2examples {
     // 2. set up selections
     //Selection
     njet_sel.reset(new NJetSelection(2, -1));  
-    nbtag_loose_sel.reset(new NJetSelection(1, -1, Btag_loose));  
+    nbtag_loose_sel.reset(new NJetSelection(1, -1, Btag_loose));  //1, -1 
     m_mumu_veto.reset(new InvMass2MuVeto(0, 111));
     m_ee_veto.reset(new InvMassEleEleVeto(0.,111.));
     nele_sel.reset(new NElectronSelection(1, -1));
@@ -277,7 +280,7 @@ namespace uhh2examples {
 	else if(dataset_version.Contains("WJets") && Sys_WJ != "nominal")     factor_xsec = 0.1;
 	else if(dataset_version.Contains("Diboson") && Sys_DB != "nominal")   factor_xsec = 0.2;
 	else if(dataset_version.Contains("QCD") && Sys_QCD != "nominal")      factor_xsec = 1;
-	else if(dataset_version.Contains("TTV") && Sys_TTV != "nominal")      factor_xsec = 0.05;
+	else if(dataset_version.Contains("TTV") && Sys_TTV != "nominal")      factor_xsec = 0.25;
 	else if(dataset_version.Contains("LQ"))                               factor_xsec = 0;
       }
       double sf_xsec = 1;
@@ -303,56 +306,14 @@ namespace uhh2examples {
       if(event.electrons->size() == 0 && SF_ele != 1) throw runtime_error("There are no electrons in the event, still the fake-rate SF is != 1...");
       event.weight *= SF_ele;    
       SF_mu = event.get(h_FakeRateWeightMu);
-      /*
-      // hack to value of muonSF**********
-      if(SF_mu < 6) SF_mu = 2.99131;
-      else if(SF_mu > 6) SF_mu = 2.99131*2.99131;
-
-      //end of hack 
-      */
       if(event.muons->size() == 0 && SF_mu != 1) throw runtime_error("There are no muons in the event, still the fake-rate SF is != 1...");     
-
-      /*
-      // Bugfix: muons are tried to be matched to generator muons or taus before declaring them as 'fake' ******************
-      //if the number of gen and reco-muons are the same, assume muons are real
-      int n_genmu = 0;
-      for(const auto & gp : *event.genparticles){
-	if(fabs(gp.pdgId()) != 13) continue;
-	n_genmu++;
-      }
-
-      if(n_genmu == event.muons->size()) SF_mu = 1;
-      else{
-	//if ngen and nreco are unequal, try to match muons to muons within 0.1 and to taus within 0.2
-	for(const auto & mu : *event.muons){
-	  bool is_matched = false;
-	  for(const auto & gp : *event.genparticles){
-	    if(fabs(gp.pdgId()) == 13){
-	      if(deltaR(gp,mu) < 0.2 && !is_matched){
-		is_matched = true;
-		n_matched_to_muons++;
-	      }
-	    }
-	    else if(fabs(gp.pdgId()) == 15){ 
-	      if(deltaR(gp,mu) < 0.2 && !is_matched){
-		is_matched = true;
-		n_matched_to_taus++;
-	      }
-	    }
-	  }
-	}
-	if(n_matched_to_taus + n_matched_to_muons == event.muons->size()) SF_mu = 1;
-      }
-      // End of bugfix ******************************
-*/
       event.weight *= SF_mu;
-      //cout << "SF ele: " << SF_ele << ", SF mu: " << SF_mu << endl;
-      //cout << "weight = " << event.weight << endl;
     }
 
     if(!is_foreff){
       //apply muon SFs as in preselection
-      SF_muonTrigger->process(event);
+      //SF_muonTrigger->process(event);
+      SF_muonTrigger->process_onemuon(event,0);
       SF_muonID->process(event);
       SF_muonIso->process(event);
       SF_muonTrk->process(event);
@@ -378,6 +339,10 @@ namespace uhh2examples {
     bool pass_common = common->process(event);
     if(!pass_common) return false;
     jetcleaner->process(event);
+    if(!njet_sel->passes(event)) return false;
+    if(!ht_sel->passes(event)) return false;
+
+
 
 
     /*ttgenprod->process(event);
@@ -395,11 +360,13 @@ namespace uhh2examples {
     double sum_mu_charge = 0;
     for(const auto & mu : *event.muons) sum_mu_charge += mu.charge();
 
+    
     if(event.muons->size() == 3 && event.electrons->size() == 0 && fabs(sum_mu_charge) == 1){
       for(auto & m : muonic_recomodules){
 	m->process(event);
       }
     }
+
   
     h_nocuts->fill(event);
     h_jets_nocuts->fill(event);
@@ -437,7 +404,6 @@ namespace uhh2examples {
     h_eff_1bJetLoose->fill(event);
     h_lumi_1bJetLoose->fill(event);
 
-
     //InvMassVeto
     if(!(m_mumu_veto->passes(event) || is_foreff)) return false; 
     h_jets_InvMassVeto->fill(event);
@@ -460,33 +426,6 @@ namespace uhh2examples {
     h_eff_htlept200->fill(event);
     h_lumi_htlept200->fill(event);
     h_btageff_htlept200->fill(event);
-
-    // int n_genele = 0;
-    // if(is_mc){
-    //   for(const auto & gp : *event.genparticles){
-    // 	if(fabs(gp.pdgId()) == 11 || fabs(gp.pdgId()) == 15) n_genele++;
-    //   }
-    // }
-
-    // if(event.muons->size() == 3 && event.electrons->size() == 0 && fabs(sum_mu_charge) == 1){
-    //   cout << "MLQ is reconstructed with muon." << endl;
-    //   cout << "Number of electrons: " << event.electrons->size() << endl;
-    //   cout << "Number of gen-electrons + gen-taus: " << n_genele << endl;
-    //   cout << "SF ele: " << SF_ele << endl;
-    //   cout << "Number of muons: " << event.muons->size() << endl;
-    //   cout << "Number of gen-muons + gen-taus: " << n_genmu << endl;
-    //   cout << "SF mu: " << SF_mu << endl << endl;
-    // }
-
-    // if(nele_sel->passes(event) && event.muons->size() >= 2){
-    //   cout << "MLQ is reconstructed with electron." << endl;
-    //   cout << "Number of electrons: " << event.electrons->size() << endl;
-    //   cout << "Number of gen-electrons + gen-taus: " << n_genele << endl;
-    //   cout << "SF ele: " << SF_ele << endl;
-    //   cout << "Number of muons: " << event.muons->size() << endl;
-    //   cout << "Number of gen-muons + gen-taus: " << n_genmu << endl;
-    //   cout << "SF mu: " << SF_mu << endl << endl;;
-    // }
 
     //Final Selection
     h_finalSelection->fill(event);

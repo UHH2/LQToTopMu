@@ -25,7 +25,7 @@ LQToTopMuPDFHists::LQToTopMuPDFHists(Context & ctx, const string & dirname, bool
   m_oname = ctx.get("dataset_version");
   is_LO = m_oname.Contains("LQtoTMu") || m_oname.Contains("Diboson") || m_oname.Contains("DYJets") || m_oname.Contains("QCD");
   TString m_pdfname = "NNPDF30_lo_as_0130";
-  if(!is_LO && !m_oname.Contains("SingleTop")) m_pdfname = "PDF4LHC15_nlo_mc";
+  //if(!is_LO && !m_oname.Contains("SingleTop")) m_pdfname = "PDF4LHC15_nlo_mc";
   TString weightpath = ctx.get("PDFWeightPath");  cout << "File: " << weightpath+m_oname << endl; 
 
   //take ntupleweights if
@@ -40,7 +40,10 @@ LQToTopMuPDFHists::LQToTopMuPDFHists(Context & ctx, const string & dirname, bool
   cout << "For this sample '" << m_oname << "' is_LO is set to " << is_LO << endl;
   cout << "Are ntupleweights taken for this sample?: " << take_ntupleweights << endl;
 
-  if(is_mc && !take_ntupleweights) m_pdfweights.reset(new PDFWeights(m_pdfname,weightpath+m_oname)); 
+  if(is_mc && !take_ntupleweights){
+    if(m_oname.Contains("LQtoTMu")) m_pdfweights.reset(new PDFWeights(m_pdfname,weightpath+m_oname)); 
+    else m_pdfweights.reset(new PDFWeights(m_pdfname)); 
+  }
 
   for(int i=0; i<100; i++){
     stringstream ss_name;

@@ -53,7 +53,8 @@ namespace uhh2examples {
   private:
     
     unique_ptr<CommonModules>  common;
-    unique_ptr<AnalysisModule> SF_btag, SF_eleReco, SF_eleID;
+    unique_ptr<AnalysisModule> SF_btag, SF_eleReco, SF_eleID, SF_muonID, SF_muonIso;
+    unique_ptr<MuonTrkWeights> SF_muonTrk;
     unique_ptr<ElectronTriggerWeights> SF_eleTrigger;
     unique_ptr<DibosonScaleFactors> SF_Diboson;
     unique_ptr<ZEEFinder> ZEE_finder;
@@ -85,7 +86,7 @@ namespace uhh2examples {
 
 
     bool is_mc, do_pdf_variations, is_dy, is_ele_channel;
-    string Sys_BTag, Sys_PU, Sys_EleID, Sys_EleReco, Sys_EleTrigger;
+    string Sys_BTag, Sys_PU, Sys_EleID, Sys_EleReco, Sys_EleTrigger, Sys_MuonID, Sys_MuonIso, Sys_MuonTrk;
     TString Sys_DibosonXSec, Sys_DibosonBTag;
 
 
@@ -111,6 +112,9 @@ namespace uhh2examples {
     Sys_EleID = ctx.get("Systematic_EleID");
     Sys_EleReco = ctx.get("Systematic_EleReco");
     Sys_EleTrigger = ctx.get("Systematic_EleTrigger");
+    Sys_MuonIso = ctx.get("Systematic_MuonIso");
+    Sys_MuonTrk = ctx.get("Systematic_MuonTrk");
+    Sys_MuonID = ctx.get("Systematic_MuonID");
     Sys_BTag = ctx.get("Systematic_BTag");
     Sys_PU = ctx.get("Systematic_PU");
     Sys_DibosonXSec = ctx.get("Systematic_DibosonXSec");
@@ -121,7 +125,7 @@ namespace uhh2examples {
     else      EleId = AndId<Electron>(ElectronID_Spring16_tight,PtEtaCut(30.0, 2.4));
     Btag_loose = CSVBTag(CSVBTag::WP_LOOSE);
     wp_btag_loose = CSVBTag::WP_LOOSE;
-    jetcleaner.reset(new JetCleaner(ctx,30.0, 2.5)); //10
+    jetcleaner.reset(new JetCleaner(ctx,30.0, 2.4)); //10
 
     common.reset(new CommonModules());    
     common->disable_lumisel();
@@ -135,7 +139,13 @@ namespace uhh2examples {
     else      SF_eleID.reset(new MCElecScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/egammaEffi.txt_EGM2D_CutBased_Tight_ID.root", 1, "", Sys_EleID));
     SF_eleTrigger.reset(new ElectronTriggerWeights(ctx, "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/TagProbe/Optimization/35867fb_Iso27_NonIso115/ElectronEfficiencies.root", Sys_EleTrigger));
     SF_btag.reset(new MCBTagScaleFactor(ctx,wp_btag_loose,"jets",Sys_BTag));
-    if(is_dy) SF_Diboson.reset(new DibosonScaleFactors(ctx, "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/ElectronFakeRate/Optimization/35867fb_CorrMET_Diboson_Pt30/DibosonSF_TTV.root", Sys_DibosonXSec, Sys_DibosonBTag));
+    if(is_dy) SF_Diboson.reset(new DibosonScaleFactors(ctx, "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/ElectronFakeRate/Optimization/35867fb_CorrMET_Diboson_Pt30/DibosonSF.root", Sys_DibosonXSec, Sys_DibosonBTag));
+
+    if(is_dy && !is_ele_channel){
+      SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/MuonID_EfficienciesAndSF_average_RunBtoH.root", "MC_NUM_TightID_DEN_genTracks_PAR_pt_eta", 1., "tightID", true, Sys_MuonID));
+      SF_muonIso.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/MuonIso_EfficienciesAndSF_average_RunBtoH.root", "TightISO_TightID_pt_eta", 1., "iso", true, Sys_MuonIso));
+      SF_muonTrk.reset(new MuonTrkWeights(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/Tracking_EfficienciesAndSF_BCDEFGH.root", Sys_MuonTrk));
+    }
 
     ZEE_finder.reset(new ZEEFinder());
     elejetcleaner.reset(new ElectronJetOverlapCleaner());
@@ -271,7 +281,7 @@ namespace uhh2examples {
     h_topjets_dibosonsf.reset(new TopJetHists(ctx, "TopJets_DibosonSF"));
     h_eff_dibosonsf.reset(new LQToTopMuEfficiencyHists(ctx, "Eff_DibosonSF"));
     h_lumi_dibosonsf.reset(new LuminosityHists(ctx, "Lumi_DibosonSF"));
-    h_fakerate_dibosonsf.reset(new LQToTopMuFakeRateHists(ctx, "FakeRate_DibosonSF"));
+    h_fakerate_dibosonsf.reset(new LQToTopMuFakeRateHists(ctx, "FakeRate_DibosonSF", is_ele_channel));
 
     h_3ele.reset(new LQToTopMuHists(ctx, "3Ele"));
     h_jets_3ele.reset(new JetHists(ctx, "Jets_3Ele"));
@@ -281,7 +291,7 @@ namespace uhh2examples {
     h_topjets_3ele.reset(new TopJetHists(ctx, "TopJets_3Ele"));
     h_eff_3ele.reset(new LQToTopMuEfficiencyHists(ctx, "Eff_3Ele"));
     h_lumi_3ele.reset(new LuminosityHists(ctx, "Lumi_3Ele"));
-    h_fakerate_3ele.reset(new LQToTopMuFakeRateHists(ctx, "FakeRate_3Ele"));
+    h_fakerate_3ele.reset(new LQToTopMuFakeRateHists(ctx, "FakeRate_3Ele", is_ele_channel));
 
     h_finalSelection.reset(new LQToTopMuHists(ctx, "FinalSelection"));
     h_jets_finalSelection.reset(new JetHists(ctx, "Jets_FinalSelection"));
@@ -291,7 +301,7 @@ namespace uhh2examples {
     h_event_finalSelection.reset(new EventHists(ctx, "Event_FinalSelection")); 
     h_eff_finalSelection.reset(new LQToTopMuEfficiencyHists(ctx, "Eff_FinalSelection"));
     h_lumi_finalSelection.reset(new LuminosityHists(ctx, "Lumi_FinalSelection"));
-    h_fakerate_finalSelection.reset(new LQToTopMuFakeRateHists(ctx, "FakeRate_FinalSelection"));
+    h_fakerate_finalSelection.reset(new LQToTopMuFakeRateHists(ctx, "FakeRate_FinalSelection", is_ele_channel));
     
   }
   
@@ -333,6 +343,11 @@ namespace uhh2examples {
 
     if(!ele2_sel->passes(event)) return false;
     if(!is_ele_channel && is_dy && !nmuon_sel->passes(event)) return false;
+    if(!is_ele_channel && is_dy && nele_sel->passes(event)){
+      SF_muonID->process(event);
+      SF_muonIso->process(event);
+      SF_muonTrk->process(event);
+    }
     h_2ele->fill(event);
     h_jets_2ele->fill(event);
     h_ele_2ele->fill(event);

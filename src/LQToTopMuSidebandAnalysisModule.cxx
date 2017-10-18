@@ -52,14 +52,15 @@ namespace uhh2examples {
   private:
     
     std::unique_ptr<CommonModules> common;
-    std::unique_ptr<AnalysisModule> Muon_printer, Electron_printer, Jet_printer, GenParticles_printer, syst_module, SF_muonID, SF_muonTrigger, SF_muonIso, SF_btag, SF_eleReco, SF_eleID;
+    std::unique_ptr<AnalysisModule> Muon_printer, Electron_printer, Jet_printer, GenParticles_printer, syst_module, SF_muonID, SF_muonIso, SF_btag, SF_eleReco, SF_eleID;
+    unique_ptr<MCMuonScaleFactor> SF_muonTrigger;
     std::unique_ptr<ElectronTriggerWeights> SF_eleTrigger;
     unique_ptr<MuonTrkWeights> SF_muonTrk;
     
     std::unique_ptr<JetCleaner> jetcleaner;
     
     // declare the Selections to use.
-    std::unique_ptr<Selection>  nele_sel, nbtag_loose_sel, htlept_sel, mttbar_gen_sel, inv_mass_veto, ele_trigger_sel1, ele_trigger_sel2, n_ele_sel;
+    std::unique_ptr<Selection>  nele_sel, nbtag_loose_sel, htlept_sel, mttbar_gen_sel, inv_mass_veto, ele_trigger_sel1, ele_trigger_sel2, n_ele_sel, njet_sel, ht_sel;
     
     // store the Hists collection as member variables. 
     std::unique_ptr<Hists> h_nocuts, h_jets_nocuts, h_ele_nocuts, h_mu_nocuts, h_event_nocuts, h_topjets_nocuts, h_tau_nocuts, h_eff_nocuts, h_lumi_nocuts;
@@ -83,7 +84,7 @@ namespace uhh2examples {
 
     std::unique_ptr<TFile> file_alpha;
     std::unique_ptr<TGraphAsymmErrors> alpha;
-    std::unique_ptr<TH1D> norm;
+    //std::unique_ptr<TH1D> norm;
     double EleTriggerSF;
     string filepath_alpha, Sys_MuonID, Sys_MuonTrk, Sys_BTag, Sys_MuonTrigger, Sys_MuonIso, Sys_PU, Sys_EleID, Sys_EleReco, Sys_EleTrigger, Sys_TTbar, Sys_DY, Sys_ST, Sys_DB, Sys_QCD, Sys_WJ, Sys_TTV;
     TString dataset_version;
@@ -135,9 +136,9 @@ namespace uhh2examples {
     if(apply_alpha){
       file_alpha.reset(new TFile(c_filepath_alpha,"READ"));
       alpha.reset((TGraphAsymmErrors*)file_alpha->Get("Graph"));
-      norm.reset((TH1D*)file_alpha->Get("h_normalization"));
-      if(!norm) norm.reset((TH1D*)file_alpha->Get("h_normalization_syst_up"));
-      if(!norm) norm.reset((TH1D*)file_alpha->Get("h_normalization_syst_dn"));
+      //norm.reset((TH1D*)file_alpha->Get("h_normalization"));
+      //if(!norm) norm.reset((TH1D*)file_alpha->Get("h_normalization_syst_up"));
+      //if(!norm) norm.reset((TH1D*)file_alpha->Get("h_normalization_syst_dn"));
     }
     
     // 1. setup other modules. CommonModules and the JetCleaner:
@@ -152,7 +153,7 @@ namespace uhh2examples {
 
     Btag_loose = CSVBTag(CSVBTag::WP_LOOSE);
     wp_btag_loose = CSVBTag::WP_LOOSE;
-    jetcleaner.reset(new JetCleaner(ctx,30.0, 2.5)); 
+    jetcleaner.reset(new JetCleaner(ctx,30.0, 2.4)); 
 
     common.reset(new CommonModules());
     common->disable_lumisel();
@@ -181,6 +182,8 @@ namespace uhh2examples {
     
     // 2. set up selections
     //Selection
+    njet_sel.reset(new NJetSelection(2, -1));  
+    ht_sel.reset(new HtSelection(350., -1));
     nbtag_loose_sel.reset(new NJetSelection(1, -1, Btag_loose));
     htlept_sel.reset(new HTLeptSelection(200., -1));
     if(is_mu_e) inv_mass_veto.reset(new InvMassMuEleVeto(0.,111.));
@@ -277,7 +280,7 @@ namespace uhh2examples {
 	else if(dataset_version.Contains("WJets") && Sys_WJ != "nominal")     factor_xsec = 0.1;
 	else if(dataset_version.Contains("Diboson") && Sys_DB != "nominal")   factor_xsec = 0.2;
 	else if(dataset_version.Contains("QCD") && Sys_QCD != "nominal")      factor_xsec = 1;
-	else if(dataset_version.Contains("TTV") && Sys_TTV != "nominal")      factor_xsec = 0.05;
+	else if(dataset_version.Contains("TTV") && Sys_TTV != "nominal")      factor_xsec = 0.25;
 	else if(dataset_version.Contains("LQ"))                               factor_xsec = 0;
       }
       double sf_xsec = 1;
@@ -292,7 +295,7 @@ namespace uhh2examples {
     
     //apply muon & electron SFs as in preselection
     if(is_mu_e){
-      SF_muonTrigger->process(event);
+      SF_muonTrigger->process_onemuon(event,0);
       SF_muonID->process(event);
       SF_muonIso->process(event);
       SF_muonTrk->process(event);
@@ -310,6 +313,8 @@ namespace uhh2examples {
     bool pass_common = common->process(event);
     if(!pass_common) return false;
     jetcleaner->process(event);
+    if(!njet_sel->passes(event)) return false;
+    if(!ht_sel->passes(event))   return false;
 
     //HT
     auto met = event.met->pt();
@@ -326,7 +331,6 @@ namespace uhh2examples {
       ht_lep += muon.pt();
     }
     ht = ht_lep + ht_jets + met;
-    if(false)cout << ht << endl;
 
     //if(is_mc)GenParticles_printer->process(event);
 
@@ -344,18 +348,6 @@ namespace uhh2examples {
     h_topjets_nocuts->fill(event);
     h_eff_nocuts->fill(event);
     h_lumi_nocuts->fill(event);
-
-    /*
-    //Nele
-    h_1ele->fill(event);
-    h_jets_1ele->fill(event);
-    h_ele_1ele->fill(event);
-    h_mu_1ele->fill(event);
-    h_event_1ele->fill(event);
-    h_topjets_1ele->fill(event);
-    h_eff_1ele->fill(event);
-    h_lumi_1ele->fill(event);
-    */
 
     //1 bTag1 loose
     if(!nbtag_loose_sel->passes(event)) return false;
@@ -408,11 +400,12 @@ namespace uhh2examples {
     double original_weight = event.weight;
     if(apply_alpha){
       double d_alpha = alpha->Eval(ht);
-      double d_norm = norm->GetBinContent(1);
-      double sideband_weight = d_alpha * d_norm;
+      //double d_norm = norm->GetBinContent(1);
+      //double sideband_weight = d_alpha * d_norm;
     
       //change weights
-      event.weight *= sideband_weight;
+      //event.weight *= sideband_weight;
+      event.weight *= d_alpha;
     }
     h_Sideband->fill(event);
     //restore weights

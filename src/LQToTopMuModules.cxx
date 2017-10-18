@@ -113,6 +113,7 @@ ElectronTriggerWeights::ElectronTriggerWeights(Context & ctx, TString path_, TSt
   
 }
 
+/*
 bool ElectronTriggerWeights::process(Event & event){
 
   if(event.isRealData) return true;
@@ -215,7 +216,104 @@ bool ElectronTriggerWeights::process(Event & event){
 
   //cout << "Weight with SF: " << event.weight << endl; 
   return true;
+}*/
+
+bool ElectronTriggerWeights::process(Event & event){
+
+  if(event.isRealData) return true;
+
+  double prob_notrig_mc = 1, prob_notrig_data = 1;
+  const auto ele = event.electrons->at(0);
+  double eta = ele.eta();
+  if(fabs(eta) > 2.4) throw runtime_error("In LQToTopMuModules.cxx, ElectronTriggerWeights.process(): Ele-|eta| > 2.4 is not supported at the moment.");
+
+
+  //find right bin in eta
+  int idx = 0;
+  bool lowpt = false;
+  if(30 <= ele.pt() && ele.pt() < 120){
+    lowpt = true;
+    //lowpt trigger
+    bool keep_going = true;
+    while(keep_going){
+      double x,y;
+      Eff_lowpt_MC->GetPoint(idx,x,y);
+      keep_going = eta > x + Eff_lowpt_MC->GetErrorXhigh(idx);
+      if(keep_going) idx++;
+    }
+  }
+  else if(ele.pt() >= 120){
+    //highpt trigger
+    bool keep_going = true;
+    while(keep_going){
+      double x,y;
+      Eff_highpt_MC->GetPoint(idx,x,y);
+      keep_going = eta > x + Eff_highpt_MC->GetErrorXhigh(idx);
+      if(keep_going) idx++;
+    }
+  }
+  else throw runtime_error("In LQToTopMuModules.cxx, ElectronTriggerWeights.process(): Electron has pt<30. Clean electron collection before applying weights.");
+
+  //access efficiencies for MC and DATA, possibly accout for systematics = statistical + add. 2% up/down
+  double eff_data = -1, eff_mc = -1, dummy_x;
+  double stat_data = -1, stat_mc = -1, tp = 0.02, total_syst_data = -1, total_syst_mc = -1;
+  if(lowpt){
+    Eff_lowpt_MC->GetPoint(idx,dummy_x,eff_mc);
+    Eff_lowpt_DATA->GetPoint(idx,dummy_x,eff_data);
+
+    if(SysDirection == "up"){		
+      stat_mc = Eff_lowpt_MC->GetErrorYlow(idx);	
+      stat_data = Eff_lowpt_DATA->GetErrorYhigh(idx);
+      total_syst_mc = sqrt(pow(stat_mc,2) + pow(tp,2));
+      total_syst_data = sqrt(pow(stat_data,2) + pow(tp,2));
+
+      eff_mc -= total_syst_mc;    	
+      eff_data += total_syst_data;	
+    }							
+    else if(SysDirection == "down"){
+      stat_mc = Eff_lowpt_MC->GetErrorYhigh(idx);	
+      stat_data = Eff_lowpt_DATA->GetErrorYlow(idx);
+      total_syst_mc = sqrt(pow(stat_mc,2) + pow(tp,2));
+      total_syst_data = sqrt(pow(stat_data,2) + pow(tp,2));
+			
+      eff_mc += Eff_lowpt_MC->GetErrorYhigh(idx);    	
+      eff_data -= Eff_lowpt_DATA->GetErrorYlow(idx);	
+    }                                                 
+  }
+  else{
+    Eff_highpt_MC->GetPoint(idx,dummy_x,eff_mc);
+    Eff_highpt_DATA->GetPoint(idx,dummy_x,eff_data);
+
+    if(SysDirection == "up"){	
+      stat_mc = Eff_highpt_MC->GetErrorYlow(idx);	
+      stat_data = Eff_highpt_DATA->GetErrorYhigh(idx);
+      total_syst_mc = sqrt(pow(stat_mc,2) + pow(tp,2));
+      total_syst_data = sqrt(pow(stat_data,2) + pow(tp,2));
+			
+      eff_mc -= Eff_highpt_MC->GetErrorYlow(idx);    	
+      eff_data += Eff_highpt_DATA->GetErrorYhigh(idx);	
+    }							
+    else if(SysDirection == "down"){	
+      stat_mc = Eff_highpt_MC->GetErrorYhigh(idx);	
+      stat_data = Eff_highpt_DATA->GetErrorYlow(idx);
+      total_syst_mc = sqrt(pow(stat_mc,2) + pow(tp,2));
+      total_syst_data = sqrt(pow(stat_data,2) + pow(tp,2));
+					
+      eff_mc += Eff_highpt_MC->GetErrorYhigh(idx);    	
+      eff_data -= Eff_highpt_DATA->GetErrorYlow(idx);	
+    }                                                 
+  }
+
+  //Scale weight by (eff_data) / (eff_mc)
+  double SF = eff_data/eff_mc;
+  event.weight *= SF;
+
+return true;
 }
+
+
+
+
 
 JetCorrectorVariable::JetCorrectorVariable(uhh2::Context & ctx, const std::vector<std::string> & JEC_files): JetCorrector(ctx, JEC_files){}
 
@@ -228,81 +326,9 @@ bool JetCorrectorVariable::correct_collection(uhh2::Event & event, std::vector<J
     return true;
 };
 
-/*
-JetSmearerVariable::JetSmearerVariable(uhh2::Context & ctx, const string label_jets, const string label_genjets, const JERSmearing::SFtype1& JER_sf) : GenericJetResolutionSmearer(ctx,label_jets,label_genjets,true,JER_sf){}
-
-bool JetResolutionSmearer::process(uhh2::Event & event) {
-
-  m_gjrs->process(event);
-  return true;
-}
-
-JetResolutionSmearer::~JetResolutionSmearer(){}
-*/
 
 
-/*
-JetSmearerVariable::JetSmearerVariable(uhh2::Context & ctx, const JERSmearing::SFtype1& JER_sf): JetResolutionSmearer(ctx, JER_sf){}
 
-bool JetSmearerVariable::smear_collection(uhh2::Event & event, std::vector<Jet> & jets, std::vector<Particle> &genjets){
-    
-    LorentzVector met;
-    if(event.met) {
-      met = event.met->v4();
-    }
-    for(unsigned int i=0; i<jets.size(); ++i) {
-      auto & jet = jets.at(i);
-      // find next genjet:
-      auto closest_genjet = closestParticle(jet, genjets);
-      // ignore unmatched jets (=no genjets at all or large DeltaR), or jets with very low genjet pt:
-      if(closest_genjet == nullptr || deltaR(*closest_genjet, jet) > 0.3) continue;
-      auto genpt = closest_genjet->pt();
-      if(genpt < 15.0f) {
-	continue;
-      }
-      LorentzVector jet_v4 = jet.v4();
-      float recopt = jet_v4.pt();
-      float abseta = fabs(jet_v4.eta());
-
-      int ieta(-1);
-
-      for(unsigned int idx=0; idx<JER_SFs_.size(); ++idx){
-
-	const float min_eta = idx ? JER_SFs_.at(idx-1).at(0) : 0.;
-	const float max_eta =       JER_SFs_.at(idx)  .at(0);
-
-	if(min_eta <= abseta && abseta < max_eta){ ieta = idx; break; }
-      }
-      if(ieta < 0) {
-	cout << "WARNING: JetSmearerVariable: index for JER-smearing SF not found for jet with |eta| = " << abseta << endl;
-	cout << "         no JER smearing is applied." << endl;
-	continue;
-      }
-
-      float c;
-      if(direction == 0){
-	c = JER_SFs_.at(ieta).at(1);
-      }
-      else if(direction == 1){
-	c = JER_SFs_.at(ieta).at(2);
-      }
-      else{
-	c = JER_SFs_.at(ieta).at(3);
-      }
-      float new_pt = std::max(0.0f, genpt + c * (recopt - genpt));
-      jet_v4 *= new_pt / recopt;
-
-      //update JEC_factor_raw needed for smearing MET
-      float factor_raw = jet.JEC_factor_raw();
-      factor_raw *= recopt/new_pt;
-
-      jet.set_JEC_factor_raw(factor_raw);
-      jet.set_v4(jet_v4);
-    }
-
-    return true;
-}
-*/
 ElectronFakeRateWeights::ElectronFakeRateWeights(Context & ctx, const std::vector<std::string> & JEC_files, TString path_, TString SysDirection_, const string label_jets, const string label_genjets):  path(path_), SysDirection(SysDirection_){
 
   auto dataset_type = ctx.get("dataset_type");
@@ -350,14 +376,8 @@ bool ElectronFakeRateWeights::process(Event & event){
     return false;
   }
 
-
-    
-  
   //find fake-electrons
   vector<bool> is_fake;
-
-
-
 
   //if the number of gen and reco-muons are the same, assume muons are real
   unsigned int n_genele = 0;

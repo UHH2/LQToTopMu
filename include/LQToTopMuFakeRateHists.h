@@ -14,12 +14,12 @@ namespace uhh2examples {
 class LQToTopMuFakeRateHists: public uhh2::Hists {
 public:
     // use the same constructor arguments as Hists for forwarding:
-    LQToTopMuFakeRateHists(uhh2::Context & ctx, const std::string & dirname);
+    LQToTopMuFakeRateHists(uhh2::Context & ctx, const std::string & dirname, bool is_ele_);
 
     virtual void fill(const uhh2::Event & ev) override;
 
   protected:
-    bool is_mc;
+    bool is_mc, is_ele;
     std::unique_ptr<ZEEFinder> ZEE_finder;
 
 
