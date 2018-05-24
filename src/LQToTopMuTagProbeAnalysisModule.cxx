@@ -58,7 +58,7 @@ namespace uhh2examples {
     unique_ptr<ElectronCleaner> elecleaner;
     
     // declare the Selections to use.
-    unique_ptr<Selection>  trigger_sel1, trigger_sel2, nele_sel_trig1, nele_sel_trig2;
+    unique_ptr<Selection>  trigger_sel1, trigger_sel2, nele_sel_trig1, nele_sel_trig2, trigger_mu, ht_sel;
     
     // store the Hists collection as member variables. 
     unique_ptr<Hists> h_nocuts, h_jets_nocuts, h_ele_nocuts, h_mu_nocuts, h_event_nocuts, h_topjets_nocuts, h_eff_nocuts, h_tagprobe_nocuts,
@@ -102,13 +102,13 @@ namespace uhh2examples {
     }
     is_mc = ctx.get("dataset_type") == "MC";
     closuretest = ctx.get("Closuretest") == "true" || ctx.get("Closuretest") == "True";
-    Sys_MuonID = ctx.get("Systematic_MuonID");
+    /*    Sys_MuonID = ctx.get("Systematic_MuonID");
     Sys_MuonTrigger = ctx.get("Systematic_MuonTrigger");
     Sys_MuonIso = ctx.get("Systematic_MuonIso");
     Sys_EleID = ctx.get("Systematic_EleID");
     Sys_EleReco = ctx.get("Systematic_EleReco");
     Sys_EleTrigger = ctx.get("Systematic_EleTrigger");
-    Sys_PU = ctx.get("Systematic_PU");
+    Sys_PU = ctx.get("Systematic_PU");*/
 
 
     // 1. setup other modules. CommonModules and the JetCleaner:
@@ -116,17 +116,18 @@ namespace uhh2examples {
     EleId = AndId<Electron>(ElectronID_Spring16_tight,PtEtaCut(10.0, 2.4));
     EleId_trig1 = AndId<Electron>(ElectronID_Spring16_tight,PtEtaCut(30.0, 2.4)); //30
     EleId_trig2 = AndId<Electron>(ElectronID_Spring16_tight,PtEtaCut(120.0, 2.4)); 
-    jetcleaner.reset(new JetCleaner(ctx,30.0, 2.5));
+    jetcleaner.reset(new JetCleaner(ctx,30.0, 2.4));
 
 
     common.reset(new CommonModules());
     common->disable_lumisel();
     common->disable_jersmear();
     common->disable_jec();
+    //common->disable_mcpileupreweight();
     common->set_electron_id(EleId);
     common->set_muon_id(MuId);
     common->init(ctx,Sys_PU);
-
+    /*
     SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/MuonID_EfficienciesAndSF_average_RunBtoH.root", "MC_NUM_TightID_DEN_genTracks_PAR_pt_eta", 1., "tightID", true, Sys_MuonID));
     SF_muonTrigger.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/MuonTrigger_EfficienciesAndSF_average_RunBtoH.root", "IsoMu24_OR_IsoTkMu24_PtEtaBins", 0.5, "trigger", true, Sys_MuonTrigger));
     SF_muonIso.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/MuonIso_EfficienciesAndSF_average_RunBtoH.root", "TightISO_TightID_pt_eta", 1., "iso", true, Sys_MuonIso));
@@ -134,16 +135,18 @@ namespace uhh2examples {
     SF_eleReco.reset(new MCElecScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/egammaEffi.txt_EGM2D_RecEff_Moriond17.root", 1, "", Sys_EleReco));
     SF_eleID.reset(new MCElecScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/egammaEffi.txt_EGM2D_CutBased_Loose_ID.root", 1, "", Sys_EleID));
     SF_eleTrigger.reset(new ElectronTriggerWeights(ctx, "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/TagProbe/Optimization/35867fb_Iso27_NonIso115/ElectronEfficiencies.root", Sys_EleTrigger));
-    
+    */
     h_hyps = ctx.get_handle<vector<LQReconstructionHypothesis>>("HighMassLQReconstruction");
 
     
     // 2. set up selections
     //Selection
-    trigger_sel1.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
-    trigger_sel2.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*")); //105
+    trigger_mu.reset(new TriggerSelection("HLT_IsoMu24_v*")); //original: IsoMu24
+    //    trigger_sel1.reset(new TriggerSelection("HLT_Ele27_WPTight_Gsf_v*"));
+    //trigger_sel2.reset(new TriggerSelection("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*")); //105
     nele_sel_trig1.reset(new NElectronSelection(1, 1, EleId_trig1));
     nele_sel_trig2.reset(new NElectronSelection(1, 1, EleId_trig2));
+    ht_sel.reset(new HtSelection(300));
     
     //make reconstruction hypotheses
     recomodules.emplace_back(new LQPrimaryLepton(ctx));
@@ -291,23 +294,13 @@ namespace uhh2examples {
   
   bool LQToTopMuTagProbeAnalysisModule::process(Event & event) {
     //cout << endl << endl << "+++NEW EVENT+++" << endl;
+
+    //if(!trigger_mu->passes(event)) return false;    
+    //if(!ht_sel->passes(event)) return false;
+    //if(event.electrons->at(0).pt() < 30) return false;
+
+
     
-    //apply muon SFs as in preselection
-    if(event.muons->size() >= 1){
-      SF_muonTrigger->process(event);
-      SF_muonID->process(event);
-      SF_muonIso->process(event);
-    }
-
-    if(event.electrons->size() >= 1){
-      SF_eleReco->process(event);
-      SF_eleID->process(event);
-    }
-
-
-
-
-
     bool pass_common = common->process(event);
     if(!pass_common) return false;
     jetcleaner->process(event);
@@ -326,7 +319,7 @@ namespace uhh2examples {
     h_topjets_nocuts->fill(event);
     h_eff_nocuts->fill(event);
     h_tagprobe_nocuts->fill(event);
-
+    
     if(!trigger_sel1->passes(event)){
       h_notfromiso->fill(event);
       h_jets_notfromiso->fill(event);
@@ -381,15 +374,15 @@ namespace uhh2examples {
       h_eff_ele110->fill(event);
       h_tagprobe_ele110->fill(event);
     }
-
+    
     if(!(trigger_sel1->passes(event) || trigger_sel2->passes(event))) return false;
 
     if(closuretest){
       if(event.electrons->at(0).pt() < 30) return false;      
-      SF_eleTrigger->process(event);
+      //SF_eleTrigger->process(event);
     }
 
-    if(event.electrons->at(0).pt() < 30) cout << "Hello, this ele has pt < 30" << endl;
+    //if(event.electrons->at(0).pt() < 30) cout << "Hello, this ele has pt < 30" << endl;
 
 
 
@@ -401,7 +394,7 @@ namespace uhh2examples {
     h_topjets_trigger->fill(event);
     h_eff_trigger->fill(event);
     h_tagprobe_trigger->fill(event);
-
+    
     if(trigger_sel1->passes(event)){
       h_isotrigger->fill(event);
       h_jets_isotrigger->fill(event);
@@ -488,7 +481,7 @@ namespace uhh2examples {
     h_topjets_plateau->fill(event);
     h_eff_plateau->fill(event);
     h_tagprobe_plateau->fill(event);
-
+    
 
     return false;
   }

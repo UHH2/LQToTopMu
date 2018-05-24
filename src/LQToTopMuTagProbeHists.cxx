@@ -23,6 +23,8 @@ LQToTopMuTagProbeHists::LQToTopMuTagProbeHists(Context & ctx, const string & dir
   book<TH1D>("dR_ele_mu", "#Delta R(ele, mu)", 50, 0, 5);
   book<TH1D>("dRmin_ele_jet", "#Delta R^{min}(ele, jet)", 50, 0, 5);
   book<TH1D>("dRmin_ele_obj", "#Delta R^{min}(ele, obj)", 50, 0, 5);
+  book<TH1D>("ele_zvtx_barrel", "electron z-position, barrel", 60, -15, 15);
+  book<TH1D>("ele_zvtx_endcap", "electron z-position, endcap", 60, -15, 15);
 }
 
 
@@ -52,6 +54,10 @@ void LQToTopMuTagProbeHists::fill(const Event & event){
 
   double dR_min_e_obj = min(dR_e_mu, dR_min_e_jet);
   hist("dRmin_ele_obj")->Fill(dR_min_e_obj,weight);
+
+  double zvtx = event.electrons->at(0).gsfTrack_vz();
+  if(fabs(event.electrons->at(0).eta()) <= 1.479) hist("ele_zvtx_barrel")->Fill(zvtx,weight);
+  else                                            hist("ele_zvtx_endcap")->Fill(zvtx,weight);
 
 } //Methode
 

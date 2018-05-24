@@ -215,14 +215,14 @@
   
 
 
-<!--
+
   <InputData Lumi="186543.350" NEventsMax="&NEVT;" Type="MC" Version="TTbar" Cacheable="&b_Cacheable;">
     <In FileName="&TTbar;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
   </InputData>    
 
 
-
+<!--
   <InputData Lumi="261411503.121" NEventsMax="&NEVT;" Type="MC" Version="WJetsPT100to250" Cacheable="&b_Cacheable;">
     <In FileName="&WJetsPT100to250;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
@@ -242,7 +242,7 @@
     <In FileName="&WJetsPT600toInf;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />
   </InputData>
--->
+
 
 
   <InputData Lumi="44562.43652" NEventsMax="&NEVT;" Type="MC" Version="DYJetsM50_HT70to100" Cacheable="&b_Cacheable;">
@@ -286,7 +286,7 @@
   </InputData>
 
 
-<!--
+
   <InputData Lumi="44063.888" NEventsMax="&NEVT;" Type="MC" Version="SingleTop_T_tch" Cacheable="&b_Cacheable;">
     <In FileName="&SingleTop_T_tch;" Lumi="0.0"/>
     <InputTree Name="AnalysisTree" />

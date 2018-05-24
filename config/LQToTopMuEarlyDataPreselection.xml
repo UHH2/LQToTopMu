@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE JobConfiguration PUBLIC "" "JobConfig.dtd"[
+
+
+	  <!ENTITY TargetLumi      "24920">
+	  <!ENTITY Trigger         "Iso">
+	  <!ENTITY PRESELdir       "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_92X_v1/EarlyData/Preselection/&TargetLumi;fb_NoJSON/&Trigger;">
+	  <!ENTITY b_Cacheable     "False">
+	  <!ENTITY NEVT            "-1">
+	  <!ENTITY PROOFdir        "/nfs/dust/cms/user/reimersa/.proof2">
+
+
+
+
+
+
+
+
+<!ENTITY DATA_B SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_9_2_4/src/UHH2/common/datasets/RunII_92X_v1/DATA_SingleMuon_Run2017B_PromptReco.xml">
+<!ENTITY DATA_C SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_9_2_4/src/UHH2/common/datasets/RunII_92X_v1/DATA_SingleMuon_Run2017C_PromptReco.xml">
+<!ENTITY DATA_D SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_9_2_4/src/UHH2/common/datasets/RunII_92X_v1/DATA_SingleMuon_Run2017D_PromptReco.xml">
+<!ENTITY DATA_E SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_9_2_4/src/UHH2/common/datasets/RunII_92X_v1/DATA_SingleMuon_Run2017E_PromptReco.xml">
+<!ENTITY DATA_F SYSTEM "/nfs/dust/cms/user/reimersa/CMSSW_9_2_4/src/UHH2/common/datasets/RunII_92X_v1/DATA_SingleMuon_Run2017F_PromptReco.xml">
+
+]>
+
+
+
+<!--
+   <ConfigParse NEventsBreak="0" FileSplit="20" AutoResubmit="5"/>
+<ConfigSGE RAM ="4" DISK ="3" Mail="arne.reimers@desy.de" Notification="as" Workdir="workdir_EarlyData_Pre"/>
+-->
+
+<!-- OutputLevel controls which messages are printed; set to VERBOSE or DEBUG for more verbosity, to WARNING or ERROR for less -->
+<JobConfiguration JobName="ExampleCycleJob" OutputLevel="INFO">
+  <Library Name="libSUHH2LQToTopMu"/>
+  <Package Name="SUHH2LQToTopMu.par" />
+
+<Cycle Name="uhh2::AnalysisModuleRunner" OutputDirectory="&PRESELdir;/" PostFix="" TargetLumi="&TargetLumi;" >
+  
+ 
+  <InputData Lumi="1" NEventsMax="&NEVT;" Type="DATA" Version="DATA_B" Cacheable="&b_Cacheable;">
+    &DATA_B;
+    <InputTree Name="AnalysisTree" />
+    <OutputTree Name="AnalysisTree" />
+  </InputData>
+
+  <InputData Lumi="1" NEventsMax="&NEVT;" Type="DATA" Version="DATA_C" Cacheable="&b_Cacheable;">
+    &DATA_C;
+    <InputTree Name="AnalysisTree" />
+    <OutputTree Name="AnalysisTree" />
+  </InputData>
+
+  <InputData Lumi="1" NEventsMax="&NEVT;" Type="DATA" Version="DATA_D" Cacheable="&b_Cacheable;">
+    &DATA_D;
+    <InputTree Name="AnalysisTree" />
+    <OutputTree Name="AnalysisTree" />
+  </InputData>
+
+  <InputData Lumi="1" NEventsMax="&NEVT;" Type="DATA" Version="DATA_E" Cacheable="&b_Cacheable;">
+    &DATA_E;
+    <InputTree Name="AnalysisTree" />
+    <OutputTree Name="AnalysisTree" />
+  </InputData>
+
+  <InputData Lumi="1" NEventsMax="&NEVT;" Type="DATA" Version="DATA_F" Cacheable="&b_Cacheable;">
+    &DATA_F;
+    <InputTree Name="AnalysisTree" />
+    <OutputTree Name="AnalysisTree" />
+  </InputData>
+
+
+
+
+
+
+
+
+ 
+        <UserConfig>
+            <!-- define which collections to read from the input. Only specify what you need to save I/O time -->
+            <Item Name="PrimaryVertexCollection" Value="offlineSlimmedPrimaryVertices" /> 
+            <Item Name="ElectronCollection" Value="slimmedElectronsUSER" />
+            <Item Name="MuonCollection" Value="slimmedMuonsUSER" /> 
+            <Item Name="JetCollection" Value="slimmedJets" />
+            <Item Name="METName" Value="slimmedMETs" />
+            <Item Name="GenJetCollection" Value="slimmedGenJets" /> 
+	    <Item Name="GenParticleCollection" Value="GenParticles" />
+	    <Item Name="GenInfoName" Value="genInfo" />
+
+            <Item Name="lumi_file" Value="/nfs/dust/cms/user/reimersa/CMSSW_9_2_4/src/UHH2/common/data/Cert_294927-304507_13TeV_PromptReco_Collisions17_JSON.root" />
+            <Item Name="lumihists_lumi_per_bin" Value="1000."/>
+
+
+            
+            <!-- The list of available collections to read in corresponds to the pointer members in event. The 'Name's to use here in the configuration are:
+            
+                 PrimaryVertexCollection
+                 ElectronCollection
+                 MuonCollection
+                 TauCollection
+                 PhotonCollection
+                 JetCollection
+                 TopJetCollection
+                 METName
+                 
+                 GenInfoName
+                 GenJetCollection
+                 GenTopJetCollection
+                 GenParticleCollection
+                 
+                 Note that the last four are only read in for MC (InputData Type="MC"), so it is save to specify
+                 them for real data, although those branches do not exist.
+                 
+                 As 'Value', always use the branch name (if in doubt, open the input file in ROOT).
+                 
+                 By default, triggers are read. To explicitly disable reading triggers, use:
+                 <Item Name="readTrigger" Value="false" />
+            -->
+            
+            <!-- the class name of the AnalysisModule subclasses to run: -->
+            <Item Name="AnalysisModule" Value="LQToTopMuEarlyDataPreselectionModule" /> 
+            
+            <!-- tell AnalysisModuleRunner NOT to use the MC event weight from SFrame; rather let
+                 MCLumiWeight (called via CommonModules) calculate the MC event weight. The MC
+                 event weight assigned by MCLumiWeight is InputData.Lumi / Cycle.TargetLumi. -->
+            <Item Name="use_sframe_weight" Value="false" />
+            
+            <!-- configuration for MCPileupReweight (run as part of CommonModules): -->
+            <Item Name="pileup_directory" Value="/nfs/dust/cms/user/reimersa/CMSSW_9_2_4/src/UHH2/common/data/MyMCPileupHistogram.root" /> 
+	    <Item Name="pileup_directory_data" Value="/nfs/dust/cms/user/reimersa/CMSSW_9_2_4/src/UHH2/common/data/MyDataPileupHistogram.root" />
+
+
+	    <Item Name="Trigger" Value="&Trigger;" />
+
+
+	    <Item Name="ScaleVariationMuR" Value="none" />
+	    <Item Name="ScaleVariationMuF" Value="none" />
+	    <Item Name="jecsmear_direction" Value="nominal" />
+	    <Item Name="jersmear_direction" Value="nominal" />
+            
+            <!-- Some test configuration; see LQToTopMuModule.cxx for how to access it: -->
+            <Item Name="TestKey" Value="TestKeyValue" />
+        </UserConfig>
+    </Cycle>
+</JobConfiguration>
