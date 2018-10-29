@@ -192,4 +192,20 @@ namespace uhh2examples {
     double n_min, n_max;
   };
 
+  class LQSemiLepMatchable: public uhh2::Selection{
+  public:
+    LQSemiLepMatchable();
+    ~LQSemiLepMatchable(){};
+    virtual bool passes(const uhh2::Event & event);
+  private:
+  };
+
+  class TTbarSemiLepMatchable: public uhh2::Selection{
+  public:
+    TTbarSemiLepMatchable();
+    ~TTbarSemiLepMatchable(){};
+    virtual bool passes(const uhh2::Event & event);
+  private:
+  };
+
 }

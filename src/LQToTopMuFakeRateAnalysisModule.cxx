@@ -103,7 +103,6 @@ namespace uhh2examples {
     for(auto & kv : ctx.get_all()){
       cout << " " << kv.first << " = " << kv.second << endl;
     }
-
     do_pdf_variations = ctx.get("b_PDFUncertainties") == "true";
     is_mc = ctx.get("dataset_type") == "MC";
     is_dy = ctx.get("Channel") == "DY";
@@ -139,7 +138,9 @@ namespace uhh2examples {
     else      SF_eleID.reset(new MCElecScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/egammaEffi.txt_EGM2D_CutBased_Tight_ID.root", 1, "", Sys_EleID));
     SF_eleTrigger.reset(new ElectronTriggerWeights(ctx, "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/TagProbe/Optimization/35867fb_Iso27_NonIso115/ElectronEfficiencies.root", Sys_EleTrigger));
     SF_btag.reset(new MCBTagScaleFactor(ctx,wp_btag_loose,"jets",Sys_BTag));
-    if(is_dy) SF_Diboson.reset(new DibosonScaleFactors(ctx, "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/ElectronFakeRate/Optimization/35867fb_CorrMET_Diboson_Pt30/DibosonSF.root", Sys_DibosonXSec, Sys_DibosonBTag));
+    //if(is_dy) SF_Diboson.reset(new DibosonScaleFactors(ctx, "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/ElectronFakeRate/Optimization/35867fb_CorrMET_Diboson_Pt30/DibosonSF.root", Sys_DibosonXSec, Sys_DibosonBTag));
+    //if(is_dy) SF_Diboson.reset(new DibosonScaleFactors(ctx, "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/ElectronFakeRate/Optimization/35867fb_FakeRateNoHF_Diboson/DibosonSF.root", Sys_DibosonXSec, Sys_DibosonBTag));
+    if(is_dy) SF_Diboson.reset(new DibosonScaleFactors(ctx, "/nfs/dust/cms/user/reimersa/LQToTopMu/Run2_80X_v3/ElectronFakeRate/Optimization/35867fb_FakeRateNoHF_Diboson/WithPromptHistograms/DibosonSF_NLO.root", Sys_DibosonXSec, Sys_DibosonBTag));
 
     if(is_dy && !is_ele_channel){
       SF_muonID.reset(new MCMuonScaleFactor(ctx, "/nfs/dust/cms/user/reimersa/CMSSW_8_0_24_patch1/src/UHH2/common/data/MuonID_EfficienciesAndSF_average_RunBtoH.root", "MC_NUM_TightID_DEN_genTracks_PAR_pt_eta", 1., "tightID", true, Sys_MuonID));
@@ -168,7 +169,7 @@ namespace uhh2examples {
     if(is_ele_channel) nele_sel.reset(new NElectronSelection(3, 3)); //DY ele + Diboson ele
     else nele_sel.reset(new NMuonSelection(1, 1));                   //DY mu  + Diboson mu
     if(is_ele_channel){
-      if(!is_dy) ele2_sel.reset(new NElectronSelection(2, -1));        //Diboson
+      if(!is_dy) ele2_sel.reset(new NElectronSelection(2, 3));        //Diboson
       else       ele2_sel.reset(new NElectronSelection(2, 3));         //DY
     }
     else{
@@ -311,8 +312,7 @@ namespace uhh2examples {
 
     SF_eleReco->process(event);
     SF_eleID->process(event);
-
-    if(event.electrons->size() >= 1 && event.muons->size() >= 2){
+    if(event.electrons->size() >= 1 && event.muons->size() >= 2 && event.jets->size() >= 2){
       for(auto & m : recomodules){
 	m->process(event);
       }

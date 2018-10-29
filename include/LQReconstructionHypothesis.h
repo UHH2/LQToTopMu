@@ -50,6 +50,7 @@ public:
   LorentzVector antitop_v4() const{ return m_electron.charge() < 0 ? m_toplep_v4 : m_tophad_v4;}
   LorentzVector wlep_v4() const{ return m_neutrino_v4+m_electron.v4();}
   LorentzVector blep_v4() const{return m_blep_v4;}
+  bool is_real_neutrino() const{return m_is_real_neutrino;}
 
   /// get the discriminator value for this hypothesis; thows a runtime_error if it does not exist.
   float discriminator(const std::string & l) const {
@@ -94,6 +95,7 @@ public:
   void set_mu_had_v4(LorentzVector v4){m_mu_had_v4=v4;}
   void set_mu_had1_v4(LorentzVector v4){m_mu_had1_v4=v4;}
   void set_mu_had2_v4(LorentzVector v4){m_mu_had2_v4=v4;}
+  void set_is_real_neutrino(bool x){m_is_real_neutrino=x;}
 
   void set_discriminator(const std::string & label, float discr){
       m_discriminators[label] = discr;
@@ -132,6 +134,7 @@ private:
   Particle m_mu_had;
   Particle m_mu_had1;
   Particle m_mu_had2;
+  bool m_is_real_neutrino;
 
   std::map<std::string, float> m_discriminators;
 };

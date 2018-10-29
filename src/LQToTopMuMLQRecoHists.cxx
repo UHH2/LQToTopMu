@@ -1,4 +1,4 @@
-#include "../include/LQToTopMuHists.h"
+#include "../include/LQToTopMuMLQRecoHists.h"
 #include "../include/HypothesisHistsOwn.h"
 #include "UHH2/core/include/Event.h"
 #include "UHH2/common/include/Utils.h"
@@ -13,7 +13,7 @@ using namespace std;
 using namespace uhh2;
 using namespace uhh2examples;
 
-LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
+LQToTopMuMLQRecoHists::LQToTopMuMLQRecoHists(Context & ctx, const string & dirname): Hists(ctx, dirname){
   // book all histograms here
   // jets
   book<TH1F>("N_jets", "N_{jets}", 20, 0, 20);  
@@ -275,18 +275,15 @@ LQToTopMuHists::LQToTopMuHists(Context & ctx, const string & dirname): Hists(ctx
  
 
   //For MLQ reconstruction
-  h_hyps        = ctx.get_handle<std::vector<LQReconstructionHypothesis>>("HighMassLQReconstruction");
-  h_muonic_hyps = ctx.get_handle<std::vector<LQReconstructionHypothesis>>("HighMassMuonicLQReconstruction");
-  //h_hadr_hyps = ctx.get_handle<std::vector<LQReconstructionHypothesis>>("HighMassHadronicLQReconstruction");
+  h_inclusive_hyps        = ctx.get_handle<std::vector<LQReconstructionHypothesis>>("HighMassInclusiveLQReconstruction");
   m_discriminator_name ="Chi2";
-  //m_discriminator_name ="CorrectMatch";
 
   is_mc = ctx.get("dataset_type") == "MC";
 
 }
 
 
-void LQToTopMuHists::fill(const Event & event){
+void LQToTopMuMLQRecoHists::fill(const Event & event){
   // fill the histograms. Please note the comments in the header file:
   // 'hist' is used here a lot for simplicity, but it will be rather
   // slow when you have many histograms; therefore, better
@@ -570,10 +567,18 @@ void LQToTopMuHists::fill(const Event & event){
       }
     }
   }
+  double sum_mu_charge = 0, sum_mu_charge_first3=0;
+  int idx=0;
+  for(const auto & mu : *event.muons){
+    sum_mu_charge += mu.charge();
+    if(idx < 3) sum_mu_charge_first3 += mu.charge();
+    idx++;
+  }
 
-  bool reconstruct_mlq_ele = (Nele >= 1 && event.muons->size() >= 2 && charge_opposite && event.jets->size() >= 2);
-  if(reconstruct_mlq_ele){   
-    std::vector<LQReconstructionHypothesis> hyps = event.get(h_hyps); 
+  bool reconstruct_mlq_inclusive = (event.muons->size() >= 2 && event.electrons->size() >= 1 && charge_opposite) || (event.electrons->size() == 0 && event.muons->size() >= 3 && charge_opposite && fabs(sum_mu_charge_first3) == 1);
+
+  if(reconstruct_mlq_inclusive){   
+    std::vector<LQReconstructionHypothesis> hyps = event.get(h_inclusive_hyps); 
     const LQReconstructionHypothesis* hyp = get_best_hypothesis( hyps, m_discriminator_name );
     double chi2 = hyp->discriminator(m_discriminator_name);
     double chi2_nothad = hyp->discriminator(m_discriminator_name+"_tlep_MQLdiff_rel");
@@ -610,18 +615,8 @@ void LQToTopMuHists::fill(const Event & event){
 
     mLQdiff = mLQhad_rec - mLQlep_rec;
     mLQmed_rec = (mLQhad_rec + mLQlep_rec) / 2;
-    hist("M_LQ_comb")->Fill(mLQmed_rec, weight);
-    hist("M_LQ_comb_rebin")->Fill(mLQmed_rec, weight);
-    if(mLQmed_rec < 900)   hist("M_LQ_comb_rebin2")->Fill(mLQmed_rec, weight);
-    else                   hist("M_LQ_comb_rebin2")->Fill(900., weight);
-    if(mLQmed_rec < 900)   hist("M_LQ_comb_all_filled")->Fill(mLQmed_rec, weight);
-    else                   hist("M_LQ_comb_all_filled")->Fill(900., weight);
-    hist("M_LQ_diff")->Fill(mLQdiff, weight);
     mLQdiff_rel = mLQdiff / mLQmed_rec;
-    hist("M_LQ_diff_rel")->Fill(mLQdiff_rel,weight);
     mLQLQ = (hyp->LQlep_v4()+hyp->LQhad_v4()).M();
-    hist("M_LQLQ")->Fill(mLQLQ,weight);
-    hist("M_LQLQ_rebin")->Fill(mLQLQ,weight);
 
     hist("M_LQ_MuEle_comb")->Fill(mLQmed_rec, weight);
     hist("M_LQ_MuEle_comb_rebin")->Fill(mLQmed_rec, weight);
@@ -728,179 +723,7 @@ void LQToTopMuHists::fill(const Event & event){
     hist("dPhi_Lep_Met")->Fill(deltaPhi(*event.met,ele),weight);
 
   }
-  else if(Nele == 0){   //Fill HT, if Nele = 0, else
-                        //reconstruct MLQ and fill MLQmean
-    hist("H_T_comb_NoEle")->Fill(ht, weight);
-    hist("H_T_comb_NoEle_from350")->Fill(ht, weight);
-    hist("H_T_comb_NoEle_from350_rebin")->Fill(ht, weight);
-    hist("H_T_comb_NoEle_from350_rebin2")->Fill(ht, weight);
-    hist("H_T_comb_NoEle_rebin")->Fill(ht, weight);
-    if(ht <= 2000) hist("H_T_comb_NoEle_rebin2")->Fill(ht, weight);
-    else hist("H_T_comb_NoEle_rebin2")->Fill(2000., weight);
-    if(ht <= 2900) hist("H_T_comb_NoEle_from350_all_filled_rebin")->Fill(ht, weight);
-    else hist("H_T_comb_NoEle_from350_all_filled_rebin")->Fill(2900, weight);
-    if(Nmuons>0){
-      hist("Pt_mu1_NoEle")->Fill(event.muons->at(0).pt(), weight);
-      hist("Pt_mu1_NoEle_rebin")->Fill(event.muons->at(0).pt(), weight);
-    }
-    hist("Integral_NoEle")->Fill(1,weight);
-  }
-
-  if(Nele >= 1){
-    hist("H_T_comb_1Ele")->Fill(ht, weight);
-    hist("H_T_comb_1Ele_from350")->Fill(ht, weight);
-    hist("H_T_comb_1Ele_from350_rebin")->Fill(ht, weight);
-    hist("H_T_comb_1Ele_from350_rebin2")->Fill(ht, weight);
-    hist("H_T_comb_1Ele_rebin")->Fill(ht, weight);
-    hist("H_T_comb_1Ele_rebin2")->Fill(ht, weight);
-    if(ht <= 2000) hist("H_T_comb_1Ele_rebin3")->Fill(ht, weight);
-    else hist("H_T_comb_1Ele_rebin3")->Fill(2000, weight);
-    hist("Integral_1Ele")->Fill(1,weight);
-  }
-
-  double sum_mu_charge = 0;
-  for(const auto & mu : *event.muons) sum_mu_charge += mu.charge();
-
-  bool reconstruct_mlq_mu = (event.electrons->size() == 0 && event.muons->size() == 3 && fabs(sum_mu_charge) == 1 && event.jets->size() >= 2);
-  if(reconstruct_mlq_mu){   
-    std::vector<LQReconstructionHypothesis> muonic_hyps = event.get(h_muonic_hyps); 
-    const LQReconstructionHypothesis* hyp = get_best_hypothesis( muonic_hyps, m_discriminator_name );
-    double chi2 = hyp->discriminator(m_discriminator_name);
-    hist("chi2_Muonic")->Fill(chi2,weight);
-    hist("chi2_MuEle")->Fill(chi2,weight);
-    hist("chi2_MuEle_rebin")->Fill(chi2,weight);
-    hist("chi2_MuEle_rebin2")->Fill(chi2,weight);
-    hist("chi2_MuEle_rebin3")->Fill(chi2,weight);
-
-    double mLQlep_rec = 0;
-    double mLQhad_rec = 0;
-    double mLQmed_rec = 0;
-    double mLQdiff = 0;
-    double mLQdiff_rel = 0;
-    double mLQLQ = 0;
-
-    if( (hyp->LQlep_v4()).isTimelike() ) {mLQlep_rec = (hyp->LQlep_v4()).M();}
-    else {mLQlep_rec = sqrt( -(hyp->LQlep_v4()).mass2());}
-    if( (hyp->LQhad_v4()).isTimelike() ) {mLQhad_rec = (hyp->LQhad_v4()).M();}
-    else {mLQhad_rec = sqrt( -(hyp->LQhad_v4()).mass2());}
-    
-
-    
-
-    mLQdiff = mLQhad_rec - mLQlep_rec;
-    mLQmed_rec = (mLQhad_rec + mLQlep_rec) / 2;
-    hist("M_LQ_Muonic_comb")->Fill(mLQmed_rec, weight);
-    hist("M_LQ_Muonic_comb_rebin")->Fill(mLQmed_rec, weight);
-    if(mLQmed_rec < 900)   hist("M_LQ_Muonic_comb_rebin2")->Fill(mLQmed_rec, weight);
-    else                   hist("M_LQ_Muonic_comb_rebin2")->Fill(900., weight);
-    if(mLQmed_rec < 900)   hist("M_LQ_Muonic_comb_all_filled")->Fill(mLQmed_rec, weight);
-    else                   hist("M_LQ_Muonic_comb_all_filled")->Fill(900., weight);
-    hist("M_LQ_Muonic_diff")->Fill(mLQdiff, weight);
-    mLQdiff_rel = mLQdiff / mLQmed_rec;
-    hist("M_LQ_Muonic_diff_rel")->Fill(mLQdiff_rel,weight);
-    mLQLQ = (hyp->LQlep_v4()+hyp->LQhad_v4()).M();
-    hist("M_LQLQ_Muonic")->Fill(mLQLQ,weight);
-    hist("M_LQLQ_Muonic_rebin")->Fill(mLQLQ,weight);
-
-    double n_jets_had = hyp->tophad_jets().size();
-    double n_jets_lep = hyp->toplep_jets().size();
-    hist("N_jets_had")->Fill(n_jets_had,weight);
-    hist("N_jets_lep")->Fill(n_jets_lep,weight);
-    ((TH2F*)hist("n_jets_hadhyp_vs_chi2"))->Fill(n_jets_had,chi2,weight);
-
-    if(n_jets_had==1){
-      hist("M_LQ_MuEle_comb_1hadjet")->Fill(mLQmed_rec, weight);
-      hist("M_LQ_MuEle_comb_rebin_1hadjet")->Fill(mLQmed_rec, weight);
-      if(mLQmed_rec < 900)   hist("M_LQ_MuEle_comb_rebin2_1hadjet")->Fill(mLQmed_rec, weight);
-      else                   hist("M_LQ_MuEle_comb_rebin2_1hadjet")->Fill(900., weight);
-      if(mLQmed_rec < 900)   hist("M_LQ_MuEle_comb_all_filled_1hadjet")->Fill(mLQmed_rec, weight);
-      else                   hist("M_LQ_MuEle_comb_all_filled_1hadjet")->Fill(900., weight);
-      hist("M_tophad_rec_MuEle_1hadjet")->Fill(hyp->tophad_v4().M(),weight);
-      hist("M_tophad_rec_MuEle_1hadjet_rebin")->Fill(hyp->tophad_v4().M(),weight);
-      hist("M_tophad_rec_MuEle_1hadjet_rebin2")->Fill(hyp->tophad_v4().M(),weight);
-      hist("M_tophad_rec_MuEle_1hadjet_rebin3")->Fill(hyp->tophad_v4().M(),weight);
-      hist("M_tophad_rec_MuEle_1hadjet_rebin4")->Fill(hyp->tophad_v4().M(),weight);
-      hist("Pt_tophad_rec_MuEle_1hadjet")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_1hadjet_rebin")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_1hadjet_rebin2")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_1hadjet_rebin3")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_1hadjet_rebin4")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_1hadjet_rebin5")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_1hadjet_rebin6")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_1hadjet_rebin7")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_1hadjet_rebin8")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_1hadjet_rebin9")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_1hadjet_rebin10")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_1hadjet_rebin11")->Fill(hyp->tophad_v4().Pt(),weight);
-    }
-    else if(n_jets_had==2){
-      hist("M_LQ_MuEle_comb_2hadjet")->Fill(mLQmed_rec, weight);
-      hist("M_LQ_MuEle_comb_rebin_2hadjet")->Fill(mLQmed_rec, weight);
-      if(mLQmed_rec < 900)   hist("M_LQ_MuEle_comb_rebin2_2hadjet")->Fill(mLQmed_rec, weight);
-      else                   hist("M_LQ_MuEle_comb_rebin2_2hadjet")->Fill(900., weight);
-      if(mLQmed_rec < 900)   hist("M_LQ_MuEle_comb_all_filled_2hadjet")->Fill(mLQmed_rec, weight);
-      else                   hist("M_LQ_MuEle_comb_all_filled_2hadjet")->Fill(900., weight);
-      hist("M_tophad_rec_MuEle_2hadjet")->Fill(hyp->tophad_v4().M(),weight);
-      hist("M_tophad_rec_MuEle_2hadjet_rebin")->Fill(hyp->tophad_v4().M(),weight);
-      hist("Pt_tophad_rec_MuEle_2hadjet")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_2hadjet_rebin")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_2hadjet_rebin2")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_2hadjet_rebin3")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_2hadjet_rebin4")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_2hadjet_rebin5")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_2hadjet_rebin6")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_2hadjet_rebin7")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_2hadjet_rebin8")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_2hadjet_rebin9")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_2hadjet_rebin10")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_2hadjet_rebin11")->Fill(hyp->tophad_v4().Pt(),weight);
-    }
-    else if(n_jets_had==3){
-      hist("M_LQ_MuEle_comb_3hadjet")->Fill(mLQmed_rec, weight);
-      hist("M_LQ_MuEle_comb_rebin_3hadjet")->Fill(mLQmed_rec, weight);
-      if(mLQmed_rec < 900)   hist("M_LQ_MuEle_comb_rebin2_3hadjet")->Fill(mLQmed_rec, weight);
-      else                   hist("M_LQ_MuEle_comb_rebin2_3hadjet")->Fill(900., weight);
-      if(mLQmed_rec < 900)   hist("M_LQ_MuEle_comb_all_filled_3hadjet")->Fill(mLQmed_rec, weight);
-      else                   hist("M_LQ_MuEle_comb_all_filled_3hadjet")->Fill(900., weight);
-      hist("M_tophad_rec_MuEle_3hadjet")->Fill(hyp->tophad_v4().M(),weight);
-      hist("M_tophad_rec_MuEle_3hadjet_rebin")->Fill(hyp->tophad_v4().M(),weight);
-      hist("Pt_tophad_rec_MuEle_3hadjet")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_3hadjet_rebin")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_3hadjet_rebin2")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_3hadjet_rebin3")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_3hadjet_rebin4")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_3hadjet_rebin5")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_3hadjet_rebin6")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_3hadjet_rebin7")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_3hadjet_rebin8")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_3hadjet_rebin9")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_3hadjet_rebin10")->Fill(hyp->tophad_v4().Pt(),weight);
-      hist("Pt_tophad_rec_MuEle_3hadjet_rebin11")->Fill(hyp->tophad_v4().Pt(),weight);
-    }
-
-
-    //combined histograms
-    hist("M_LQ_MuEle_comb")->Fill(mLQmed_rec, weight);
-    hist("M_LQ_MuEle_comb_rebin")->Fill(mLQmed_rec, weight);
-    if(mLQmed_rec < 900)   hist("M_LQ_MuEle_comb_rebin2")->Fill(mLQmed_rec, weight);
-    else                   hist("M_LQ_MuEle_comb_rebin2")->Fill(900., weight);
-    if(mLQmed_rec < 900)   hist("M_LQ_MuEle_comb_all_filled")->Fill(mLQmed_rec, weight);
-    else                   hist("M_LQ_MuEle_comb_all_filled")->Fill(900., weight);
-    hist("M_LQ_MuEle_diff")->Fill(mLQdiff, weight);
-    hist("M_LQ_MuEle_diff_rel")->Fill(mLQdiff_rel,weight);
-    hist("M_LQLQ_MuEle")->Fill(mLQLQ,weight);
-    hist("M_LQLQ_MuEle_rebin")->Fill(mLQLQ,weight);
-
-
-    //mT between ele and met
-    Particle mu = hyp->muon();
-    double mt = sqrt(2*mu.pt()*event.met->pt()*(1-cos(deltaPhi(*event.met,mu))));
-    hist("MT_Lep_Met")->Fill(mt,weight);
-    hist("dPhi_Lep_Met")->Fill(deltaPhi(*event.met,mu),weight);
-
-  }
-
-  if(!reconstruct_mlq_ele && !reconstruct_mlq_mu){
+  else{
     //fill HT
     hist("H_T_comb_NoMLQ")->Fill(ht, weight);
     hist("H_T_comb_NoMLQ_from350")->Fill(ht, weight);
@@ -915,183 +738,183 @@ void LQToTopMuHists::fill(const Event & event){
     hist("Integral_NoMLQ")->Fill(1,weight);
   }
 
-  if(reconstruct_mlq_ele || reconstruct_mlq_mu) hist("sum_event_weights_MLQ_MuEle")->Fill(1.,weight);
+  if(reconstruct_mlq_inclusive) hist("sum_event_weights_MLQ_MuEle")->Fill(1.,weight);
  
 
-    hist("sum_event_weights")->Fill(1, weight);
-    if(is_mc){
-      unsigned int n_genp_eletau = 0, n_genp_ele = 0;
-      int idx_e = 0;
-      for(const auto & ele : *event.electrons){
-	double type = -1;
-	double dr_min = 9999999;
-	double dr_min_genele = 999;
-	for(const auto & gp : *event.genparticles){
-	  if(fabs(gp.pdgId()) == 11 || fabs(gp.pdgId()) == 15){
-	    if(idx_e == 0) n_genp_eletau++;
-	    if(idx_e == 0 && fabs(gp.pdgId()) == 11) n_genp_ele++;
-	    double dr = deltaR(gp,ele);
-	    if(dr < dr_min){
-	      dr_min = dr;
-	    }
-	    if(dr < dr_min_genele && fabs(gp.pdgId()) == 11) dr_min_genele = dr;
-	  }
-	}
-	if(dr_min <= 0.1) type = 0;
-	else type = 1;
-	hist("ele_type")->Fill(type,weight);
-	if(reconstruct_mlq_ele || reconstruct_mlq_mu) hist("ele_type_mlq_reco")->Fill(type,weight);
-	hist("dr_min_ele_genele")->Fill(dr_min_genele,weight);
-	if(reconstruct_mlq_ele || reconstruct_mlq_mu) hist("dr_min_ele_genele_mlq_reco")->Fill(dr_min_genele,weight);
-	hist("dr_min_ele_geneletau")->Fill(dr_min,weight);
-	if(reconstruct_mlq_ele || reconstruct_mlq_mu) hist("dr_min_ele_geneletau_mlq_reco")->Fill(dr_min,weight);
-
-	//consider only fake leptons
-	if(type == 1){
-	  //search for jets within 0.4
-	  int idx_matching_jet = -1;
-	  for(unsigned int i=0; i<event.jets->size(); i++){
-	    double dr = deltaR(ele,event.jets->at(i));
-	    if(dr < 0.4){
-	      idx_matching_jet = i;
-	    }
-	  }
-
-	  //-1 is filled in case no jet could be matched to the fake lepton
-	  double faking_pt = -1;
-	  if(idx_matching_jet > -1) faking_pt = event.jets->at(idx_matching_jet).pt();
-	  hist("jets_faking_ele_pt")->Fill(faking_pt,weight);
-	}
-	idx_e++;
-      }
-
-      if(reconstruct_mlq_ele || reconstruct_mlq_mu) hist("more_gen_ele_mlq_reco")->Fill(n_genp_eletau >= event.electrons->size(),weight);
-
-      unsigned int n_genp_mutau = 0, n_genp_mu = 0;
-      int idx_mu=0;
-      for(const auto & mu : *event.muons){
-	double type = -1;
-	double dr_min = 9999999;
-	double dr_min_genmu = 999;
-	for(const auto & gp : *event.genparticles){
-	  if(fabs(gp.pdgId()) == 13 || fabs(gp.pdgId()) == 15){
-	    if(idx_mu==0)                           n_genp_mutau++;
-	    if(idx_mu==0 && fabs(gp.pdgId()) == 13) n_genp_mu++;
-	    double dr = deltaR(gp,mu);
-	    if(dr < dr_min){
-	      dr_min = dr;
-	    }
-	    if(dr < dr_min_genmu && fabs(gp.pdgId()) == 13) dr_min_genmu = dr;
-	  }
-	}
-	if(dr_min <= 0.1) type = 0;
-	else type = 1;
-	hist("mu_type")->Fill(type,weight);
-	if(reconstruct_mlq_ele || reconstruct_mlq_mu) hist("mu_type_mlq_reco")->Fill(type,weight);
-	hist("dr_min_mu_genmu")->Fill(dr_min_genmu,weight);
-	if(reconstruct_mlq_ele || reconstruct_mlq_mu) hist("dr_min_mu_genmu_mlq_reco")->Fill(dr_min_genmu,weight);
-	hist("dr_min_mu_genmutau")->Fill(dr_min,weight);
-	if(reconstruct_mlq_ele || reconstruct_mlq_mu) hist("dr_min_mu_genmutau_mlq_reco")->Fill(dr_min,weight);
-
-	//consider only fake leptons
-	if(type == 1){
-	  //search for jets within 0.4
-	  int idx_matching_jet = -1;
-	  for(unsigned int i=0; i<event.jets->size(); i++){
-	    double dr = deltaR(mu,event.jets->at(i));
-	    if(dr < 0.4){
-	      idx_matching_jet = i;
-	    }
-	  }
-
-	  //-1 is filled in case no jet could be matched to the fake lepton
-	  double faking_pt = -1;
-	  if(idx_matching_jet > -1) faking_pt = event.jets->at(idx_matching_jet).pt();
-	  hist("jets_faking_mu_pt")->Fill(faking_pt,weight);
-	}
-	idx_mu++;
-      }
-      
-      if(reconstruct_mlq_ele || reconstruct_mlq_mu) {
-	hist("more_gen_mu_mlq_reco")->Fill(n_genp_mutau >= event.muons->size(),weight);
-      }
-
-      //look at muons from b-quark decays --> dr_min between a rec muon and a gen b-quark for all muons in the event
-      for(const auto & mu : *event.muons){
-	double dr_min= 99999;
-	for(const auto & gp : *event.genparticles){
-	  if(fabs(gp.pdgId()) == 5){
-	    double dr = deltaR(mu,gp);
-	    if(dr < dr_min) dr_min = dr;
-	  }
-	}
-	hist("dr_min_mu_gen_b")->Fill(dr_min,weight);
-	if(reconstruct_mlq_ele || reconstruct_mlq_mu) hist("dr_min_mu_gen_b_MLQ")->Fill(dr_min,weight);
-	else                                          hist("dr_min_mu_gen_b_NoMLQ")->Fill(dr_min,weight);
-      }
-
-      vector<bool> is_fake_mu;
-      unsigned int n_genmu = 0;
+  hist("sum_event_weights")->Fill(1, weight);
+  if(is_mc){
+    unsigned int n_genp_eletau = 0, n_genp_ele = 0;
+    int idx_e = 0;
+    for(const auto & ele : *event.electrons){
+      double type = -1;
+      double dr_min = 9999999;
+      double dr_min_genele = 999;
       for(const auto & gp : *event.genparticles){
-	if(fabs(gp.pdgId()) != 13) continue;
-	n_genmu++;
+	if(fabs(gp.pdgId()) == 11 || fabs(gp.pdgId()) == 15){
+	  if(idx_e == 0) n_genp_eletau++;
+	  if(idx_e == 0 && fabs(gp.pdgId()) == 11) n_genp_ele++;
+	  double dr = deltaR(gp,ele);
+	  if(dr < dr_min){
+	    dr_min = dr;
+	  }
+	  if(dr < dr_min_genele && fabs(gp.pdgId()) == 11) dr_min_genele = dr;
+	}
       }
+      if(dr_min <= 0.1) type = 0;
+      else type = 1;
+      hist("ele_type")->Fill(type,weight);
+      if(reconstruct_mlq_inclusive) hist("ele_type_mlq_reco")->Fill(type,weight);
+      hist("dr_min_ele_genele")->Fill(dr_min_genele,weight);
+      if(reconstruct_mlq_inclusive) hist("dr_min_ele_genele_mlq_reco")->Fill(dr_min_genele,weight);
+      hist("dr_min_ele_geneletau")->Fill(dr_min,weight);
+      if(reconstruct_mlq_inclusive) hist("dr_min_ele_geneletau_mlq_reco")->Fill(dr_min,weight);
 
-      if(n_genmu != event.muons->size()){
-	//if ngen and nreco are unequal, try to match muons to muons within 0.1 and to taus within 0.2
-	unsigned int n_matched_to_muons = 0, n_matched_to_taus = 0, n_matched_to_b = 0, n_matched_to_c = 0;
-	for(const auto & mu : *event.muons){
-	  bool is_matched = false;
-	  for(const auto & gp : *event.genparticles){
-	    if(fabs(gp.pdgId()) == 13){
-	      if(deltaR(gp,mu) < 0.1 && !is_matched){
-		is_matched = true;
-		n_matched_to_muons++;
-	      }
-	    }
-	    else if(fabs(gp.pdgId()) == 15){ 
-	      if(deltaR(gp,mu) < 0.2 && !is_matched){
-		is_matched = true;
-		n_matched_to_taus++;
-	      }
-	    }
-	    else if(fabs(gp.pdgId()) == 5){ 
-	      if(deltaR(gp,mu) < 0.2 && !is_matched){
-		is_matched = true;
-		n_matched_to_b++;
-	      }
-	    }
-	    else if(fabs(gp.pdgId()) == 4){ 
-	      if(deltaR(gp,mu) < 0.2 && !is_matched){
-		is_matched = true;
-		n_matched_to_b++;
-	      }
-	    }
-	  }
-	  is_fake_mu.push_back(!is_matched);
-	}
-	if(n_matched_to_taus + n_matched_to_muons != event.muons->size()){
-	  //find unmatched muons
-	  for(unsigned int i=0; i<event.muons->size() - n_matched_to_taus - n_matched_to_muons; i++){
-	    hist("n_fake_mu")->Fill(0.,weight);
-	    if(reconstruct_mlq_ele || reconstruct_mlq_mu) hist("n_fake_mu_MLQ")->Fill(0.,weight);
-	    else hist("n_fake_mu_NoMLQ")->Fill(0.,weight);
+      //consider only fake leptons
+      if(type == 1){
+	//search for jets within 0.4
+	int idx_matching_jet = -1;
+	for(unsigned int i=0; i<event.jets->size(); i++){
+	  double dr = deltaR(ele,event.jets->at(i));
+	  if(dr < 0.4){
+	    idx_matching_jet = i;
 	  }
 	}
-	if(n_matched_to_taus + n_matched_to_muons + n_matched_to_b + n_matched_to_c != event.muons->size()){
-	  //find unmatched muons
-	  for(unsigned int i=0; i<event.muons->size() - n_matched_to_taus - n_matched_to_muons - n_matched_to_b - n_matched_to_c; i++){
-	    hist("n_fake_mu_HF")->Fill(0.,weight);
-	    if(reconstruct_mlq_ele || reconstruct_mlq_mu) hist("n_fake_mu_MLQ_HF")->Fill(0.,weight);
-	    else hist("n_fake_mu_NoMLQ_HF")->Fill(0.,weight);
+
+	//-1 is filled in case no jet could be matched to the fake lepton
+	double faking_pt = -1;
+	if(idx_matching_jet > -1) faking_pt = event.jets->at(idx_matching_jet).pt();
+	hist("jets_faking_ele_pt")->Fill(faking_pt,weight);
+      }
+      idx_e++;
+    }
+
+    if(reconstruct_mlq_inclusive) hist("more_gen_ele_mlq_reco")->Fill(n_genp_eletau >= event.electrons->size(),weight);
+
+    unsigned int n_genp_mutau = 0, n_genp_mu = 0;
+    int idx_mu=0;
+    for(const auto & mu : *event.muons){
+      double type = -1;
+      double dr_min = 9999999;
+      double dr_min_genmu = 999;
+      for(const auto & gp : *event.genparticles){
+	if(fabs(gp.pdgId()) == 13 || fabs(gp.pdgId()) == 15){
+	  if(idx_mu==0)                           n_genp_mutau++;
+	  if(idx_mu==0 && fabs(gp.pdgId()) == 13) n_genp_mu++;
+	  double dr = deltaR(gp,mu);
+	  if(dr < dr_min){
+	    dr_min = dr;
 	  }
+	  if(dr < dr_min_genmu && fabs(gp.pdgId()) == 13) dr_min_genmu = dr;
+	}
+      }
+      if(dr_min <= 0.1) type = 0;
+      else type = 1;
+      hist("mu_type")->Fill(type,weight);
+      if(reconstruct_mlq_inclusive) hist("mu_type_mlq_reco")->Fill(type,weight);
+      hist("dr_min_mu_genmu")->Fill(dr_min_genmu,weight);
+      if(reconstruct_mlq_inclusive) hist("dr_min_mu_genmu_mlq_reco")->Fill(dr_min_genmu,weight);
+      hist("dr_min_mu_genmutau")->Fill(dr_min,weight);
+      if(reconstruct_mlq_inclusive) hist("dr_min_mu_genmutau_mlq_reco")->Fill(dr_min,weight);
+
+      //consider only fake leptons
+      if(type == 1){
+	//search for jets within 0.4
+	int idx_matching_jet = -1;
+	for(unsigned int i=0; i<event.jets->size(); i++){
+	  double dr = deltaR(mu,event.jets->at(i));
+	  if(dr < 0.4){
+	    idx_matching_jet = i;
+	  }
+	}
+
+	//-1 is filled in case no jet could be matched to the fake lepton
+	double faking_pt = -1;
+	if(idx_matching_jet > -1) faking_pt = event.jets->at(idx_matching_jet).pt();
+	hist("jets_faking_mu_pt")->Fill(faking_pt,weight);
+      }
+      idx_mu++;
+    }
+      
+    if(reconstruct_mlq_inclusive) {
+      hist("more_gen_mu_mlq_reco")->Fill(n_genp_mutau >= event.muons->size(),weight);
+    }
+
+    //look at muons from b-quark decays --> dr_min between a rec muon and a gen b-quark for all muons in the event
+    for(const auto & mu : *event.muons){
+      double dr_min= 99999;
+      for(const auto & gp : *event.genparticles){
+	if(fabs(gp.pdgId()) == 5){
+	  double dr = deltaR(mu,gp);
+	  if(dr < dr_min) dr_min = dr;
+	}
+      }
+      hist("dr_min_mu_gen_b")->Fill(dr_min,weight);
+      if(reconstruct_mlq_inclusive) hist("dr_min_mu_gen_b_MLQ")->Fill(dr_min,weight);
+      else                          hist("dr_min_mu_gen_b_NoMLQ")->Fill(dr_min,weight);
+    }
+
+    vector<bool> is_fake_mu;
+    unsigned int n_genmu = 0;
+    for(const auto & gp : *event.genparticles){
+      if(fabs(gp.pdgId()) != 13) continue;
+      n_genmu++;
+    }
+
+    if(n_genmu != event.muons->size()){
+      //if ngen and nreco are unequal, try to match muons to muons within 0.1 and to taus within 0.2
+      unsigned int n_matched_to_muons = 0, n_matched_to_taus = 0, n_matched_to_b = 0, n_matched_to_c = 0;
+      for(const auto & mu : *event.muons){
+	bool is_matched = false;
+	for(const auto & gp : *event.genparticles){
+	  if(fabs(gp.pdgId()) == 13){
+	    if(deltaR(gp,mu) < 0.1 && !is_matched){
+	      is_matched = true;
+	      n_matched_to_muons++;
+	    }
+	  }
+	  else if(fabs(gp.pdgId()) == 15){ 
+	    if(deltaR(gp,mu) < 0.2 && !is_matched){
+	      is_matched = true;
+	      n_matched_to_taus++;
+	    }
+	  }
+	  else if(fabs(gp.pdgId()) == 5){ 
+	    if(deltaR(gp,mu) < 0.2 && !is_matched){
+	      is_matched = true;
+	      n_matched_to_b++;
+	    }
+	  }
+	  else if(fabs(gp.pdgId()) == 4){ 
+	    if(deltaR(gp,mu) < 0.2 && !is_matched){
+	      is_matched = true;
+	      n_matched_to_b++;
+	    }
+	  }
+	}
+	is_fake_mu.push_back(!is_matched);
+      }
+      if(n_matched_to_taus + n_matched_to_muons != event.muons->size()){
+	//find unmatched muons
+	for(unsigned int i=0; i<event.muons->size() - n_matched_to_taus - n_matched_to_muons; i++){
+	  hist("n_fake_mu")->Fill(0.,weight);
+	  if(reconstruct_mlq_inclusive) hist("n_fake_mu_MLQ")->Fill(0.,weight);
+	  else hist("n_fake_mu_NoMLQ")->Fill(0.,weight);
+	}
+      }
+      if(n_matched_to_taus + n_matched_to_muons + n_matched_to_b + n_matched_to_c != event.muons->size()){
+	//find unmatched muons
+	for(unsigned int i=0; i<event.muons->size() - n_matched_to_taus - n_matched_to_muons - n_matched_to_b - n_matched_to_c; i++){
+	  hist("n_fake_mu_HF")->Fill(0.,weight);
+	  if(reconstruct_mlq_inclusive) hist("n_fake_mu_MLQ_HF")->Fill(0.,weight);
+	  else hist("n_fake_mu_NoMLQ_HF")->Fill(0.,weight);
 	}
       }
     }
+  }
 
 
 } //Methode
 
 
 
-LQToTopMuHists::~LQToTopMuHists(){}
+LQToTopMuMLQRecoHists::~LQToTopMuMLQRecoHists(){}

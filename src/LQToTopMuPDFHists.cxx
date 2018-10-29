@@ -23,7 +23,7 @@ LQToTopMuPDFHists::LQToTopMuPDFHists(Context & ctx, const string & dirname, bool
   h_muonic_hyps = ctx.get_handle<std::vector<LQReconstructionHypothesis>>("HighMassMuonicLQReconstruction");
   m_discriminator_name ="Chi2"; 
   m_oname = ctx.get("dataset_version");
-  is_LO = m_oname.Contains("LQtoTMu") || m_oname.Contains("Diboson") || m_oname.Contains("DYJets") || m_oname.Contains("QCD");
+  is_LO = m_oname.Contains("LQtoT") || m_oname.Contains("Diboson") || m_oname.Contains("DYJets") || m_oname.Contains("QCD");
   TString m_pdfname = "NNPDF30_lo_as_0130";
   //if(!is_LO && !m_oname.Contains("SingleTop")) m_pdfname = "PDF4LHC15_nlo_mc";
   TString weightpath = ctx.get("PDFWeightPath");  cout << "File: " << weightpath+m_oname << endl; 
@@ -41,7 +41,7 @@ LQToTopMuPDFHists::LQToTopMuPDFHists(Context & ctx, const string & dirname, bool
   cout << "Are ntupleweights taken for this sample?: " << take_ntupleweights << endl;
 
   if(is_mc && !take_ntupleweights){
-    if(m_oname.Contains("LQtoTMu")) m_pdfweights.reset(new PDFWeights(m_pdfname,weightpath+m_oname)); 
+    if(m_oname.Contains("LQtoT")) m_pdfweights.reset(new PDFWeights(m_pdfname,weightpath+m_oname)); 
     else m_pdfweights.reset(new PDFWeights(m_pdfname)); 
   }
 
@@ -138,7 +138,7 @@ void LQToTopMuPDFHists::fill(const Event & event){
     bool reconstruct_mlq_mu = (event.electrons->size() == 0 && event.muons->size() == 3 && fabs(sum_mu_charge) == 1);
 
     if(event.genInfo->systweights().size() == 0 && take_ntupleweights) throw runtime_error("In LQToTopMuPDFHists.cxx: Systweights in event.genInfo() is empty but ntupleweights shall be taken. Is this correct? In this case add exception to take_ntupleweights.");    
-    if(event.genInfo->systweights().size() != 0 && (is_LO && !m_oname.Contains("DYJets"))) throw runtime_error("In LQToTopMuPDFHists.cxx: Systweights in event.genInfo() is NOT empty but this IS a LO sample. Is this correct? In this case Thomas says the genInfo weight should be used. Add this sample to take_ntupleweights");
+    if(event.genInfo->systweights().size() != 0 && (is_LO && !m_oname.Contains("DYJets") && !m_oname.Contains("Diboson"))) throw runtime_error("In LQToTopMuPDFHists.cxx: Systweights in event.genInfo() is NOT empty but this IS a LO sample. Is this correct? In this case Thomas says the genInfo weight should be used. Add this sample to take_ntupleweights");
 
     //Fill HT (2 cases)
     if(take_ntupleweights){

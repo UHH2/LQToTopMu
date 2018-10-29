@@ -6,7 +6,7 @@
 
 using namespace uhh2examples;
 using namespace uhh2;
-
+using namespace std;
 
 DijetSelection::DijetSelection(float dphi_min_, float third_frac_max_): dphi_min(dphi_min_), third_frac_max(third_frac_max_){}
 bool DijetSelection::passes(const Event & event){
@@ -391,3 +391,251 @@ bool NGenMuonSelection::passes(const Event & event){
 }
 
 
+LQSemiLepMatchable::LQSemiLepMatchable(){}
+bool LQSemiLepMatchable::passes(const Event & event){
+  assert(event.genparticles);
+  if(event.isRealData) return false;
+
+
+  //check, if one LQ decays had and one decays lep
+  bool found_had = false, found_lep = false;
+
+  //Loop over genparticles
+  for(const auto & gp : *event.genparticles){
+
+    //Find LQs
+    if(fabs(gp.pdgId()) == 42){
+      bool top_offshell = false;
+      auto t = gp.daughter(event.genparticles,1);
+      auto muon = gp.daughter(event.genparticles,2);
+      if(fabs(t->pdgId()) == 13 && fabs(muon->pdgId()) == 6){
+	t = gp.daughter(event.genparticles,2);
+	muon = gp.daughter(event.genparticles,1);
+      }
+      if(!(fabs(t->pdgId()) == 6 && fabs(muon->pdgId()) == 13)) top_offshell = true;
+      
+      //check if mu is matched by a reco muon
+      bool matched_mu = false;
+      for(const auto & mu : *event.muons){
+	if(deltaR(mu,*muon) <= 0.1) matched_mu = true;
+      }
+      if(!matched_mu){
+	//cout << "Rejected because LQ muons could not be matched." << endl;
+	return false;
+      }
+
+      //Get b and W
+      auto b = t->daughter(event.genparticles,1);
+      auto W = t->daughter(event.genparticles,2);
+      if(!top_offshell){
+	b = t->daughter(event.genparticles,1);
+	W = t->daughter(event.genparticles,2);
+	if(fabs(W->pdgId()) == 5 && fabs(b->pdgId()) == 24){
+	  b = t->daughter(event.genparticles,2);
+	  W = t->daughter(event.genparticles,1);	
+	}
+	if(!(fabs(b->pdgId()) == 5 && fabs(W->pdgId()) == 24)) return false;
+      }
+      else{
+	if(fabs(gp.daughter(event.genparticles,1)->pdgId()) == 13){
+	  b = t->daughter(event.genparticles,2);
+	  W = t->daughter(event.genparticles,3);
+	  if(fabs(W->pdgId()) == 5 && fabs(b->pdgId()) == 24){
+	    b = t->daughter(event.genparticles,3);
+	    W = t->daughter(event.genparticles,2);	
+	  }
+	  if(!(fabs(b->pdgId()) == 5 && fabs(W->pdgId()) == 24)) return false;
+	}
+	else if(fabs(gp.daughter(event.genparticles,2)->pdgId()) == 13){
+	  b = t->daughter(event.genparticles,1);
+	  W = t->daughter(event.genparticles,3);
+	  if(fabs(W->pdgId()) == 5 && fabs(b->pdgId()) == 24){
+	    b = t->daughter(event.genparticles,3);
+	    W = t->daughter(event.genparticles,1);	
+	  }
+	  if(!(fabs(b->pdgId()) == 5 && fabs(W->pdgId()) == 24)) return false;
+	}
+	else if(fabs(gp.daughter(event.genparticles,3)->pdgId()) == 13){
+	  b = t->daughter(event.genparticles,2);
+	  W = t->daughter(event.genparticles,3);
+	  if(fabs(W->pdgId()) == 5 && fabs(b->pdgId()) == 24){
+	    b = t->daughter(event.genparticles,3);
+	    W = t->daughter(event.genparticles,2);	
+	  }
+	  if(!(fabs(b->pdgId()) == 5 && fabs(W->pdgId()) == 24)) return false;
+	}
+	else throw runtime_error("In LQSemiLepMatchable: LQ does not have muon as a daughter");
+      }
+
+      //try to match the b quarks
+      bool matched_b = false;
+      for(const auto & jet : *event.jets){
+	if(deltaR(*b,jet) <= 0.4) matched_b = true;
+      }
+      if(!matched_b){
+	//cout << "Rejected because b could not be matched." << endl;
+	return false;
+      }
+      
+      //Check decaymodes of W
+      auto Wd1 = W->daughter(event.genparticles,1);
+      auto Wd2 = W->daughter(event.genparticles,2);
+
+      //hadronic
+      if(fabs(Wd1->pdgId()) < 7 && fabs(Wd2->pdgId()) < 7){
+	if(found_had){
+	  //cout << "Rejected because 2nd had top was found." << endl; 
+	  return false;
+	}
+	found_had = true;
+
+	//check if both daughters can be matched by jets
+	bool matched_d1 = false, matched_d2 = false;
+	for(const auto & jet : *event.jets){
+	  if(deltaR(*Wd1, jet) <= 0.4) matched_d1 = true;
+	  if(deltaR(*Wd2, jet) <= 0.4) matched_d2 = true;
+	}
+	if(!(matched_d1 && matched_d2)){
+	  //cout << "Rejected because W-quarks could not be matched." << endl;
+	  return false;
+	}
+      }
+
+      //leptonic
+      else if((fabs(Wd1->pdgId()) == 11 || fabs(Wd1->pdgId()) == 13) || (fabs(Wd2->pdgId()) == 11 || fabs(Wd2->pdgId()) == 13)){
+	if(found_lep){
+	  //cout << "Rejected because 2nd lep top was found." << endl;
+	  return false;
+	}
+	found_lep = true;
+	
+	//Find charged lepton
+	auto lep = Wd1;
+	auto nu = Wd2;
+	if(fabs(Wd2->pdgId()) == 11 || fabs(Wd2->pdgId()) == 13){
+	  lep = Wd2;
+	  nu = Wd1;
+	}
+	if(!(fabs(lep->pdgId()) == 11 && fabs(nu->pdgId()) == 12) && !(fabs(lep->pdgId()) == 13 && fabs(nu->pdgId()) == 14)) throw runtime_error("In LQSemiLepMatchable: The leptonic W does not decay into a lepton and its neutrino.");
+
+	//check, if lepton can be matched
+	bool matched_lep = false;
+	if(fabs(lep->pdgId()) == 11){
+	  for(const auto & ele : *event.electrons){
+	    if(deltaR(*lep,ele) <= 0.1) matched_lep = true;
+	  }
+	}
+	else if(fabs(lep->pdgId()) == 13){
+	  for(const auto & mu : *event.muons){
+	    if(deltaR(mu,*lep) <= 0.1) matched_lep = true;
+	  }
+	}
+	else throw runtime_error("In LQSemiLepMatchable: Lepton from W decay is neither e nor mu.");
+	if(!matched_lep){
+	  //cout << "Rejected because add lepton could not be matched." << endl;
+	  return false;
+	}
+      }
+      //tau-decays
+      else{
+	//cout << "Rejected because decay mode is neither lep nor had." << endl;
+	return false;
+      }
+    }
+  }
+
+  if(!(found_had && found_lep)){
+    //cout << "Rejected because not both decay modes were found once." << endl;
+    return false;
+  }
+
+  return true;
+}
+
+
+TTbarSemiLepMatchable::TTbarSemiLepMatchable(){}
+bool TTbarSemiLepMatchable::passes(const Event & event){
+  assert(event.genparticles);
+  if(event.isRealData) return false;
+
+  //check, if one top decays had and one decays lep
+  bool found_had = false, found_lep = false;
+
+  //Loop over genparticles
+  for(const auto & gp : *event.genparticles){
+
+    //Get tops
+    if(fabs(gp.pdgId()) == 6){
+
+      //Get b and W
+      auto b = gp.daughter(event.genparticles,1);
+      auto W = gp.daughter(event.genparticles,2);
+      if(fabs(W->pdgId()) == 5 && fabs(b->pdgId()) == 24){
+	b = gp.daughter(event.genparticles,2);
+	W = gp.daughter(event.genparticles,1);	
+      }
+      if(!(fabs(b->pdgId()) == 5 && fabs(W->pdgId()) == 24)) return false;
+
+      //try to match the b quarks
+      bool matched_b = false;
+      for(const auto & jet : *event.jets){
+	if(deltaR(*b,jet) <= 0.4) matched_b = true;
+      }
+      if(!matched_b) return false;
+      
+      //Check decaymodes of W
+      auto Wd1 = W->daughter(event.genparticles,1);
+      auto Wd2 = W->daughter(event.genparticles,2);
+
+      //hadronic
+      if(fabs(Wd1->pdgId()) < 7 && fabs(Wd2->pdgId()) < 7){
+	if(found_had) return false;
+	found_had = true;
+
+	//check if both daughters can be matched by jets
+	bool matched_d1 = false, matched_d2 = false;
+	for(const auto & jet : *event.jets){
+	  if(deltaR(*Wd1, jet) <= 0.4) matched_d1 = true;
+	  if(deltaR(*Wd2, jet) <= 0.4) matched_d2 = true;
+	}
+	if(!(matched_d1 && matched_d2)) return false;
+      }
+
+      //leptonic
+      else if((fabs(Wd1->pdgId()) == 11 || fabs(Wd1->pdgId()) == 13) || (fabs(Wd2->pdgId()) == 11 || fabs(Wd2->pdgId()) == 13)){
+	if(found_lep) return false;
+	found_lep = true;
+	
+	//Find charged lepton
+	auto lep = Wd1;
+	auto nu = Wd2;
+	if(fabs(Wd2->pdgId()) == 11 || fabs(Wd2->pdgId()) == 13){
+	  lep = Wd2;
+	  nu = Wd1;
+	}
+	if(!(fabs(lep->pdgId()) == 11 && fabs(nu->pdgId()) == 12) && !(fabs(lep->pdgId()) == 13 && fabs(nu->pdgId()) == 14)) throw runtime_error("In TTbarSemiLepMatchable: The leptonic W does not decay into a lepton and its neutrino.");
+
+	//check, if lepton can be matched
+	bool matched_lep = false;
+	if(fabs(lep->pdgId()) == 11){
+	  for(const auto & ele : *event.electrons){
+	    if(deltaR(*lep,ele) <= 0.1) matched_lep = true;
+	  }
+	}
+	else if(fabs(lep->pdgId()) == 13){
+	  for(const auto & mu : *event.muons){
+	    if(deltaR(mu,*lep) <= 0.1) matched_lep = true;
+	  }
+	}
+	else throw runtime_error("In TTbarSemiLepMatchable: Lepton from W decay is neither e nor mu.");
+	if(!matched_lep) return false;
+      }
+      //tau-decays
+      else return false;
+    }
+  }
+
+  if(!(found_had && found_lep)) return false;
+
+  return true;
+}

@@ -9,6 +9,110 @@
 using namespace uhh2;
 using namespace std;
 
+
+WeightsTo14TeV::WeightsTo14TeV(uhh2::Context & ctx, TString pdfname){
+
+  if( ( gSystem->Load("libLHAPDF") )==-1){
+    std::cerr << "libLHAPDF not found, no pdf weights will be applied. To apply pdf re-weighting, add path to libLHAPDF.so to LD_LIBRARY_PATH" << std::endl;
+    m_libvalid=false;
+    return;
+  }
+  m_libvalid=true;
+  
+  LHAPDF::initPDFSet(1, (std::string)(pdfname+".LHgrid"));
+
+  pdf = LHAPDF::mkPDF( (std::string) pdfname, 0);
+
+  xmin = LHAPDF::getXmin(0);
+  xmax = LHAPDF::getXmax(0);
+  qmin = sqrt(LHAPDF::getQ2min(0));
+  qmax = sqrt(LHAPDF::getQ2max(0));
+
+  h_x13_1 = ctx.get_handle<double>("x13_1");
+  h_x13_2 = ctx.get_handle<double>("x13_2");
+  h_x14_1 = ctx.get_handle<double>("x14_1");
+  h_x14_2 = ctx.get_handle<double>("x14_2");
+  h_Q = ctx.get_handle<double>("Q");
+  h_xf13_1 = ctx.get_handle<double>("xf13_1");
+  h_xf13_2 = ctx.get_handle<double>("xf13_1");
+  h_xf14_1 = ctx.get_handle<double>("xf14_1");
+  h_xf14_2 = ctx.get_handle<double>("xf14_2");
+  h_f1 = ctx.get_handle<int>("f1");
+  h_f2 = ctx.get_handle<int>("f2");
+  h_weight13 = ctx.get_handle<double>("weight13");
+  h_weight14 = ctx.get_handle<double>("weight14");
+  h_sf = ctx.get_handle<double>("sf");
+
+}
+
+double WeightsTo14TeV::calculateWeight(uhh2::Event & event){
+  if(!m_libvalid) return -1.;
+
+  double x1=event.genInfo->pdf_x1();
+  double x2=event.genInfo->pdf_x2();
+  if(x1 <= 0 || x2 <= 0) throw runtime_error("in LQToTopMuModules.cxx, WeightsTo14TeV::calculateWeight: One of the 13 TeV Bjorken-x is <= 0.");
+
+  int id1 = event.genInfo->pdf_id1();
+  int id2 = event.genInfo->pdf_id2();
+  if(id1 == 21 || id1 == 9) id1 = 0;
+  if(id2 == 21 || id2 == 9) id2 = 0;
+ 
+  double q = event.genInfo->pdf_scalePDF();
+
+  // Enforce minimum values of q and x
+  if(q < qmin) q = qmin;
+  if(q > qmax) q = qmax;
+  if(x1 < xmin) x1 = xmin;
+  if(x1 > xmax) x1 = xmax;
+  if(x2 < xmin) x2 = xmin;
+  if(x2 > xmax) x2 = xmax;
+
+
+  double xpdf1 = pdf->xfxQ(id1, x1, q);
+  double xpdf2 = pdf->xfxQ(id2, x2, q);
+  //cout <<"x1: " << x1 << ", x2: " << x2 << ", q: " << q << ", xpdf1: " << xpdf1 << ", xpdf2: " << xpdf2 << endl;
+
+  //new values of x can be smaller to achieve the same partonic sqrt(s)
+  double x1_14tev = x1 * (13./14.);
+  double x2_14tev = x2 * (13./14.);
+  if(x1_14tev < xmin) x1_14tev = xmin;
+  if(x2_14tev < xmin) x2_14tev = xmin;
+
+  double xpdf1_14tev = pdf->xfxQ(id1, x1_14tev, q);
+  double xpdf2_14tev = pdf->xfxQ(id2, x2_14tev, q);
+  //cout <<"x1_14tev: " << x1_14tev << ", x2_tev: " << x2_14tev << ", q: " << q << ", xpdf1_tev: " << xpdf1_14tev << ", xpdf2_tev: " << xpdf2_14tev << endl;
+
+  double w0 = xpdf1 * xpdf2;
+  if(w0 == 0) return -1.;
+    
+  double weight = xpdf1_14tev * xpdf2_14tev / w0;
+  if(weight == 0) return -1.;
+
+  //cout << "Old weight: " << w0 << ", new weight: " << xpdf1_14tev * xpdf2_14tev << ", SF: " << weight << endl << endl;
+
+  //Set handles
+  event.set(h_x13_1, x1);
+  event.set(h_x13_2, x2);
+  event.set(h_x14_1, x1_14tev);
+  event.set(h_x14_2, x2_14tev);
+  event.set(h_Q, q);
+  event.set(h_xf13_1, xpdf1);
+  event.set(h_xf13_2, xpdf2);
+  event.set(h_xf14_1, xpdf1_14tev);
+  event.set(h_xf14_2, xpdf2_14tev);
+  event.set(h_f1, id1);
+  event.set(h_f2, id2);
+  event.set(h_weight13, w0);
+  event.set(h_weight14, xpdf1_14tev * xpdf2_14tev);
+  event.set(h_sf, weight);
+
+  // This weight has to be applied to the event.weight
+  return weight;
+  
+}
+
+
+
 JetLeptonOverlapCleaner::JetLeptonOverlapCleaner(double RJet_): RJet(RJet_){}
   
 bool JetLeptonOverlapCleaner::process(Event & event){
@@ -113,116 +217,10 @@ ElectronTriggerWeights::ElectronTriggerWeights(Context & ctx, TString path_, TSt
   
 }
 
-/*
 bool ElectronTriggerWeights::process(Event & event){
 
   if(event.isRealData) return true;
 
-  //cout << "Weight before SF: " << event.weight << endl;
-  double prob_notrig_mc = 1, prob_notrig_data = 1;
-  for(const auto & ele : *event.electrons){
-    double eta = ele.eta();
-    if(fabs(eta) > 2.4) throw runtime_error("In LQToTopMuModules.cxx, ElectronTriggerWeights.process(): Ele-|eta| > 2.4 is not supported at the moment.");
-
-
-    //find right bin in eta
-    int idx = 0;
-    bool lowpt = false;
-    if(30 <= ele.pt() && ele.pt() < 120){
-      lowpt = true;
-      //lowpt trigger
-      bool keep_going = true;
-      while(keep_going){
-	double x,y;
-	Eff_lowpt_MC->GetPoint(idx,x,y);
-	keep_going = eta > x + Eff_lowpt_MC->GetErrorXhigh(idx);
-	if(keep_going) idx++;
-      }
-    }
-    else if(ele.pt() >= 120){
-     //highpt trigger
-      bool keep_going = true;
-      while(keep_going){
-	double x,y;
-	Eff_highpt_MC->GetPoint(idx,x,y);
-	keep_going = eta > x + Eff_highpt_MC->GetErrorXhigh(idx);
-	if(keep_going) idx++;
-      }
-    }
-    else throw runtime_error("In LQToTopMuModules.cxx, ElectronTriggerWeights.process(): Electron has pt<30. Clean electron collection before applying weights.");
-
-    //access efficiencies for MC and DATA, possibly accout for systematics = statistical + add. 2% up/down
-    double eff_data = -1, eff_mc = -1, dummy_x;
-    double stat_data = -1, stat_mc = -1, tp = 0.02, total_syst_data = -1, total_syst_mc = -1;
-    if(lowpt){
-      Eff_lowpt_MC->GetPoint(idx,dummy_x,eff_mc);
-      Eff_lowpt_DATA->GetPoint(idx,dummy_x,eff_data);
-
-      if(SysDirection == "up"){		
-	stat_mc = Eff_lowpt_MC->GetErrorYlow(idx);	
-	stat_data = Eff_lowpt_DATA->GetErrorYhigh(idx);
-	total_syst_mc = sqrt(pow(stat_mc,2) + pow(tp,2));
-	total_syst_data = sqrt(pow(stat_data,2) + pow(tp,2));
-
-      	eff_mc -= total_syst_mc;    	
-      	eff_data += total_syst_data;	
-      }							
-      else if(SysDirection == "down"){
-	stat_mc = Eff_lowpt_MC->GetErrorYhigh(idx);	
-	stat_data = Eff_lowpt_DATA->GetErrorYlow(idx);
-	total_syst_mc = sqrt(pow(stat_mc,2) + pow(tp,2));
-	total_syst_data = sqrt(pow(stat_data,2) + pow(tp,2));
-			
-      	eff_mc += Eff_lowpt_MC->GetErrorYhigh(idx);    	
-      	eff_data -= Eff_lowpt_DATA->GetErrorYlow(idx);	
-      }                                                 
-    }
-    else{
-      Eff_highpt_MC->GetPoint(idx,dummy_x,eff_mc);
-      Eff_highpt_DATA->GetPoint(idx,dummy_x,eff_data);
-
-      if(SysDirection == "up"){	
-	stat_mc = Eff_highpt_MC->GetErrorYlow(idx);	
-	stat_data = Eff_highpt_DATA->GetErrorYhigh(idx);
-	total_syst_mc = sqrt(pow(stat_mc,2) + pow(tp,2));
-	total_syst_data = sqrt(pow(stat_data,2) + pow(tp,2));
-			
-	eff_mc -= Eff_highpt_MC->GetErrorYlow(idx);    	
-	eff_data += Eff_highpt_DATA->GetErrorYhigh(idx);	
-      }							
-      else if(SysDirection == "down"){	
-	stat_mc = Eff_highpt_MC->GetErrorYhigh(idx);	
-	stat_data = Eff_highpt_DATA->GetErrorYlow(idx);
-	total_syst_mc = sqrt(pow(stat_mc,2) + pow(tp,2));
-	total_syst_data = sqrt(pow(stat_data,2) + pow(tp,2));
-					
-	eff_mc += Eff_highpt_MC->GetErrorYhigh(idx);    	
-	eff_data -= Eff_highpt_DATA->GetErrorYlow(idx);	
-      }                                                 
-    }
-
-    //multiply to the efficiency for not triggering
-    prob_notrig_mc *= 1-eff_mc;
-    prob_notrig_data *= 1-eff_data;
-
-    //cout << "Efficiency for this ele -- MC: " << eff_mc << ", DATA" << eff_data << endl;
-    //cout << "prob for not triggering -- MC: " << prob_notrig_mc << ", DATA: " << prob_notrig_data << endl;
-
-  }
-
-  //Scale weight by (1-prob_notrig_data) / (1-prob_notrig_mc)
-  double SF = (1-prob_notrig_data)/(1-prob_notrig_mc);
-  event.weight *= SF;
-
-  //cout << "Weight with SF: " << event.weight << endl; 
-  return true;
-}*/
-
-bool ElectronTriggerWeights::process(Event & event){
-
-  if(event.isRealData) return true;
-
-  double prob_notrig_mc = 1, prob_notrig_data = 1;
   const auto ele = event.electrons->at(0);
   double eta = ele.eta();
   if(fabs(eta) > 2.4) throw runtime_error("In LQToTopMuModules.cxx, ElectronTriggerWeights.process(): Ele-|eta| > 2.4 is not supported at the moment.");
@@ -341,7 +339,15 @@ ElectronFakeRateWeights::ElectronFakeRateWeights(Context & ctx, const std::vecto
   unique_ptr<TFile> file;												 
   file.reset(new TFile(path,"READ"));											 
   
-  SF.reset((TGraphAsymmErrors*)file->Get("ScaleFactors"));						 
+  SF.reset((TGraphAsymmErrors*)file->Get("ScaleFactors"));
+  //Read the SF file and store all SFs and their pt-range 
+  n_points = SF->GetN();
+  for(int i=0; i<n_points; i++){
+    double x,y;
+    SF->GetPoint(i,x,y);
+    x_low.emplace_back(x-SF->GetErrorXlow(i));
+    x_high.emplace_back(x+SF->GetErrorXhigh(i));
+  }				 
   
   if(SysDirection != "nominal" && SysDirection != "up" && SysDirection != "down") throw runtime_error("In LQToTopMuModules.cxx, ElectronFakeRateWeights.process(): Invalid SysDirection specified."); 
 
@@ -353,7 +359,7 @@ ElectronFakeRateWeights::ElectronFakeRateWeights(Context & ctx, const std::vecto
   jet_smearer.reset(new GenericJetResolutionSmearer(ctx, label_jets, label_genjets, true, JERSmearing::SF_13TeV_2016));
   if(!jer_was_applied) ctx.set_metadata("jer_applied", "false", true);
 
-  jet_id = AndId<Jet>(JetPFID(JetPFID::WP_LOOSE), PtEtaCut(30.0, 2.5));
+  jet_id = AndId<Jet>(JetPFID(JetPFID::WP_LOOSE), PtEtaCut(30.0, 2.4));
 
   FakeRateWeightEle = ctx.get_handle<double>("FakeRateWeightEle");
   FakeRateWeightEleUp = ctx.get_handle<double>("FakeRateWeightEleUp");
@@ -394,7 +400,7 @@ bool ElectronFakeRateWeights::process(Event & event){
   } 
   else{
     //if ngen and nreco are unequal, try to match muons to muons within 0.1 and to taus within 0.2
-    unsigned int n_matched_to_ele = 0, n_matched_to_tau = 0;
+    unsigned int n_matched_to_ele = 0, n_matched_to_tau = 0, n_matched_to_b = 0, n_matched_to_c = 0;
     for(const auto & ele : *event.electrons){
       bool is_matched = false;
       for(const auto & gp : *event.genparticles){
@@ -410,10 +416,22 @@ bool ElectronFakeRateWeights::process(Event & event){
 	    n_matched_to_tau++;
 	  }
 	}
+	else if(fabs(gp.pdgId()) == 5){ 
+	  if(deltaR(gp,ele) < 0.2 && !is_matched){
+	    is_matched = true;
+	    n_matched_to_b++;
+	  }
+	}
+	else if(fabs(gp.pdgId()) == 4){ 
+	  if(deltaR(gp,ele) < 0.2 && !is_matched){
+	    is_matched = true;
+	    n_matched_to_c++;
+	  }
+	}
       }
       is_fake.push_back(!is_matched);
     }
-    if(n_matched_to_tau + n_matched_to_ele == event.electrons->size()){
+    if(n_matched_to_tau + n_matched_to_ele + n_matched_to_b + n_matched_to_c == event.electrons->size()){
       event.set(FakeRateWeightEle,1.);
       event.set(FakeRateWeightEleUp,1.);
       event.set(FakeRateWeightEleDown,1.);
@@ -436,23 +454,30 @@ bool ElectronFakeRateWeights::process(Event & event){
       if(deltaR(event.electrons->at(i), jet) < 0.4) faking = true;
       if(deltaR(event.electrons->at(i), jet) < dr_min) dr_min = deltaR(event.electrons->at(i), jet);
     }
-    //cout << "jet passes jetid: " << jet_id(jet,event) <<  endl;
-    //cout << "Jet is faking an ele? : " << faking << ", pT: " << jet.pt() << ", dRmin to fake_ele: " << dr_min << endl;
     faking_jet.push_back(faking);
   }
+
 
   //apply SF to the eventweight for each faking jet
   double SF_final = 1, SF_final_up = 1, SF_final_down = 1;
   for(unsigned int i=0; i<jets->size(); i++){
     if(!faking_jet[i]) continue;
+    double pt = event.jets->at(i).pt();
+    
+    //find right bin
     int bin = -1;
-    if(jets->at(i).pt() < 100) bin = 0;
-    else if(jets->at(i).pt() < 200) bin = 1;
-    else bin = 2;
+    for(int j=0; j<n_points; j++){
+      if(pt >= x_low[j] && pt < x_high[j]) bin = j;
+    }
 
     //possibly accout for systematics = statistical, inflate stat unc. by 50% if >800 GeV 
     double x,scale_factor, scale_factor_up, scale_factor_down, mult = 1;
-    if(jets->at(i).pt() > 800) mult = 1.5;
+    if(pt > x_high[n_points-1]){
+      bin = n_points - 1;
+      mult = 1.5;
+    }
+    else if(bin == -1) throw runtime_error("In ElectronFakeRateWeights::process: Did not find right SF-bin for this jet.");
+
     SF->GetPoint(bin,x,scale_factor);
     scale_factor_up   = scale_factor + mult * SF->GetErrorYhigh(bin);
     scale_factor_down = scale_factor - mult * SF->GetErrorYlow(bin);
@@ -488,7 +513,7 @@ MuonFakeRateWeights::MuonFakeRateWeights(Context & ctx, TString path_, TString S
 
   unique_ptr<TFile> file;												 
   file.reset(new TFile(path,"READ"));											 
-  SF.reset((TGraphAsymmErrors*)file->Get("ScaleFactors"));						 
+  SF.reset((TGraphAsymmErrors*)file->Get("ScaleFactors"));							 
   
   if(SysDirection != "nominal" && SysDirection != "up" && SysDirection != "down") throw runtime_error("In LQToTopMuModules.cxx, MuonFakeRateWeights.process(): Invalid SysDirection specified."); 
 
@@ -524,7 +549,7 @@ bool MuonFakeRateWeights::process(Event & event){
   }
   else{
     //if ngen and nreco are unequal, try to match muons to muons within 0.1 and to taus within 0.2
-    unsigned int n_matched_to_muons = 0, n_matched_to_taus = 0;
+    unsigned int n_matched_to_muons = 0, n_matched_to_taus = 0, n_matched_to_b = 0, n_matched_to_c = 0;
     for(const auto & mu : *event.muons){
       bool is_matched = false;
       for(const auto & gp : *event.genparticles){
@@ -540,10 +565,22 @@ bool MuonFakeRateWeights::process(Event & event){
 	    n_matched_to_taus++;
 	  }
 	}
+	else if(fabs(gp.pdgId()) == 5){ 
+	  if(deltaR(gp,mu) < 0.2 && !is_matched){
+	    is_matched = true;
+	    n_matched_to_b++;
+	  }
+	}
+	else if(fabs(gp.pdgId()) == 4){ 
+	  if(deltaR(gp,mu) < 0.2 && !is_matched){
+	    is_matched = true;
+	    n_matched_to_c++;
+	  }
+	}
       }
       is_fake.push_back(!is_matched);
     }
-    if(n_matched_to_taus + n_matched_to_muons == event.muons->size()){
+    if(n_matched_to_taus + n_matched_to_muons + n_matched_to_b + n_matched_to_c == event.muons->size()){
     event.set(FakeRateWeightMu,1.);
     event.set(FakeRateWeightMuUp,1.);
     event.set(FakeRateWeightMuDown,1.);
@@ -773,7 +810,8 @@ bool MuonTrkWeights::process(Event & event){
   double SF = 1.0;
   for(const auto & mu : *event.muons){
     double eta = mu.eta();
-    if(fabs(eta) > 2.4) throw runtime_error("In LQToTopMuModules.cxx, MuonTrkWeights::process(): Mu-|eta| > 2.4 is not supported at the moment.");
+    //if(fabs(eta) > 2.4) throw runtime_error("In LQToTopMuModules.cxx, MuonTrkWeights::process(): Mu-|eta| > 2.4 is not supported at the moment.");
+    if(fabs(eta) > 2.4) eta = 2.39;
     
     //find right bin in eta
     int idx = 0;

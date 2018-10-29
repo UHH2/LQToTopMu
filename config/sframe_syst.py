@@ -12,8 +12,6 @@ sys_uncerts = {
      'NOMINAL'               : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
      'ALPHA_up'              : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
      'ALPHA_down'            : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
-     #'NORMALIZATION_up'      : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
-     #'NORMALIZATION_down'    : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
      'PDF_up'                : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
      'PDF_down'              : {'Systematic_TTbar':'nominal'}, #{...} is a dummy
      'SCALE_upup'            : {'ScaleVariationMuR':'up','ScaleVariationMuF':'up'},
@@ -63,7 +61,7 @@ sys_uncerts = {
      #'JEC_up'               : {'jecsmear_direction':'up'},
      #'JEC_down'             : {'jecsmear_direction':'down'},
      #'JER_up'               : {'jersmear_direction':'up'},
-     #'JER_down'             : {'jersmear_direction':'down'},
+     #'JER_down'             : {'jersmear_direction':'down'}, 
 }
 start_all_parallel = True
 

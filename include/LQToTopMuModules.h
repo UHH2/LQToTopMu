@@ -7,8 +7,29 @@
 #include "UHH2/common/include/JetIds.h"
 #include <TFile.h>
 #include <TGraphAsymmErrors.h>
+#include "LHAPDF/LHAPDF.h"
+#include "TSystem.h"
 
 
+class WeightsTo14TeV : public uhh2::AnalysisModule {
+public:
+
+  explicit WeightsTo14TeV(uhh2::Context & ctx, TString pdfname = "NNPDF30_lo_as_0130");
+  virtual bool process(uhh2::Event & event) override {double dummy=event.weight;dummy+=1;throw std::runtime_error("In LQToTopMuModules.cxx: WeightsTo14TeV::process does not do anything. Use ::calculateWeight(Event) instead.");return false;};
+  double calculateWeight(uhh2::Event & event);
+  
+ private:
+
+  bool m_libvalid;
+  double xmin, xmax, qmin, qmax;
+
+  //std::vector<LHAPDF::PDF*> m_pdfs;
+  LHAPDF::PDF* pdf;
+  //Handles related to 13->14TeV scaling
+  uhh2::Event::Handle<double> h_x13_1, h_x13_2, h_x14_1, h_x14_2, h_Q, h_xf13_1, h_xf13_2, h_xf14_1, h_xf14_2, h_weight13, h_weight14, h_sf;
+  uhh2::Event::Handle<int> h_f1, h_f2;
+  
+};
 
 class JetLeptonOverlapCleaner: public uhh2::AnalysisModule {
 
@@ -70,6 +91,8 @@ class ElectronFakeRateWeights: public uhh2::AnalysisModule{
  protected:
   TString path, SysDirection;
   std::unique_ptr<TGraphAsymmErrors> SF;
+  std::vector<double> x_low, x_high;
+  int n_points;
   std::unique_ptr<JetCorrectorVariable> jet_corrector;
   std::unique_ptr<GenericJetResolutionSmearer> jet_smearer;
   JetId jet_id;

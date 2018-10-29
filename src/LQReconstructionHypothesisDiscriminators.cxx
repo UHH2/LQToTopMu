@@ -33,7 +33,6 @@ const LQReconstructionHypothesis * get_best_hypothesis(const std::vector<LQRecon
         }
     }
     if(std::isfinite(current_best_disc)){
-      //cout << "minimal Chi2: " << current_best_disc << endl;
         return best;
     }
     else{
@@ -56,25 +55,41 @@ bool LQChi2Discriminator::process(uhh2::Event & event){
     const double mass_LQ_diff_rel = -0.0087;
     const double mass_LQ_diff_rel_sigma = 0.090;
     */
-    const double mass_thad = 174;
-    const double mass_thad_sigma = 16;
-    const double mass_tlep = 173;
-    const double mass_tlep_sigma = 22;
+    const double mass_thad = 174.;
+    const double mass_thad_sigma = 16.;
+    const double mass_tlep = 173.;
+    const double mass_tlep_sigma = 22.;
     const double mass_LQ_diff_rel = -0.013;
     const double mass_LQ_diff_rel_sigma = 0.088;
+    const double pt_LQ_diff = 0.65;
+    const double pt_LQ_diff_sigma = 46.;
+    const double pt_ratio = 1;
+    const double pt_ratio_sigma = 0.15;
+    const double dphi_LQ = 3.14;
+    const double dphi_LQ_sigma = 0.09;
     for(auto & hyp: hyps){
         double mass_thad_rec = inv_mass(hyp.tophad_v4());
         double mass_tlep_rec = inv_mass(hyp.toplep_v4());
 	double mass_LQ_had_rec = inv_mass(hyp.LQhad_v4()); // added
 	double mass_LQ_lep_rec = inv_mass(hyp.LQlep_v4()); // added
 	double mass_LQ_mean_rec = (mass_LQ_had_rec + mass_LQ_lep_rec)/2;
+	double pt_ratio_rec = (hyp.LQhad_v4().Pt() / hyp.LQlep_v4().Pt());
+	double dphi_LQ_rec = hyp.LQhad_v4().Phi() - hyp.LQlep_v4().Phi();
+	if(dphi_LQ_rec < 0) dphi_LQ_rec = dphi_LQ_rec + 2*M_PI;
+	double chi2_pt_diff = pow(((hyp.LQhad_v4().Pt() - hyp.LQlep_v4().Pt()) - pt_LQ_diff) / pt_LQ_diff_sigma, 2);
         double chi2_thad = pow((mass_thad_rec - mass_thad) / mass_thad_sigma, 2);
         double chi2_tlep = pow((mass_tlep_rec - mass_tlep) / mass_tlep_sigma, 2);
 	double chi2_MLQdiff_rel = pow(((mass_LQ_had_rec - mass_LQ_lep_rec)/mass_LQ_mean_rec - mass_LQ_diff_rel) / mass_LQ_diff_rel_sigma, 2);
-        hyp.set_discriminator(config.discriminator_label, chi2_thad + chi2_tlep /*+ chi2_MLQdiff*/ + chi2_MLQdiff_rel); // modified
+	double chi2_pt_ratio = pow((pt_ratio_rec - pt_ratio)/pt_ratio_sigma, 2);
+	double chi2_dphi_LQ = pow((dphi_LQ_rec - dphi_LQ)/dphi_LQ_sigma,2);
         hyp.set_discriminator(config.discriminator_label + "_tlep", chi2_tlep);
         hyp.set_discriminator(config.discriminator_label + "_thad", chi2_thad);
         hyp.set_discriminator(config.discriminator_label + "_MLQdiff_rel", chi2_MLQdiff_rel);// added
+        hyp.set_discriminator(config.discriminator_label + "_tlep_MQLdiff_rel", chi2_tlep + chi2_MLQdiff_rel);
+        hyp.set_discriminator(config.discriminator_label, chi2_thad + chi2_tlep + chi2_MLQdiff_rel); // modified
+        //hyp.set_discriminator(config.discriminator_label, chi2_tlep + chi2_MLQdiff_rel); // modified
+        //hyp.set_discriminator(config.discriminator_label, chi2_tlep + chi2_MLQdiff_rel + chi2_pt_diff); // modified
+	//hyp.set_discriminator(config.discriminator_label, chi2_tlep + chi2_MLQdiff_rel + chi2_pt_ratio + chi2_dphi_LQ); // modified
   }
   return true;
 }
@@ -108,129 +123,237 @@ LQCorrectMatchDiscriminator::LQCorrectMatchDiscriminator(Context & ctx, const st
 
 namespace {
 
-// match particle p to one of the jets (Delta R < 0.3); return the deltaR
-// of the match.
-template<typename T> // T should inherit from Particle
-float match_dr(const Particle & p, const std::vector<T> & jets, int& index){
-  float mindr = infinity;
-  index = -1;
-  for(unsigned int i=0; i<jets.size(); ++i){
-    float dR = deltaR(p, jets.at(i));
-    if( dR <0.3 && dR<mindr) {
-      mindr=dR;
-      index=i;
+  // match particle p to one of the jets (Delta R < 0.3); return the deltaR
+  // of the match.
+  template<typename T> // T should inherit from Particle
+  float match_dr(const Particle & p, const std::vector<T> & jets, int& index){
+    float mindr = 999999;
+    index = -1;
+    for(unsigned int i=0; i<jets.size(); ++i){
+      float dR = deltaR(p, jets.at(i));
+      if( dR <0.3 && dR<mindr) {
+	mindr=dR;
+	index=i;
+      }
     }
+    return mindr;
   }
-  return mindr;
-}
 
 
 }
 
 bool LQCorrectMatchDiscriminator::process(uhh2::Event & event){  // replaced 'infinity' with '999999'
-    auto & hyps = event.get(h_hyps);
-    const auto & ttbargen = event.get(h_ttbargen);
-    const auto & LQLQbargen = event.get(h_LQLQbargen);
-    auto dec = ttbargen.DecayChannel();
-    if(dec != TTbarGen::e_ehad){ // if not 1x Electron, 1x hadronic
-        for(auto & hyp: hyps){
-            hyp.set_discriminator(config.discriminator_label, 999999);
-        }
-        return true;
-    }
-    
+  auto & hyps = event.get(h_hyps);
+  const auto & ttbargen = event.get(h_ttbargen);
+  const auto & LQLQbargen = event.get(h_LQLQbargen);
+  auto dec = ttbargen.DecayChannel();
+  if(dec == TTbarGen::e_ehad){ // if not 1x Electron, 1x hadronic  
     // note that it is allowed that two partons from the hadronic ttbar decay match the same jet.
     for(auto & hyp: hyps){
-        auto hadr_jets = hyp.tophad_jets();
-        auto lept_jets = hyp.toplep_jets();
-	auto hadr_mu = hyp.mu_had();
-	auto lept_mu = hyp.mu_lep();
-	auto ele = hyp.electron();
+      auto hadr_jets = hyp.tophad_jets();
+      auto lept_jets = hyp.toplep_jets();
+      auto hadr_mu = hyp.mu_had();
+      auto lept_mu = hyp.mu_lep();
+      auto ele = hyp.electron();
         
-        if(lept_jets.size() != 1){
-            hyp.set_discriminator(config.discriminator_label, 999999);
-            continue;
-        }
-        if(hadr_jets.size() > 3){ // < 3 is allowed ...
-            hyp.set_discriminator(config.discriminator_label, 999999);
-            continue;
-        }
+      if(lept_jets.size() != 1){
+	hyp.set_discriminator(config.discriminator_label, 999999);
+	continue;
+      }
+      if(hadr_jets.size() > 3){ // < 3 is allowed ...
+	hyp.set_discriminator(config.discriminator_label, 999999);
+	continue;
+      }
 
-        //index lists of jets that can be matched to partons
-        std::set<int> matched_hadr_jets;
+      //index lists of jets that can be matched to partons
+      std::set<int> matched_hadr_jets;
 
-        // match b jets
-        int index_l, index_h;
-        float correct_dr = match_dr(ttbargen.BLep(), lept_jets, index_l) + match_dr(ttbargen.BHad(), hadr_jets, index_h);
-        if(index_h >= 0) matched_hadr_jets.insert(index_h);
-        //match quarks from W decays
-        correct_dr += match_dr(ttbargen.Q1(), hadr_jets, index_h);
-        if(index_h >= 0) matched_hadr_jets.insert(index_h);
-        correct_dr += match_dr(ttbargen.Q2(), hadr_jets, index_h);
-        if(index_h >= 0) matched_hadr_jets.insert(index_h);
+      // match b jets
+      int index_l, index_h;
+      float correct_dr = match_dr(ttbargen.BLep(), lept_jets, index_l) + match_dr(ttbargen.BHad(), hadr_jets, index_h);
+      if(index_h >= 0) matched_hadr_jets.insert(index_h);
+      //match quarks from W decays
+      correct_dr += match_dr(ttbargen.Q1(), hadr_jets, index_h);
+      if(index_h >= 0) matched_hadr_jets.insert(index_h);
+      correct_dr += match_dr(ttbargen.Q2(), hadr_jets, index_h);
+      if(index_h >= 0) matched_hadr_jets.insert(index_h);
         
-        // if not all jets of the hadronic side of the reconstruction could be matched: infinite
-        // value:
-        if(matched_hadr_jets.size() != hadr_jets.size()){
-            hyp.set_discriminator(config.discriminator_label, 999999);
-            continue;
-        }
+      // if not all jets of the hadronic side of the reconstruction could be matched: infinite
+      // value:
+      if(matched_hadr_jets.size() != hadr_jets.size()){
+	hyp.set_discriminator(config.discriminator_label, 999999);
+	continue;
+      }
 
-	// match muons: always 1 lept. & 1 had. muon
-	float dR_mu_lept1 = deltaR(LQLQbargen.muLQ(), lept_mu);
-	float dR_mu_lept2 = deltaR(LQLQbargen.muAntiLQ(), lept_mu);
-	float dR_mu_hadr1 = deltaR(LQLQbargen.muLQ(), hadr_mu);
-	float dR_mu_hadr2 = deltaR(LQLQbargen.muAntiLQ(), hadr_mu);
-	float dR_min_ges = 999999;
+      // match muons: always 1 lept. & 1 had. muon
+      float dR_mu_lept1 = deltaR(LQLQbargen.muLQ(), lept_mu);
+      float dR_mu_lept2 = deltaR(LQLQbargen.muAntiLQ(), lept_mu);
+      float dR_mu_hadr1 = deltaR(LQLQbargen.muLQ(), hadr_mu);
+      float dR_mu_hadr2 = deltaR(LQLQbargen.muAntiLQ(), hadr_mu);
+      float dR_min_ges = 999999;
 
-	// calculate dR for all possible matches (R=0.3): exactly 1 muon is assigned to each LQ
-	// lept1 : muLQ - hypothesis
-	if(dR_mu_lept1 <= 0.3 && dR_mu_hadr2 <= 0.3){
-	  if(dR_mu_lept1 + dR_mu_hadr2 < dR_min_ges){
-	    dR_min_ges = dR_mu_lept1 + dR_mu_hadr2;
-	  }
+      // calculate dR for all possible matches (R=0.3): exactly 1 muon is assigned to each LQ
+      // lept1 : muLQ - hypothesis
+      if(dR_mu_lept1 <= 0.3 && dR_mu_hadr2 <= 0.3){
+	if(dR_mu_lept1 + dR_mu_hadr2 < dR_min_ges){
+	  dR_min_ges = dR_mu_lept1 + dR_mu_hadr2;
 	}
-	// lept2 : muLQ - hypothesis
-	if(dR_mu_lept2 <= 0.3 && dR_mu_hadr1 <= 0.3){
-	  if(dR_mu_lept2 + dR_mu_hadr1 < dR_min_ges){
-	    dR_min_ges = dR_mu_lept2 + dR_mu_hadr1;
-	  }
+      }
+      // lept2 : muLQ - hypothesis
+      if(dR_mu_lept2 <= 0.3 && dR_mu_hadr1 <= 0.3){
+	if(dR_mu_lept2 + dR_mu_hadr1 < dR_min_ges){
+	  dR_min_ges = dR_mu_lept2 + dR_mu_hadr1;
 	}
+      }
 
-	// kick out events, where the reconstructed muons are too close to each other or a reconstructed jet
-	int dummie_index;
-	if(match_dr(lept_mu, hadr_jets, dummie_index) <= 0.3) {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
-	if(match_dr(lept_mu, lept_jets, dummie_index) <= 0.3) {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
-	if(match_dr(hadr_mu, hadr_jets, dummie_index) <= 0.3) {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
-	if(match_dr(hadr_mu, lept_jets, dummie_index) <= 0.3) {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
-	if(deltaR(lept_mu, hadr_mu) <= 0.3)                   {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
+      // kick out events, where the reconstructed muons are too close to each other or a reconstructed jet
+      int dummie_index;
+      if(match_dr(lept_mu, hadr_jets, dummie_index) <= 0.3) {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
+      if(match_dr(lept_mu, lept_jets, dummie_index) <= 0.3) {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
+      if(match_dr(hadr_mu, hadr_jets, dummie_index) <= 0.3) {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
+      if(match_dr(hadr_mu, lept_jets, dummie_index) <= 0.3) {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
+      if(deltaR(lept_mu, hadr_mu) <= 0.3)                   {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
 
-	// add minimum of dR. which muon was assigned to which LQ is irrelevant.
-	correct_dr += dR_min_ges;
+      // add minimum of dR. which muon was assigned to which LQ is irrelevant.
+      correct_dr += dR_min_ges;
 
-	// kick out events, where the reconstructed electron is too close to a reco muon or reco jet
-	if(match_dr(ele, hadr_jets, dummie_index) <= 0.3)     {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
-	if(match_dr(ele, lept_jets, dummie_index) <= 0.3)     {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
-	if(deltaR(ele, lept_mu) <= 0.3)                       {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
-	if(deltaR(ele, hadr_mu) <= 0.3)                       {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
+      // kick out events, where the reconstructed electron is too close to a reco muon or reco jet
+      if(match_dr(ele, hadr_jets, dummie_index) <= 0.3)     {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
+      if(match_dr(ele, lept_jets, dummie_index) <= 0.3)     {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
+      if(deltaR(ele, lept_mu) <= 0.3)                       {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
+      if(deltaR(ele, hadr_mu) <= 0.3)                       {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
 
-	// require primary electron to be matched since we expect this one to be the one originating from the W leptonic decay
-	// only 1 out of the 4 gen W-decay products can be a charged lepton. The lepton has already been forced to be an electron by ~L117: dec = EEbarGen::e_ehad
-	float dR_ele = deltaR(ttbargen.ChargedLepton(), ele);
-	if(dR_ele <= 0.3){
-	  correct_dr += dR_ele;
-	}
-	else{
-	  hyp.set_discriminator(config.discriminator_label, 999999);
-	  continue;}
+      // require primary electron to be matched since we expect this one to be the one originating from the W leptonic decay
+      // only 1 out of the 4 gen W-decay products can be a charged lepton. The lepton has already been forced to be an electron by ~L117: dec = EEbarGen::e_ehad
+      float dR_ele = deltaR(ttbargen.ChargedLepton(), ele);
+      if(dR_ele <= 0.3){
+	correct_dr += dR_ele;
+      }
+      else{
+	hyp.set_discriminator(config.discriminator_label, 999999);
+	continue;
+      }
 
-        // add deltaR between reconstructed and true neutrino
-        correct_dr += deltaR(ttbargen.Neutrino(), hyp.neutrino_v4());
+      // add deltaR between reconstructed and true neutrino
+      correct_dr += deltaR(ttbargen.Neutrino(), hyp.neutrino_v4());
 
-	//set final dr as discriminator value
-        hyp.set_discriminator(config.discriminator_label, correct_dr);
+      //set final dr as discriminator value
+      hyp.set_discriminator(config.discriminator_label, correct_dr);
 
     }
     return true;
+  }
+  else if(dec == TTbarGen::e_muhad){
+    // note that it is allowed that two partons from the hadronic ttbar decay match the same jet.
+    for(auto & hyp: hyps){
+      auto hadr_jets = hyp.tophad_jets();
+      auto lept_jets = hyp.toplep_jets();
+      auto hadr_mu = hyp.mu_had();
+      auto lept_mu = hyp.mu_lep();
+      auto mu = hyp.muon();
+        
+      if(lept_jets.size() != 1){
+	hyp.set_discriminator(config.discriminator_label, 999999);
+	continue;
+      }
+      if(hadr_jets.size() > 3){ // < 3 is allowed ...
+	hyp.set_discriminator(config.discriminator_label, 999999);
+	continue;
+      }
+
+      //index lists of jets that can be matched to partons
+      std::set<int> matched_hadr_jets;
+
+      // match b jets
+      int index_l, index_h;
+      float correct_dr = match_dr(ttbargen.BLep(), lept_jets, index_l) + match_dr(ttbargen.BHad(), hadr_jets, index_h);
+      
+      if(index_h >= 0) matched_hadr_jets.insert(index_h);
+      //match quarks from W decays
+      correct_dr += match_dr(ttbargen.Q1(), hadr_jets, index_h);
+      if(index_h >= 0) matched_hadr_jets.insert(index_h);
+      correct_dr += match_dr(ttbargen.Q2(), hadr_jets, index_h);
+      if(index_h >= 0) matched_hadr_jets.insert(index_h);
+        
+      // if not all jets of the hadronic side of the reconstruction could be matched: infinite
+      // value:
+      if(matched_hadr_jets.size() != hadr_jets.size()){
+	hyp.set_discriminator(config.discriminator_label, 999999);
+	continue;
+      }
+
+      // match muons: always 1 lept. & 1 had. muon
+      float dR_mu_lept1 = deltaR(LQLQbargen.muLQ(), lept_mu);
+      float dR_mu_lept2 = deltaR(LQLQbargen.muAntiLQ(), lept_mu);
+      float dR_mu_hadr1 = deltaR(LQLQbargen.muLQ(), hadr_mu);
+      float dR_mu_hadr2 = deltaR(LQLQbargen.muAntiLQ(), hadr_mu);
+      float dR_min_ges = 999999;
+
+      // calculate dR for all possible matches (R=0.3): exactly 1 muon is assigned to each LQ
+      // lept1 : muLQ - hypothesis
+      if(dR_mu_lept1 <= 0.3 && dR_mu_hadr2 <= 0.3){
+	if(dR_mu_lept1 + dR_mu_hadr2 < dR_min_ges){
+	  dR_min_ges = dR_mu_lept1 + dR_mu_hadr2;
+	}
+      }
+      // lept2 : muLQ - hypothesis
+      if(dR_mu_lept2 <= 0.3 && dR_mu_hadr1 <= 0.3){
+	if(dR_mu_lept2 + dR_mu_hadr1 < dR_min_ges){
+	  dR_min_ges = dR_mu_lept2 + dR_mu_hadr1;
+	}
+      }
+
+      // kick out events, where the reconstructed muons are too close to each other or a reconstructed jet
+      int dummie_index;
+      if(match_dr(lept_mu, hadr_jets, dummie_index) <= 0.3) {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
+      if(match_dr(lept_mu, lept_jets, dummie_index) <= 0.3) {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
+      if(match_dr(hadr_mu, hadr_jets, dummie_index) <= 0.3) {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
+      if(match_dr(hadr_mu, lept_jets, dummie_index) <= 0.3) {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
+      if(deltaR(lept_mu, hadr_mu) <= 0.3)                   {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
+
+      // add minimum of dR. which muon was assigned to which LQ is irrelevant.
+      correct_dr += dR_min_ges;
+
+      // kick out events, where the reconstructed electron is too close to a reco muon or reco jet
+      if(match_dr(mu, hadr_jets, dummie_index) <= 0.3)     {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
+      if(match_dr(mu, lept_jets, dummie_index) <= 0.3)     {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
+      if(deltaR(mu, lept_mu) <= 0.3)                       {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
+      if(deltaR(mu, hadr_mu) <= 0.3)                       {hyp.set_discriminator(config.discriminator_label, 999999); continue;}
+
+      // require primary electron to be matched since we expect this one to be the one originating from the W leptonic decay
+      // only 1 out of the 4 gen W-decay products can be a charged lepton. The lepton has already been forced to be an electron by ~L117: dec = EEbarGen::e_ehad
+      float dR_mu = deltaR(ttbargen.ChargedLepton(), mu);
+      if(dR_mu <= 0.3){
+	correct_dr += dR_mu;
+      }
+      else{
+	hyp.set_discriminator(config.discriminator_label, 999999);
+	continue;}
+
+      // add deltaR between reconstructed and true neutrino
+      correct_dr += deltaR(ttbargen.Neutrino(), hyp.neutrino_v4());
+
+      //set final dr as discriminator value
+      hyp.set_discriminator(config.discriminator_label, correct_dr);
+
+    }
+    return true;
+
+
+
+
+
+
+
+
+
+  }
+  else{
+    for(auto & hyp: hyps){
+      hyp.set_discriminator(config.discriminator_label, 999999);
+    }
+    return true;
+
+  }
 }
 

@@ -76,6 +76,21 @@ private:
     uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_recohyps;
 };
 
+class HighMassInclusiveLQReconstruction: public uhh2::AnalysisModule {
+public:
+
+    explicit HighMassInclusiveLQReconstruction(uhh2::Context & ctx, const NeutrinoReconstructionMethod & neutrinofunction, const std::string & label="HighMassInclusiveLQReconstruction");
+
+    virtual bool process(uhh2::Event & event) override;
+
+    virtual ~HighMassInclusiveLQReconstruction();
+
+private:
+    NeutrinoReconstructionMethod m_neutrinofunction;
+    uhh2::Event::Handle<std::vector<LQReconstructionHypothesis>> h_recohyps;
+    uhh2::Event::Handle<FlavorParticle> h_primlep;
+};
+
 
 
 /*class HighMassHadronicLQReconstruction: public uhh2::AnalysisModule {

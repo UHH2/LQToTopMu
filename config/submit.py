@@ -14,7 +14,7 @@ process.append(subprocess.Popen('sframe_main LQToTopMuSidebandAnalysis_EE_JER_up
 for thisproc in process:
     thisproc.wait()
 
-srproc = subprocess.Popen('python sframe_syst.py LQToTopMuAnalysis.xml', shell=True)
-srproc.wait()
-crproc = subprocess.Popen('python sframe_syst_Sideband.py LQToTopMuSidebandAnalysis.xml', shell=True)
-crproc.wait()
+#srproc = subprocess.Popen('python sframe_syst.py LQToTopMuAnalysis.xml', shell=True)
+#srproc.wait()
+#crproc = subprocess.Popen('python sframe_syst_Sideband.py LQToTopMuSidebandAnalysis_EE.xml', shell=True)
+#crproc.wait()

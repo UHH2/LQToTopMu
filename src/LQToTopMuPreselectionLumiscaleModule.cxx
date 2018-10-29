@@ -30,10 +30,10 @@ using namespace uhh2;
 
 namespace uhh2examples {
 
-  class LQToTopMuPreselectionModule: public AnalysisModule {
+  class LQToTopMuPreselectionLumiscaleModule: public AnalysisModule {
   public:
     
-    explicit LQToTopMuPreselectionModule(Context & ctx);
+    explicit LQToTopMuPreselectionLumiscaleModule(Context & ctx);
     virtual bool process(Event & event) override;
   
   private:
@@ -86,9 +86,9 @@ namespace uhh2examples {
   };
 
 
-  LQToTopMuPreselectionModule::LQToTopMuPreselectionModule(Context & ctx){
+  LQToTopMuPreselectionLumiscaleModule::LQToTopMuPreselectionLumiscaleModule(Context & ctx){
     
-    cout << "Hello from LQToTopMuPreselectionModule!" << endl;
+    cout << "Hello from LQToTopMuPreselectionLumiscaleModule!" << endl;
 
     for(auto & kv : ctx.get_all()){
       cout << " " << kv.first << " = " << kv.second << endl;
@@ -96,11 +96,13 @@ namespace uhh2examples {
 
     is_foreff = ctx.get("IsForEff") == "true";
 
-    if(!is_foreff)EleId = AndId<Electron>(ElectronID_Spring16_loose, PtEtaCut(30.0, 2.4));
-    else          EleId = AndId<Electron>(ElectronID_Spring16_tight, PtEtaCut(30.0, 2.4));
-    MuId = AndId<Muon>(MuonIDTight(), PtEtaCut(30.0, 2.4), MuonIso(0.15));
+    // Because this is Lumiscale: all eta-acceptances up to 4.0!
+
+    if(!is_foreff)EleId = AndId<Electron>(ElectronID_Spring16_loose, PtEtaCut(30.0, 4.0));
+    else          EleId = AndId<Electron>(ElectronID_Spring16_tight, PtEtaCut(30.0, 4.0));
+    MuId = AndId<Muon>(MuonIDTight(), PtEtaCut(30.0, 4.0), MuonIso(0.15));
     //MuId = AndId<Muon>(MuonIDTight(), PtEtaCut(30.0, 2.4));
-    Jet_ID = AndId<Jet>(JetPFID(JetPFID::WP_LOOSE), PtEtaCut(30.0, 2.4));
+    Jet_ID = AndId<Jet>(JetPFID(JetPFID::WP_LOOSE), PtEtaCut(30.0, 4.0));
     Btag_loose = CSVBTag(CSVBTag::WP_LOOSE);
 
     is_mc = ctx.get("dataset_type") == "MC";
@@ -219,7 +221,7 @@ namespace uhh2examples {
   }
 
 
-  bool LQToTopMuPreselectionModule::process(Event & event) {
+  bool LQToTopMuPreselectionLumiscaleModule::process(Event & event) {
 
 
     if(!is_mc){
@@ -346,6 +348,6 @@ namespace uhh2examples {
   }
   
 
-  UHH2_REGISTER_ANALYSIS_MODULE(LQToTopMuPreselectionModule)
+  UHH2_REGISTER_ANALYSIS_MODULE(LQToTopMuPreselectionLumiscaleModule)
   
 }

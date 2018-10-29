@@ -37,8 +37,6 @@
 #include "UHH2/common/include/AdditionalSelections.h"
 #include "TFile.h"
 #include "TGraphAsymmErrors.h"
-#include "LHAPDF/LHAPDF.h"
-#include "UHH2/LQToTopMu/include/LQToTopMu14TeVCrossCheckHists.h"
 
 
 using namespace std;
@@ -46,10 +44,10 @@ using namespace uhh2;
 
 namespace uhh2examples {
 
-  class LQToTopMuAnalysisModule: public AnalysisModule {
+  class LQToTopMuAnalysisLumiscaleModule: public AnalysisModule {
   public:
     
-    explicit LQToTopMuAnalysisModule(Context & ctx);
+    explicit LQToTopMuAnalysisLumiscaleModule(Context & ctx);
     virtual bool process(Event & event) override;
     
   private:
@@ -61,7 +59,6 @@ namespace uhh2examples {
     unique_ptr<MCMuonScaleFactor> SF_muonTrigger;
     unique_ptr<ElectronFakeRateWeights> SF_eleFakeRate;
     unique_ptr<MuonTrkWeights> SF_muonTrk;
-    unique_ptr<WeightsTo14TeV> WeightsTo14TeVModule;
 
     unique_ptr<JetCleaner> jetcleaner;
     
@@ -81,7 +78,6 @@ namespace uhh2examples {
     unique_ptr<Hists> h_ht_InvMassVeto, h_ht_finalSelection;
     unique_ptr<Hists> h_Sideband;
     unique_ptr<Hists> h_PDF_variations;
-    unique_ptr<Hists> h_14TeVCrossCheck;
 
     
     MuonId MuId;
@@ -99,7 +95,8 @@ namespace uhh2examples {
     Event::Handle<vector<double>> handle_mmumu;
     Event::Handle<int> handle_nbjets, handle_njets;
 
-    bool do_scale_variation, is_mc, do_pdf_variations, is_foreff, forML, for14tevweights;
+
+    bool do_scale_variation, is_mc, do_pdf_variations, is_foreff, forML;
     string Sys_MuonID, Sys_BTag, Sys_MuonTrigger, Sys_MuonIso, Sys_PU, Sys_EleID, Sys_EleReco, Sys_WJ, Sys_TTbar, Sys_DY, Sys_ST, Sys_DB, Sys_QCD, Sys_TTV, Sys_EleFake, Sys_MuFake, Sys_MuonTrk;
     TString dataset_version, scalevariation_process;
  
@@ -108,15 +105,13 @@ namespace uhh2examples {
     uhh2::Event::Handle<vector<LQReconstructionHypothesis>> h_hyps, h_muonic_hyps, h_inclusive_hyps;
 
     uhh2::Event::Handle<double> h_FakeRateWeightEle, h_FakeRateWeightMu;
-
-
     
   };
   
   
-  LQToTopMuAnalysisModule::LQToTopMuAnalysisModule(Context & ctx){
+  LQToTopMuAnalysisLumiscaleModule::LQToTopMuAnalysisLumiscaleModule(Context & ctx){
     
-    cout << "Hello World from LQToTopMuAnalysisModule!" << endl;
+    cout << "Hello World from LQToTopMuAnalysisLumiscaleModule!" << endl;
 
     for(auto & kv : ctx.get_all()){
       cout << " " << kv.first << " = " << kv.second << endl;
@@ -125,13 +120,12 @@ namespace uhh2examples {
     n_misid = 0;
     scalevariation_process   = ctx.get("ScaleVariationProcess");
     do_scale_variation       = (ctx.get("ScaleVariationMuR") == "up" || ctx.get("ScaleVariationMuR") == "down") || (ctx.get("ScaleVariationMuF") == "up" || ctx.get("ScaleVariationMuF") == "down");
-    if(do_scale_variation && (scalevariation_process != "ttbar") && (scalevariation_process != "dy") && (scalevariation_process != "st") && (scalevariation_process != "wj") && (scalevariation_process != "db") && (scalevariation_process != "ttv")) throw runtime_error("In LQToTopMuAnalysisModule.cxx: Invalid process specified for 'ScaleVariationProcess'.");
+    if(do_scale_variation && (scalevariation_process != "ttbar") && (scalevariation_process != "dy") && (scalevariation_process != "st") && (scalevariation_process != "wj") && (scalevariation_process != "db") && (scalevariation_process != "ttv")) throw runtime_error("In LQToTopMuAnalysisLumiscaleModule.cxx: Invalid process specified for 'ScaleVariationProcess'.");
     do_pdf_variations = ctx.get("b_PDFUncertainties") == "true";
     dataset_version = ctx.get("dataset_version");
     is_mc = ctx.get("dataset_type") == "MC";
     is_foreff = ctx.get("IsForEff") == "true";
     forML = ctx.get("ForML") == "true";
-    for14tevweights = ctx.get("For14TeVWeights") == "true";
     Sys_MuonID = ctx.get("Systematic_MuonID");
     Sys_MuonTrigger = ctx.get("Systematic_MuonTrigger");
     Sys_MuonIso = ctx.get("Systematic_MuonIso");
@@ -156,13 +150,13 @@ namespace uhh2examples {
     Electron_printer.reset(new ElectronPrinter("Electron-Printer"));
     Muon_printer.reset(new MuonPrinter("Muon-Printer"));
     GenParticles_printer.reset(new GenParticlesPrinter(ctx));
-    MuId = AndId<Muon>(MuonIDTight(),PtEtaCut(30.0, 2.4),MuonIso(0.15));
+    MuId = AndId<Muon>(MuonIDTight(),PtEtaCut(30.0, 4.0),MuonIso(0.15));
     //MuId = AndId<Muon>(MuonIDTight(),PtEtaCut(30.0, 2.4));
-    EleId = AndId<Electron>(ElectronID_Spring16_loose,PtEtaCut(30.0, 2.4));
+    EleId = AndId<Electron>(ElectronID_Spring16_loose,PtEtaCut(30.0, 4.0));
 
     Btag_loose = CSVBTag(CSVBTag::WP_LOOSE);
     wp_btag_loose = CSVBTag::WP_LOOSE;
-    jetcleaner.reset(new JetCleaner(ctx,30.0, 2.4));
+    jetcleaner.reset(new JetCleaner(ctx,30.0, 4.0));
 
 
     common.reset(new CommonModules());
@@ -185,9 +179,6 @@ namespace uhh2examples {
 
     //sf_top_pt_reweight.reset(new TopPtReweight(ctx, 0.0615, -0.0005, "", "", true, 1.0)); // https://twiki.cern.ch/twiki/bin/view/CMS/TopPtReweighting
 
-    // For reweighting all events to 14 TeV. The default PDF set is 'NNPDF30_lo_as_0130'. It has been shown in AN2018/122 v6 that it does not matter, which exact PDF is used for reweighting (e.g. LO vs. NLO vs. NNLO).
-    WeightsTo14TeVModule.reset(new WeightsTo14TeV(ctx));
-
     
     h_hyps = ctx.get_handle<vector<LQReconstructionHypothesis>>("HighMassLQReconstruction");
     h_muonic_hyps = ctx.get_handle<vector<LQReconstructionHypothesis>>("HighMassMuonicLQReconstruction");
@@ -209,7 +200,6 @@ namespace uhh2examples {
     else if(Sys_MuFake == "up")   h_FakeRateWeightMu =ctx.get_handle<double>("FakeRateWeightMuUp");
     else if(Sys_MuFake == "down") h_FakeRateWeightMu =ctx.get_handle<double>("FakeRateWeightMuDown");
     else throw runtime_error("Sys_MuFake is not one of the following: ['up', 'down', 'nominal']");
-
 
     
     // 2. set up selections
@@ -364,13 +354,12 @@ namespace uhh2examples {
     h_ht_finalSelection.reset(new HT2dHists(ctx, "HT2d_FinalSelection"));
     h_PDF_variations.reset(new LQToTopMuPDFHists(ctx, "PDF_variations", true, do_pdf_variations));
     h_Sideband.reset(new LQToTopMuHists(ctx, "Sideband_weights_applied"));
-    if(for14tevweights) h_14TeVCrossCheck.reset(new LQToTopMu14TeVCrossCheckHists(ctx, "14TeVCrossCheck_FinalSelection"));
     
     
   }
   
   
-  bool LQToTopMuAnalysisModule::process(Event & event) {
+  bool LQToTopMuAnalysisLumiscaleModule::process(Event & event) {
     //cout << endl << endl << "+++NEW EVENT+++" << endl;
 
     // int ntags = 0;
@@ -382,15 +371,6 @@ namespace uhh2examples {
     //   }
     // }
     // if(ntags < 2) return false;
-
-    //This line changes the event.weight to the weight corresponding to 14 TeV
-    if(is_mc && for14tevweights){
-      double pdfweight = -1.;
-      pdfweight = WeightsTo14TeVModule->calculateWeight(event);
-      if(pdfweight < 0.) throw runtime_error("In LQToTopMuAnalysisModule.cxx: The reweighting to 14 TeV did not work for this event. Investigate?");
-      
-      event.weight *= pdfweight;
-    }
 
     if(is_mc){
       double factor_xsec = -1;
@@ -411,7 +391,7 @@ namespace uhh2examples {
       double sf_xsec = 1;
       if(Sys_TTbar == "up" || Sys_DY == "up"|| Sys_ST == "up"|| Sys_DB == "up"|| Sys_WJ == "up"|| Sys_QCD == "up"|| Sys_TTV == "up") sf_xsec += factor_xsec;
       else if(Sys_TTbar == "down" || Sys_DY == "down"|| Sys_ST == "down"|| Sys_DB == "down"|| Sys_WJ == "down"|| Sys_QCD == "down"|| Sys_TTV == "down") sf_xsec -= factor_xsec;
-      else if(control != 0) throw runtime_error("In LQToTopMuAnalysisModule.cxx: Invalid direction for 'Sys_Rate_YYY' specified.");
+      else if(control != 0) throw runtime_error("In LQToTopMuAnalysisLumiscaleModule.cxx: Invalid direction for 'Sys_Rate_YYY' specified.");
 
       event.weight *= sf_xsec;
     }
@@ -725,7 +705,8 @@ namespace uhh2examples {
 
     h_PDF_variations->fill(event);
     h_Sideband->fill(event);
-    if(for14tevweights) h_14TeVCrossCheck->fill(event);
+
+
 
     event.set(handle_evtwgt, event.weight);
     event.set(handle_nbjets, nbjets);
@@ -738,6 +719,6 @@ namespace uhh2examples {
   }
   
 
-  UHH2_REGISTER_ANALYSIS_MODULE(LQToTopMuAnalysisModule)
+  UHH2_REGISTER_ANALYSIS_MODULE(LQToTopMuAnalysisLumiscaleModule)
 } 
 

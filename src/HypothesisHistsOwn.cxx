@@ -38,6 +38,10 @@ HypothesisHistsOwn::HypothesisHistsOwn(uhh2::Context & ctx, const std::string & 
     M_toplep_rec = book<TH1F>( "M_toplep_rec", "M^{top,lep} [GeV/c^{2}]", 70, 0, 700 ) ;
     M_tophad_rec = book<TH1F>( "M_tophad_rec", "M^{top,had} [GeV/c^{2}]", 70, 0, 700 ) ;
     Pt_ttbar_rec = book<TH1F>( "Pt_ttbar_rec", "P_{T,t#bar{t}}^{rec} [GeV/c]", 60, 0, 600 ) ;
+    Pt_diff_LQ = book<TH1F>( "Pt_diff_LQ", "#Delta p_{T}^{LQ} [GeV]", 50, -500, 500 ) ;
+    Pt_diff_LQ_rel = book<TH1F>( "Pt_diff_LQ_rel", "#Delta p_{T}^{LQ} [GeV]", 50, -0.5, 0.5 ) ;
+    Pt_ratio = book<TH1F>( "Pt_ratio", "p_{T}^{LQ had} / p_{T}^{LQ lep} [GeV]", 100, -5, 5 ) ;
+    DeltaPhi_LQ_LQ = book<TH1F>( "DeltaPhi_LQ_LQ", "#Delta #phi (LQ_{lep}, LQ_{had})", 126, 0, 6.3 ) ;
 
 
     M_LQlep_rec_discriminator_cut  = book<TH1F>("M_LQlep_rec_discriminator_cut", "M_{LQ,lep}^{rec} [GeV/c^{2}]", 40, 0, 2000 );
@@ -50,6 +54,10 @@ HypothesisHistsOwn::HypothesisHistsOwn(uhh2::Context & ctx, const std::string & 
     M_toplep_rec_discriminator_cut = book<TH1F>( "M_toplep_rec_discriminator_cut", "M^{top,lep} [GeV/c^{2}]", 70, 0, 700 ) ;
     M_tophad_rec_discriminator_cut = book<TH1F>( "M_tophad_rec_discriminator_cut", "M^{top,had} [GeV/c^{2}]", 70, 0, 700 ) ;
     Pt_ttbar_rec_discriminator_cut = book<TH1F>( "Pt_ttbar_rec_discriminator_cut", "P_{T,t#bar{t}}^{rec} [GeV/c]", 60, 0, 600 ) ;
+    Pt_diff_LQ_discriminator_cut = book<TH1F>( "Pt_diff_LQ_discriminator_cut", "#Delta p_{T}^{LQ} [GeV]", 50, -500, 500 ) ;
+    Pt_diff_LQ_rel_discriminator_cut = book<TH1F>( "Pt_diff_LQ_rel_discriminator_cut", "#Delta p_{T}^{LQ} [GeV]", 50, -0.5, 0.5 ) ;
+    Pt_ratio_discriminator_cut = book<TH1F>( "Pt_ratio_discriminator_cut", "p_{T}^{LQ had} / p_{T}^{LQ lep} [GeV]", 100, -5, 5 ) ;
+    DeltaPhi_LQ_LQ_discriminator_cut = book<TH1F>( "DeltaPhi_LQ_LQ_discriminator_cut", "#Delta #phi (LQ_{lep}, LQ_{had})", 126, 0, 6.3 ) ;
 
     
     
@@ -98,11 +106,6 @@ void HypothesisHistsOwn::fill(const uhh2::Event & e){
     M_toplep_rec->Fill(mtoplep,weight);
     M_tophad_rec->Fill(mtophad,weight);
 
-    /*cout << "in hyphists: MTopLep: " << mtoplep << ", MTopHad: " << mtophad << endl;
-      cout << "Timelike: " << hyp->toplep_v4().isTimelike() << endl;
-      cout << "2 Masses: " << hyp->toplep_v4().M() << " and " << sqrt( -(hyp->toplep_v4()).mass2()) << endl;
-      cout << "4 vec:    " << hyp->toplep_v4() << endl;*/
-
     Discriminator->Fill(hyp->discriminator(m_discriminator_name) ,weight);
     Discriminator_2->Fill(hyp->discriminator(m_discriminator_name) ,weight); 
     Discriminator_3->Fill(hyp->discriminator(m_discriminator_name) ,weight);
@@ -131,14 +134,25 @@ void HypothesisHistsOwn::fill(const uhh2::Event & e){
     mLQmed_rec = (mLQhad_rec + mLQlep_rec)/2;
     mLQ_rec_diff = mLQhad_rec - mLQlep_rec;
     mLQ_rec_diff_rel = mLQ_rec_diff/mLQmed_rec;
-    //cout << "in hyphists: MLQmean: " << mLQmed_rec << ", mLQdiff: " << mLQ_rec_diff << endl << endl;
-  
+
+    double deltaPt_LQ = hyp->LQhad_v4().Pt() - hyp->LQlep_v4().Pt();
+    double deltaPt_LQ_rel = deltaPt_LQ/((hyp->LQhad_v4().Pt() + hyp->LQlep_v4().Pt())/2);
+    double pt_ratio = hyp->LQhad_v4().Pt() / hyp->LQlep_v4().Pt();
+
+    //calculate dPhi in [0, 2pi]
+    double dphi = (hyp->LQhad_v4().Phi()) - (hyp->LQlep_v4().Phi());
+    if(dphi < 0) dphi += 2*M_PI;
+    
     M_LQlep_rec->Fill(mLQlep_rec, weight);
     M_LQhad_rec->Fill(mLQhad_rec, weight);
     M_LQmax_rec->Fill(mLQmax_rec, weight);
     M_LQmean_rec->Fill(mLQmed_rec, weight);
     M_LQ_rec_diff->Fill(mLQ_rec_diff, weight);
     M_LQ_rec_diff_rel->Fill(mLQ_rec_diff_rel,weight);
+    Pt_diff_LQ->Fill(deltaPt_LQ,weight);
+    Pt_diff_LQ_rel->Fill(deltaPt_LQ_rel,weight);
+    Pt_ratio->Fill(pt_ratio, weight);
+    DeltaPhi_LQ_LQ->Fill(dphi, weight);
     if(hyp->discriminator(m_discriminator_name) < 20){ // 999999 is set as discr. value on CorrectMatchDiscr, if one of the required particles is not matched
       M_LQ_rec_discriminator_cut_diff->Fill(mLQ_rec_diff, weight);
       M_LQ_rec_discriminator_cut_diff_rel->Fill(mLQ_rec_diff_rel,weight);
@@ -150,6 +164,10 @@ void HypothesisHistsOwn::fill(const uhh2::Event & e){
       M_tophad_rec_discriminator_cut->Fill(mtophad,weight);
       M_ttbar_rec_discriminator_cut->Fill(mttbar_rec, weight);
       Pt_ttbar_rec_discriminator_cut->Fill ( ptttbar_rec, weight);
+      Pt_diff_LQ_discriminator_cut->Fill(deltaPt_LQ,weight);
+      Pt_diff_LQ_rel_discriminator_cut->Fill(deltaPt_LQ_rel,weight);
+      Pt_ratio_discriminator_cut->Fill(pt_ratio, weight);
+      DeltaPhi_LQ_LQ_discriminator_cut->Fill(dphi, weight);
     }
   }
 
